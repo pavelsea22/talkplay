@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "TalkPlay Vite UI",
+      "runtimeExecutable": "/Users/pavel/.nvm/versions/node/v24.13.1/bin/node",
+      "runtimeArgs": ["node_modules/.bin/vite"],
+      "port": 5173
+    },
+    {
       "name": "TalkPlay Dev Server",
       "runtimeExecutable": "/Users/pavel/.nvm/versions/node/v24.13.1/bin/node",
       "runtimeArgs": ["dist/server.js"],

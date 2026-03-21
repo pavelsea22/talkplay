@@ -61,3 +61,14 @@ export function pickWord(): WordEntry {
   }
   return wordQueue.pop()!;
 }
+
+/**
+ * Picks n words for a lesson, with no repeats within the lesson.
+ */
+export function pickLesson(n: number): WordEntry[] {
+  const words: WordEntry[] = [];
+  for (let i = 0; i < n; i++) {
+    words.push(pickWord());
+  }
+  return words;
+}
