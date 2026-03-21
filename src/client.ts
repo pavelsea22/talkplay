@@ -1,0 +1,236 @@
+import { processAnswer } from "./evaluate";
+
+const RECORD_SECONDS = 3;
+
+function removeBubbleBackground(img: HTMLImageElement): void {
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, 0, 0);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const w = canvas.width, h = canvas.height;
+
+  const isLight = (x: number, y: number) => {
+    const i = (y * w + x) * 4;
+    return data[i] > 200 && data[i + 1] > 200 && data[i + 2] > 200;
+  };
+
+  // BFS flood-fill from all border pixels, making reachable light pixels transparent
+  const visited = new Uint8Array(w * h);
+  const queue: number[] = [];
+  for (let x = 0; x < w; x++) { queue.push(x, 0); queue.push(x, h - 1); }
+  for (let y = 1; y < h - 1; y++) { queue.push(0, y); queue.push(w - 1, y); }
+
+  for (let qi = 0; qi < queue.length; qi += 2) {
+    const x = queue[qi], y = queue[qi + 1];
+    if (x < 0 || x >= w || y < 0 || y >= h) continue;
+    const idx = y * w + x;
+    if (visited[idx] || !isLight(x, y)) continue;
+    visited[idx] = 1;
+    data[idx * 4 + 3] = 0;
+    queue.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  img.src = canvas.toDataURL();
+}
+
+const WORDS = [
+  "two", "ten", "three", "twelve", "thirteen",
+  "twenty", "thirty", "eight", "thousand", "trillion"
+];
+
+function pickWord(): string {
+  return WORDS[Math.floor(Math.random() * WORDS.length)];
+}
+
+let ttsAudio: HTMLAudioElement | null = null;
+const youGotItAudio = new Audio("/speak?word=You%20got%20it!&raw=1");
+youGotItAudio.preload = "auto";
+
+async function speakWord(word: string, options: { cache?: boolean; raw?: boolean } = {}): Promise<void> {
+  if (options.cache) {
+    youGotItAudio.currentTime = 0;
+    youGotItAudio.play().catch(err => console.error("TTS play failed:", err));
+    return;
+  }
+  try {
+    const rawParam = options.raw ? "&raw=1" : "";
+    const res = await fetch(`/speak?word=${encodeURIComponent(word)}${rawParam}`);
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    if (ttsAudio) { ttsAudio.pause(); URL.revokeObjectURL(ttsAudio.src); }
+    ttsAudio = new Audio(objectUrl);
+    ttsAudio.onended = () => URL.revokeObjectURL(objectUrl);
+    ttsAudio.play().catch(err => console.error("TTS play failed:", err));
+  } catch (err) {
+    console.error("TTS fetch failed:", err);
+  }
+}
+
+const btn        = document.getElementById("mic-btn") as HTMLButtonElement;
+const statusEl   = document.getElementById("status") as HTMLDivElement;
+const countdown  = document.getElementById("countdown") as HTMLDivElement;
+const playback   = document.getElementById("playback") as HTMLDivElement;
+const player     = document.getElementById("audio-player") as HTMLAudioElement;
+const wordEl     = document.getElementById("word") as HTMLSpanElement;
+const feedbackEl = document.getElementById("feedback") as HTMLDivElement;
+const cindyEl    = document.getElementById("cindy") as HTMLImageElement;
+const nextBtn    = document.getElementById("next-btn") as HTMLButtonElement;
+const bubbleBg   = document.getElementById("bubble-bg") as HTMLImageElement;
+
+// Remove white background from bubble PNG on load
+if (bubbleBg.complete) {
+  removeBubbleBackground(bubbleBg);
+} else {
+  bubbleBg.addEventListener("load", () => removeBubbleBackground(bubbleBg), { once: true });
+}
+
+function showCindy(mood: string): void {
+  cindyEl.src = `images/Cindy_${mood}.png`;
+}
+
+function showPrompt(word: string): void {
+  feedbackEl.innerHTML = `Say <strong>${word}</strong>`;
+  feedbackEl.className = "";
+  showCindy("neutral");
+}
+
+nextBtn.addEventListener("click", () => {
+  const next = pickWord();
+  wordEl.textContent = next;
+  showPrompt(next);
+  nextBtn.classList.add("hidden");
+  btn.classList.remove("hidden");
+  statusEl.textContent = "Press the mic to record";
+  wordSpoken = true;
+  speakWord(next);
+});
+
+const firstWord = pickWord();
+wordEl.textContent = firstWord;
+showPrompt(firstWord);
+
+let mediaRecorder: MediaRecorder | null = null;
+let chunks: Blob[] = [];
+let timerInterval: ReturnType<typeof setInterval> | null = null;
+let retryCount = 0;
+let wordSpoken = false;
+
+btn.addEventListener("click", async () => {
+  if (mediaRecorder && mediaRecorder.state === "recording") return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    startRecording(stream);
+  } catch (err) {
+    statusEl.textContent = "Microphone access denied.";
+    console.error(err);
+  }
+});
+
+async function blobToWav(blob: Blob): Promise<ArrayBuffer> {
+  const arrayBuffer = await blob.arrayBuffer();
+  const audioCtx = new AudioContext();
+  const decoded = await audioCtx.decodeAudioData(arrayBuffer);
+  await audioCtx.close();
+
+  const targetRate = 16000;
+  const offlineCtx = new OfflineAudioContext(1, Math.ceil(decoded.duration * targetRate), targetRate);
+  const source = offlineCtx.createBufferSource();
+  source.buffer = decoded;
+  source.connect(offlineCtx.destination);
+  source.start();
+  const resampled = await offlineCtx.startRendering();
+  return encodeWav(resampled.getChannelData(0), targetRate);
+}
+
+function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
+  const pcm = new Int16Array(samples.length);
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+  const buf = new ArrayBuffer(44 + pcm.byteLength);
+  const view = new DataView(buf);
+  const w = (off: number, str: string) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
+  w(0, "RIFF"); view.setUint32(4, 36 + pcm.byteLength, true);
+  w(8, "WAVE"); w(12, "fmt ");
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  w(36, "data"); view.setUint32(40, pcm.byteLength, true);
+  new Int16Array(buf, 44).set(pcm);
+  return buf;
+}
+
+async function startRecording(stream: MediaStream): Promise<void> {
+  chunks = [];
+  playback.style.display = "none";
+  btn.disabled = true;
+
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+  mediaRecorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(chunks, { type: mediaRecorder!.mimeType });
+
+    try {
+      const wavBuffer = await blobToWav(blob);
+      const form = new FormData();
+      form.append("audio", new Blob([wavBuffer], { type: "audio/wav" }), "audio.wav");
+      form.append("words", JSON.stringify([wordEl.textContent]));
+      const res = await fetch("/transcribe", { method: "POST", body: form });
+      const { transcript } = await res.json();
+
+      const outcome = processAnswer(transcript, wordEl.textContent!, retryCount);
+      feedbackEl.textContent = outcome.screenMessage;
+      feedbackEl.className = outcome.screenClass;
+      statusEl.textContent = "";
+      showCindy(outcome.cindyMood);
+
+      if (outcome.spoken) speakWord(outcome.spoken, outcome.correct ? { cache: true } : { raw: true });
+
+      if (outcome.correct) {
+        retryCount = 0;
+        btn.classList.add("hidden");
+        nextBtn.classList.remove("hidden");
+      } else {
+        retryCount++;
+        statusEl.textContent = "Press the mic to record";
+      }
+    } catch (err) {
+      feedbackEl.textContent = "(transcription error)";
+      console.error(err);
+    }
+
+    btn.disabled = false;
+  };
+
+  mediaRecorder.start();
+
+  statusEl.textContent = "Get ready…";
+  if (!wordSpoken) { speakWord(wordEl.textContent!); wordSpoken = true; }
+  await new Promise(r => setTimeout(r, 1000));
+
+  btn.classList.add("recording");
+  let remaining = RECORD_SECONDS;
+  countdown.textContent = String(remaining);
+  countdown.classList.remove("hidden");
+  statusEl.textContent = "Speak now!";
+
+  timerInterval = setInterval(() => {
+    remaining -= 1;
+    if (remaining > 0) {
+      countdown.textContent = String(remaining);
+    } else {
+      clearInterval(timerInterval!);
+      countdown.classList.add("hidden");
+      mediaRecorder!.stop();
+      btn.classList.remove("recording");
+      btn.disabled = false;
+      statusEl.textContent = "Processing…";
+    }
+  }, 1000);
+}

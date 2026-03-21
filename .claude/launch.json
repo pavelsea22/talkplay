@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "TalkPlay Dev Server",
+      "runtimeExecutable": "/Users/pavel/.nvm/versions/node/v20.19.4/bin/node",
+      "runtimeArgs": ["dist/server.js"],
+      "port": 3000
+    },
+    {
+      "name": "TalkPlay (production build)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "port": 3000
+    }
+  ]
+}

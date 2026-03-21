@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalkPlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f13;
+      color: #f0f0f0;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+
+    h1 {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+    }
+
+    #btn-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    #mic-btn, #next-btn {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      cursor: pointer;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+      font-weight: 700;
+      color: #fff;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    #mic-btn {
+      border-radius: 50%;
+      background: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(37, 99, 235, 0.4);
+    }
+
+    #mic-btn:hover { background: #1d4ed8; }
+    #mic-btn:active { transform: scale(0.96); }
+
+    #mic-btn.recording {
+      background: #dc2626;
+      box-shadow: 0 4px 24px rgba(220, 38, 38, 0.5);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 4px 24px rgba(220, 38, 38, 0.5); }
+      50%       { box-shadow: 0 4px 40px rgba(220, 38, 38, 0.85); }
+    }
+
+    #mic-btn svg { width: 48px; height: 48px; pointer-events: none; }
+    #mic-btn.hidden { display: none; }
+
+    #status {
+      margin-top: 1.8rem;
+      font-size: 1.4rem;
+      color: #9ca3af;
+      min-height: 1.4em;
+      text-align: center;
+    }
+
+    #countdown {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #dc2626;
+      min-height: 4rem;
+      margin-top: 0.5rem;
+      transition: opacity 0.3s;
+    }
+
+    #countdown.hidden { opacity: 0; }
+
+    #playback {
+      margin-top: 2rem;
+      display: none;
+    }
+
+    audio { accent-color: #2563eb; }
+
+
+
+    #next-btn {
+      border-radius: 16px;
+      background: #2563eb;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 24px rgba(37, 99, 235, 0.4);
+    }
+    #next-btn:hover { background: #1d4ed8; }
+    #next-btn:active { transform: scale(0.96); }
+    #next-btn.hidden { display: none; }
+
+    #cindy-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    #cindy {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    #bubble-wrap {
+      position: relative;
+      width: 280px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #bubble-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scaleX(-1);
+    }
+
+    #feedback {
+      position: relative;
+      z-index: 2;
+      padding: 0.75rem 2rem 1.5rem 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-align: center;
+      color: #1a1a2e;
+      line-height: 1.2;
+    }
+
+    #feedback strong { color: #1a6ed8; }
+    #feedback.correct { color: #15803d; }
+    #feedback.incorrect { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <h1>TalkPlay</h1>
+  <span id="word" style="display:none"></span>
+
+  <div id="cindy-area">
+    <img id="cindy" src="images/Cindy_neutral.png" alt="Cindy" />
+    <div id="bubble-wrap">
+      <img id="bubble-bg" src="images/speech_bubble.png" alt="" />
+      <div id="feedback"></div>
+    </div>
+  </div>
+
+  <div id="btn-container">
+    <button id="mic-btn" aria-label="Start recording">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="2" width="6" height="12" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="8"  y1="22" x2="16" y2="22"/>
+      </svg>
+    </button>
+    <button id="next-btn" class="hidden">Next →</button>
+  </div>
+
+  <div id="countdown" class="hidden"></div>
+  <div id="status">Press the mic to record</div>
+
+  <div id="playback">
+    <audio id="audio-player" controls></audio>
+  </div>
+
+  <script src="client.js"></script>
+</body>
+</html>
