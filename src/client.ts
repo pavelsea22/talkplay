@@ -2,6 +2,12 @@ import { processAnswer } from "./evaluate";
 
 const RECORD_SECONDS = 3;
 
+/**
+ * Removes the white rectangular background from a speech bubble PNG using a
+ * BFS flood-fill from the image border. Any light-coloured pixel reachable
+ * from the edge (without crossing the dark bubble outline) is made fully
+ * transparent, leaving the bubble interior white.
+ */
 function removeBubbleBackground(img: HTMLImageElement): void {
   const canvas = document.createElement("canvas");
   canvas.width = img.naturalWidth;
@@ -42,6 +48,7 @@ const WORDS = [
   "twenty", "thirty", "eight", "thousand", "trillion"
 ];
 
+/** Returns a random word from the word list. */
 function pickWord(): string {
   return WORDS[Math.floor(Math.random() * WORDS.length)];
 }
@@ -50,6 +57,14 @@ let ttsAudio: HTMLAudioElement | null = null;
 const youGotItAudio = new Audio("/speak?word=You%20got%20it!&raw=1");
 youGotItAudio.preload = "auto";
 
+/**
+ * Plays a word or phrase via Azure TTS.
+ * - `cache: true` replays the pre-fetched "You got it!" audio instantly.
+ * - `raw: true` sends the text as-is to the server (no "Say " prefix).
+ * - Default: the server prepends "Say " before synthesizing.
+ *
+ * Any currently playing TTS audio is stopped before the new one starts.
+ */
 async function speakWord(word: string, options: { cache?: boolean; raw?: boolean } = {}): Promise<void> {
   if (options.cache) {
     youGotItAudio.currentTime = 0;
@@ -87,10 +102,12 @@ if (bubbleBg.complete) {
   bubbleBg.addEventListener("load", () => removeBubbleBackground(bubbleBg), { once: true });
 }
 
+/** Updates Cindy's image to reflect the given mood. */
 function showCindy(mood: string): void {
   cindyEl.src = `images/Cindy_${mood}.png`;
 }
 
+/** Renders the word prompt in the speech bubble and resets Cindy to neutral. */
 function showPrompt(word: string): void {
   feedbackEl.innerHTML = `Say <strong>${word}</strong>`;
   feedbackEl.className = "";
@@ -129,6 +146,11 @@ btn.addEventListener("click", async () => {
   }
 });
 
+/**
+ * Converts a raw audio Blob (e.g. WebM/Opus from MediaRecorder) into a
+ * 16 kHz mono PCM WAV ArrayBuffer suitable for the Azure Speech SDK.
+ * Uses the Web Audio API to decode and resample the audio.
+ */
 async function blobToWav(blob: Blob): Promise<ArrayBuffer> {
   const arrayBuffer = await blob.arrayBuffer();
   const audioCtx = new AudioContext();
@@ -145,6 +167,13 @@ async function blobToWav(blob: Blob): Promise<ArrayBuffer> {
   return encodeWav(resampled.getChannelData(0), targetRate);
 }
 
+/**
+ * Encodes a Float32Array of mono PCM samples into a WAV ArrayBuffer.
+ * Produces a standard 44-byte RIFF/WAVE header followed by 16-bit PCM data.
+ *
+ * @param samples - Normalised audio samples in the range [-1, 1].
+ * @param sampleRate - Sample rate in Hz (e.g. 16000).
+ */
 function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
   const pcm = new Int16Array(samples.length);
   for (let i = 0; i < samples.length; i++) {
@@ -164,6 +193,14 @@ function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
   return buf;
 }
 
+/**
+ * Starts a recording session from the given MediaStream.
+ * Sequence:
+ * 1. Shows a 1-second "Get ready…" pre-roll (speaks the word prompt on first attempt).
+ * 2. Records for {@link RECORD_SECONDS} seconds with a live countdown.
+ * 3. On stop: converts audio to WAV, sends to /transcribe, evaluates the result,
+ *    updates the UI and speaks the feedback.
+ */
 async function startRecording(stream: MediaStream): Promise<void> {
   chunks = [];
   playback.style.display = "none";

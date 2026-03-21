@@ -10,6 +10,16 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.static(path.join(__dirname, "public")));
 
+/**
+ * Transcribes a 16 kHz mono PCM WAV buffer using the Azure Speech SDK.
+ * Applies phrase list biasing so that the recognizer favours the expected words.
+ *
+ * @param wavBuffer - Raw WAV file bytes (Node.js Buffer, includes 44-byte header).
+ * @param key - Azure Speech subscription key.
+ * @param region - Azure region (e.g. "westus").
+ * @param words - Candidate words to bias the recognizer toward.
+ * @returns The recognised text, or an empty string if no speech was detected.
+ */
 function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     const speechConfig = sdk.SpeechConfig.fromSubscription(key, region);
@@ -48,6 +58,14 @@ function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words
   });
 }
 
+/**
+ * GET /speak
+ * Synthesises speech via Azure TTS and returns an MP3 audio stream.
+ *
+ * Query params:
+ * - `word` (required) – Text to synthesise.
+ * - `raw=1` (optional) – If set, speaks the text as-is; otherwise prepends "Say ".
+ */
 app.get("/speak", async (req, res) => {
   const word = (req.query.word as string)?.trim();
   if (!word) { res.status(400).end(); return; }
@@ -74,6 +92,14 @@ app.get("/speak", async (req, res) => {
   res.send(Buffer.from(await response.arrayBuffer()));
 });
 
+/**
+ * POST /transcribe
+ * Accepts a WAV audio file and returns the recognised transcript.
+ *
+ * Form fields:
+ * - `audio` – WAV file (multipart/form-data).
+ * - `words` – JSON array of candidate words for phrase list biasing.
+ */
 app.post("/transcribe", upload.single("audio"), async (req, res) => {
   if (!req.file) { res.status(400).json({ error: "No audio file received" }); return; }
 

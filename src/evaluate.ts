@@ -5,6 +5,11 @@ export const NUM_WORDS: Record<string, string> = {
   "100":"hundred","1000":"thousand","1000000":"million","1000000000000":"trillion"
 };
 
+/**
+ * Normalizes a speech transcript into an array of lowercase words.
+ * Converts numeric digits to their word equivalents (e.g. "10" → "ten"),
+ * strips punctuation, and splits on whitespace.
+ */
 export function normalizeTranscript(transcript: string): string[] {
   return transcript.toLowerCase()
     .replace(/\b\d+\b/g, n => NUM_WORDS[n] || n)
@@ -20,7 +25,16 @@ export interface AnswerOutcome {
   showNext: boolean;
 }
 
-/** retryCount: number of failed attempts *before* this one (0 = first attempt) */
+/**
+ * Evaluates the user's spoken response against the target word.
+ * Accepts the answer if any word in the transcript matches the target,
+ * allowing for repeated words (e.g. "three three") and numeral variants (e.g. "3").
+ *
+ * @param transcript - Raw text returned by the speech recognizer.
+ * @param targetWord - The word the user was prompted to say.
+ * @param retryCount - Number of failed attempts before this one (0 = first attempt).
+ * @returns An {@link AnswerOutcome} describing what to show and say.
+ */
 export function processAnswer(
   transcript: string,
   targetWord: string,
