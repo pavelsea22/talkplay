@@ -5,11 +5,11 @@ import path from "path";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT ?? "3000");
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "public/lessons.html")));
-app.get("/activity", (_req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
+app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
+app.get("/activity", (_req, res) => res.sendFile(path.join(__dirname, "public/activity/index.html")));
 
 app.use(express.static(path.join(__dirname, "public")));
 

@@ -2,13 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/server.ts", "src/evaluate.ts", "src/arrayUtils.ts", "src/words.ts"]
 }
