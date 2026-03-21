@@ -42,53 +42,14 @@
       gap: 1.5rem;
       justify-content: center;
     }
-
-    .card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 160px;
-      height: 180px;
-      background: #1e1e2e;
-      border: 2px solid #2d2d44;
-      border-radius: 20px;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      gap: 0.5rem;
-    }
-
-    .card:hover {
-      background: #25253a;
-      border-color: #2563eb;
-    }
-
-    .card:active { transform: scale(0.97); }
-
-    .card-sound {
-      font-size: 3.5rem;
-      font-weight: 800;
-      color: #60a5fa;
-      line-height: 1;
-    }
-
-    .card-label {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #9ca3af;
-    }
   </style>
 </head>
 <body>
   <h1>TalkPlay</h1>
   <p class="subtitle">Choose a sound to practise</p>
   <div class="cards">
-    <a class="card" href="/activity">
-      <span class="card-sound">/T/</span>
-      <span class="card-label">10 words</span>
-    </a>
+    <lesson-card sound="/T/" label="10 words" href="/activity"></lesson-card>
   </div>
+  <script src="lessons.js"></script>
 </body>
 </html>

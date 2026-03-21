@@ -1,17 +1,18 @@
 {
   "name": "talkplay",
   "version": "1.0.0",
-"scripts": {
+  "scripts": {
     "lint": "eslint src tests",
-    "build": "npm run lint && tsc && cp -r src/public dist/ && esbuild src/client.ts --bundle --outfile=dist/public/client.js",
+    "build": "npm run lint && tsc && cp -r src/public dist/ && esbuild src/client.ts --bundle --outfile=dist/public/client.js && esbuild src/lessons-components.ts --bundle --outfile=dist/public/lessons.js",
     "start": "node dist/server.js",
-    "dev": "npm run lint && tsc --skipLibCheck && cp -r src/public dist/ && esbuild src/client.ts --bundle --outfile=dist/public/client.js && node dist/server.js",
+    "dev": "npm run lint && tsc --skipLibCheck && cp -r src/public dist/ && esbuild src/client.ts --bundle --outfile=dist/public/client.js && esbuild src/lessons-components.ts --bundle --outfile=dist/public/lessons.js && node dist/server.js",
     "test": "jest",
     "verify": "npm run lint && npm test"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
+    "lit": "^3.3.2",
     "microsoft-cognitiveservices-speech-sdk": "^1.48.0",
     "multer": "^1.4.5-lts.1"
   },
