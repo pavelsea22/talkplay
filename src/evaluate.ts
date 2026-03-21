@@ -72,7 +72,7 @@ export function processAnswer(
 
   const spokenMessage = !displayHeard
     ? "No speech detected, try again!"
-    : `I heard ${displayHeard}, try again!`;
+    : `I heard "${displayHeard}", try again!`;
 
   return {
     correct: false,

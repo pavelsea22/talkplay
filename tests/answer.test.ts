@@ -31,7 +31,7 @@ describe("Incorrect answer", () => {
   });
 
   it("speaks the feedback message", () => {
-    expect(outcome.spoken).toBe("I heard twenty, try again!");
+    expect(outcome.spoken).toBe('I heard "twenty", try again!');
   });
 
   it("shows sad Cindy on first/second attempt", () => {

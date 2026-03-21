@@ -5,6 +5,7 @@
   import SpeechBubble from './SpeechBubble.svelte';
 
   const RECORD_SECONDS = 3;
+  const ERROR_DISPLAY_MS = 2000;
 
   const initialEntry = pickWord();
   let currentEntry = $state(initialEntry);
@@ -94,9 +95,12 @@
           speakWord(outcome.spoken!, { raw: true }); // fire-and-forget for "You got it!"
         } else {
           retryCount++;
-          // Await TTS so the button stays disabled until the full message has played,
-          // preventing the user from clicking mic mid-sentence and cutting it off.
-          await speakWord(outcome.spoken!, { raw: true });
+          // Wait for both TTS to finish and 2 s to elapse, then restore the word prompt.
+          await Promise.all([
+            speakWord(outcome.spoken!, { raw: true }),
+            new Promise(r => setTimeout(r, ERROR_DISPLAY_MS)),
+          ]);
+          showPrompt();
           status = "Press the mic to record";
           micDisabled = false;
         }
