@@ -106,33 +106,23 @@ function pickWord(): WordEntry {
   return wordQueue.pop()!;
 }
 
-// Shared AudioContext for all TTS playback — avoids per-element session handoffs.
-let ttsCtx: AudioContext | null = null;
-let currentSource: AudioBufferSourceNode | null = null;
-
-/** Returns the shared TTS AudioContext, creating it if needed. */
-function getTtsContext(): AudioContext {
-  if (!ttsCtx || ttsCtx.state === "closed") {
-    ttsCtx = new AudioContext();
-  }
-  return ttsCtx;
-}
+// Currently playing TTS element — stopped when a new one starts.
+let currentAudio: HTMLAudioElement | null = null;
 
 /**
  * Stops any currently playing TTS audio immediately.
  */
 function stopCurrentTts(): void {
-  if (currentSource) {
-    currentSource.onended = null;
-    try { currentSource.stop(); } catch { /* already stopped */ }
-    currentSource = null;
+  if (currentAudio) {
+    currentAudio.onended = null;
+    currentAudio.pause();
+    URL.revokeObjectURL(currentAudio.src);
+    currentAudio = null;
   }
 }
 
 /**
  * Plays a word or phrase via Azure TTS and resolves when playback ends.
- * Audio is fully decoded into an AudioBuffer before playback begins,
- * eliminating mid-stream buffering interruptions.
  *
  * - `raw: true` sends the text as-is to the server (no "Say " prefix).
  * - Default: the server prepends "Say " before synthesizing.
@@ -144,22 +134,18 @@ async function speakWord(word: string, options: { raw?: boolean } = {}): Promise
   try {
     const rawParam = options.raw ? "&raw=1" : "";
     const res = await fetch(`/speak?word=${encodeURIComponent(word)}${rawParam}`);
-    const arrayBuffer = await res.arrayBuffer();
-
-    const ctx = getTtsContext();
-    if (ctx.state === "suspended") await ctx.resume();
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
 
     stopCurrentTts();
 
-    const source = ctx.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(ctx.destination);
-    currentSource = source;
+    const audio = new Audio(url);
+    currentAudio = audio;
 
     return new Promise<void>(resolve => {
-      source.onended = () => { currentSource = null; resolve(); };
-      source.start();
+      audio.onended = () => { URL.revokeObjectURL(url); currentAudio = null; resolve(); };
+      audio.onerror = () => { URL.revokeObjectURL(url); currentAudio = null; resolve(); };
+      audio.play();
     });
   } catch (err) {
     console.error("TTS failed:", err);
