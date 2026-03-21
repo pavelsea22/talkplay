@@ -5,13 +5,17 @@
     cindyMood,
     illustration,
     showIllustration,
-    feedbackHtml,
+    feedbackWord,
+    feedbackText,
     feedbackClass,
   }: {
     cindyMood: string;
     illustration: string;
     showIllustration: boolean;
-    feedbackHtml: string;
+    /** Non-null when showing the word prompt ("Say {word}"). Rendered as plain text — no HTML injection. */
+    feedbackWord: string | null;
+    /** Plain-text message for correct/incorrect feedback. */
+    feedbackText: string;
     feedbackClass: string;
   } = $props();
 
@@ -75,7 +79,13 @@
       {#if showIllustration}
         <img class="word-illustration" src="/{illustration}" alt="" />
       {/if}
-      <div class="feedback {feedbackClass}">{@html feedbackHtml}</div>
+      <div class="feedback {feedbackClass}">
+        {#if feedbackWord !== null}
+          Say <strong>{feedbackWord}</strong>
+        {:else}
+          {feedbackText}
+        {/if}
+      </div>
     </div>
   </div>
 </div>

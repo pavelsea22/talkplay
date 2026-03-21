@@ -5,6 +5,7 @@
   import SpeechBubble from './SpeechBubble.svelte';
 
   const RECORD_SECONDS = 3;
+  const PRE_ROLL_MS = 1000;
   const ERROR_DISPLAY_MS = 2000;
 
   const initialEntry = pickWord();
@@ -15,7 +16,8 @@
   let showNext = $state(false);
   let micDisabled = $state(false);
   let cindyMood = $state('neutral');
-  let feedbackHtml = $state(`Say <strong>${initialEntry.word}</strong>`);
+  let feedbackWord = $state<string | null>(initialEntry.word);
+  let feedbackText = $state('');
   let feedbackClass = $state('');
   let showIllustration = $state(true);
   let wordSpoken = $state(false);
@@ -24,21 +26,24 @@
   let chunks: Blob[] = $state([]);
   let timerInterval: ReturnType<typeof setInterval> | null = $state(null);
 
-  /** Updates the UI to show the word prompt for a given entry. */
+  /** Updates the UI to show the word prompt for the current entry. */
   function showPrompt(): void {
-    feedbackHtml = `Say <strong>${currentEntry.word}</strong>`;
+    feedbackWord = currentEntry.word;
+    feedbackText = '';
     feedbackClass = '';
     showIllustration = true;
     cindyMood = 'neutral';
   }
 
   async function handleMicClick(): Promise<void> {
-    if (mediaRecorder && mediaRecorder.state === "recording") return;
+    if (mediaRecorder?.state === "recording") return;
+    micDisabled = true; // prevent double-clicks during the async getUserMedia call
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       startRecording(stream);
     } catch (err) {
       status = "Microphone access denied.";
+      micDisabled = false;
       console.error(err);
     }
   }
@@ -51,14 +56,14 @@
     status = "Press the mic to record";
     retryCount = 0;
     wordSpoken = false;
-    speakWord(currentEntry.word);
+    speakWord(currentEntry.word).catch(err => console.error("TTS failed:", err));
     wordSpoken = true;
   }
 
   /**
    * Starts a recording session from the given MediaStream.
    * Sequence:
-   * 1. Shows a 1-second "Get ready…" pre-roll (speaks the word prompt on first attempt).
+   * 1. Shows a {@link PRE_ROLL_MS} "Get ready…" pre-roll (speaks the word on first attempt).
    * 2. Records for {@link RECORD_SECONDS} seconds with a live countdown.
    * 3. On stop: converts audio to WAV, sends to /transcribe, evaluates the result,
    *    updates the UI and speaks the feedback.
@@ -67,11 +72,31 @@
     chunks = [];
     micDisabled = true;
 
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-    mediaRecorder.onstop = async () => {
+    // Construct the recorder — if the browser rejects the format, clean up immediately.
+    let recorder: MediaRecorder;
+    try {
+      recorder = new MediaRecorder(stream);
+    } catch (err) {
       stream.getTracks().forEach(t => t.stop());
-      const blob = new Blob(chunks, { type: mediaRecorder!.mimeType });
+      status = "Recording is not supported on this device.";
+      micDisabled = false;
+      console.error(err);
+      return;
+    }
+
+    // Capture mimeType now so onstop doesn't need to reference mediaRecorder via closure.
+    const mimeType = recorder.mimeType;
+    mediaRecorder = recorder;
+
+    recorder.ondataavailable = (e) => chunks.push(e.data);
+    recorder.onstop = async () => {
+      // Always stop the stream and clear any leftover countdown state.
+      stream.getTracks().forEach(t => t.stop());
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      countdownValue = null;
+      isRecording = false;
+
+      const blob = new Blob(chunks, { type: mimeType });
 
       try {
         const wavBuffer = await blobToWav(blob);
@@ -79,11 +104,13 @@
         form.append("audio", new Blob([wavBuffer], { type: "audio/wav" }), "audio.wav");
         form.append("words", JSON.stringify([currentEntry.word]));
         const res = await fetch("/transcribe", { method: "POST", body: form });
+        if (!res.ok) throw new Error(`Transcription request failed: ${res.status}`);
         const { transcript } = await res.json() as { transcript: string };
 
         const outcome = processAnswer(transcript, currentEntry.word, retryCount);
         showIllustration = false;
-        feedbackHtml = outcome.screenMessage;
+        feedbackWord = null;
+        feedbackText = outcome.screenMessage;
         feedbackClass = outcome.screenClass;
         status = '';
         cindyMood = outcome.cindyMood;
@@ -92,12 +119,14 @@
           retryCount = 0;
           showNext = true;
           micDisabled = true;
-          speakWord(outcome.spoken!, { raw: true }); // fire-and-forget for "You got it!"
+          // Fire-and-forget — a TTS failure here is non-critical.
+          speakWord(outcome.spoken!, { raw: true }).catch(err => console.error("TTS failed:", err));
         } else {
           retryCount++;
-          // Wait for both TTS to finish and 2 s to elapse, then restore the word prompt.
+          // Wait for both TTS to finish and ERROR_DISPLAY_MS to elapse.
+          // TTS errors are logged but don't block the flow.
           await Promise.all([
-            speakWord(outcome.spoken!, { raw: true }),
+            speakWord(outcome.spoken!, { raw: true }).catch(err => console.error("TTS failed:", err)),
             new Promise(r => setTimeout(r, ERROR_DISPLAY_MS)),
           ]);
           showPrompt();
@@ -105,17 +134,21 @@
           micDisabled = false;
         }
       } catch (err) {
-        feedbackHtml = "(transcription error)";
+        feedbackWord = null;
+        feedbackText = "(transcription error)";
         console.error(err);
         micDisabled = false;
       }
     };
 
-    mediaRecorder.start();
+    recorder.start();
 
     status = "Get ready…";
-    if (!wordSpoken) { speakWord(currentEntry.word); wordSpoken = true; }
-    await new Promise(r => setTimeout(r, 1000));
+    if (!wordSpoken) {
+      speakWord(currentEntry.word).catch(err => console.error("TTS failed:", err));
+      wordSpoken = true;
+    }
+    await new Promise(r => setTimeout(r, PRE_ROLL_MS));
 
     isRecording = true;
     let remaining = RECORD_SECONDS;
@@ -130,7 +163,7 @@
         clearInterval(timerInterval!);
         timerInterval = null;
         countdownValue = null;
-        mediaRecorder!.stop();
+        if (mediaRecorder) mediaRecorder.stop();
         isRecording = false;
         status = "Processing…";
       }
@@ -150,7 +183,8 @@
   {cindyMood}
   illustration={currentEntry.illustration}
   {showIllustration}
-  {feedbackHtml}
+  {feedbackWord}
+  {feedbackText}
   {feedbackClass}
 />
 

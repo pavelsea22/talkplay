@@ -4,6 +4,14 @@ import multer from "multer";
 import path from "path";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 
+// Fail fast if Azure credentials are missing — avoids cryptic errors on first request.
+const AZURE_SPEECH_KEY = process.env.AZURE_SPEECH_KEY;
+const AZURE_SPEECH_REGION = process.env.AZURE_SPEECH_REGION;
+if (!AZURE_SPEECH_KEY || !AZURE_SPEECH_REGION) {
+  console.error("Fatal: AZURE_SPEECH_KEY and AZURE_SPEECH_REGION must be set in .env");
+  process.exit(1);
+}
+
 const app = express();
 const PORT = parseInt(process.env.PORT ?? "3000");
 const upload = multer({ storage: multer.memoryStorage() });
@@ -73,18 +81,16 @@ app.get("/speak", async (req, res) => {
   const word = (req.query.word as string)?.trim();
   if (!word) { res.status(400).end(); return; }
 
-  const key = process.env.AZURE_SPEECH_KEY!;
-  const region = process.env.AZURE_SPEECH_REGION!;
   const text = (req.query.raw === "1") ? word : `Say ${word}`;
   const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
   const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escaped}</voice></speak>`;
 
   const response = await fetch(
-    `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
+    `https://${AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
     {
       method: "POST",
       headers: {
-        "Ocp-Apim-Subscription-Key": key,
+        "Ocp-Apim-Subscription-Key": AZURE_SPEECH_KEY,
         "Content-Type": "application/ssml+xml",
         "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
       },
@@ -107,12 +113,16 @@ app.get("/speak", async (req, res) => {
 app.post("/transcribe", upload.single("audio"), async (req, res) => {
   if (!req.file) { res.status(400).json({ error: "No audio file received" }); return; }
 
-  const key = process.env.AZURE_SPEECH_KEY!;
-  const region = process.env.AZURE_SPEECH_REGION!;
-  const words: string[] = req.body.words ? JSON.parse(req.body.words) : [];
+  let words: string[] = [];
+  try {
+    words = req.body.words ? JSON.parse(req.body.words) : [];
+  } catch {
+    res.status(400).json({ error: "Invalid words parameter — expected a JSON array" });
+    return;
+  }
 
   try {
-    const transcript = await transcribeWithSDK(req.file.buffer, key, region, words);
+    const transcript = await transcribeWithSDK(req.file.buffer, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION, words);
     res.json({ transcript });
   } catch (err) {
     console.error(err);
