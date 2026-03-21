@@ -1,4 +1,5 @@
 import { processAnswer } from "./evaluate";
+import { shuffle } from "./arrayUtils";
 
 const RECORD_SECONDS = 3;
 
@@ -43,14 +44,66 @@ function removeBubbleBackground(img: HTMLImageElement): void {
   img.src = canvas.toDataURL();
 }
 
-const WORDS = [
-  "ten", "top", "tip", "tiger", "tent",
-  "time", "tea", "tree", "talk", "truck"
+interface WordEntry {
+  word: string;
+  illustration: string;
+}
+
+interface SoundGroup {
+  sound: string;
+  label: string;
+  positions: {
+    leading: WordEntry[];
+    trailing: WordEntry[];
+    "mid-word": WordEntry[];
+  };
+}
+
+const WORD_GROUPS: SoundGroup[] = [
+  {
+    sound: "t",
+    label: "/t/",
+    positions: {
+      leading: [
+        { word: "ten",   illustration: "images/words/ten.svg" },
+        { word: "top",   illustration: "images/words/top.svg" },
+        { word: "tip",   illustration: "images/words/tip.svg" },
+        { word: "tiger", illustration: "images/words/tiger.svg" },
+        { word: "tent",  illustration: "images/words/tent.svg" },
+        { word: "time",  illustration: "images/words/time.svg" },
+        { word: "tea",   illustration: "images/words/tea.svg" },
+        { word: "tree",  illustration: "images/words/tree.svg" },
+        { word: "talk",  illustration: "images/words/talk.svg" },
+        { word: "truck", illustration: "images/words/truck.svg" },
+      ],
+      trailing: [],
+      "mid-word": [],
+    },
+  },
 ];
 
-/** Returns a random word from the word list. */
-function pickWord(): string {
-  return WORDS[Math.floor(Math.random() * WORDS.length)];
+/**
+ * Returns all non-empty WordEntry items across all groups and positions.
+ * Only positions with at least one entry are included.
+ */
+function getActiveWords(): WordEntry[] {
+  return WORD_GROUPS.flatMap(group =>
+    Object.values(group.positions).flat()
+  );
+}
+
+// Shuffled queue of words for the current session. Refills automatically when exhausted.
+let wordQueue: WordEntry[] = [];
+
+/**
+ * Returns the next WordEntry from the session queue, ensuring no word repeats
+ * until all words have been used. Reshuffles when the queue is exhausted.
+ */
+function pickWord(): WordEntry {
+  if (wordQueue.length === 0) {
+    wordQueue = shuffle(getActiveWords());
+  }
+  return wordQueue.pop()!;
 }
 
 let ttsAudio: HTMLAudioElement | null = null;
@@ -116,28 +169,28 @@ function showCindy(mood: string): void {
 }
 
 /** Renders the word prompt in the speech bubble, shows its illustration, and resets Cindy to neutral. */
-function showPrompt(word: string): void {
-  wordIllustrationEl.src = `images/words/${word}.svg`;
+function showPrompt(entry: WordEntry): void {
+  wordIllustrationEl.src = entry.illustration;
   wordIllustrationEl.style.display = "block";
-  feedbackEl.innerHTML = `Say <strong>${word}</strong>`;
+  feedbackEl.innerHTML = `Say <strong>${entry.word}</strong>`;
   feedbackEl.className = "";
   showCindy("neutral");
 }
 
 nextBtn.addEventListener("click", () => {
   const next = pickWord();
-  wordEl.textContent = next;
+  wordEl.textContent = next.word;
   showPrompt(next);
   nextBtn.classList.add("hidden");
   btn.classList.remove("hidden");
   statusEl.textContent = "Press the mic to record";
   wordSpoken = true;
-  speakWord(next);
+  speakWord(next.word);
 });
 
-const firstWord = pickWord();
-wordEl.textContent = firstWord;
-showPrompt(firstWord);
+const firstEntry = pickWord();
+wordEl.textContent = firstEntry.word;
+showPrompt(firstEntry);
 
 let mediaRecorder: MediaRecorder | null = null;
 let chunks: Blob[] = [];
