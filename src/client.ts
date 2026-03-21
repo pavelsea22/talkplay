@@ -58,18 +58,22 @@ const youGotItAudio = new Audio("/speak?word=You%20got%20it!&raw=1");
 youGotItAudio.preload = "auto";
 
 /**
- * Plays a word or phrase via Azure TTS.
+ * Plays a word or phrase via Azure TTS and resolves when playback ends.
  * - `cache: true` replays the pre-fetched "You got it!" audio instantly.
  * - `raw: true` sends the text as-is to the server (no "Say " prefix).
  * - Default: the server prepends "Say " before synthesizing.
  *
  * Any currently playing TTS audio is stopped before the new one starts.
+ * Callers that need to wait for playback to finish should `await` this function.
  */
 async function speakWord(word: string, options: { cache?: boolean; raw?: boolean } = {}): Promise<void> {
   if (options.cache) {
     youGotItAudio.currentTime = 0;
-    youGotItAudio.play().catch(err => console.error("TTS play failed:", err));
-    return;
+    return new Promise<void>(resolve => {
+      youGotItAudio.onended = () => resolve();
+      youGotItAudio.onerror = () => resolve();
+      youGotItAudio.play().catch(() => resolve());
+    });
   }
   try {
     const rawParam = options.raw ? "&raw=1" : "";
@@ -78,8 +82,11 @@ async function speakWord(word: string, options: { cache?: boolean; raw?: boolean
     const objectUrl = URL.createObjectURL(blob);
     if (ttsAudio) { ttsAudio.pause(); URL.revokeObjectURL(ttsAudio.src); }
     ttsAudio = new Audio(objectUrl);
-    ttsAudio.onended = () => URL.revokeObjectURL(objectUrl);
-    ttsAudio.play().catch(err => console.error("TTS play failed:", err));
+    return new Promise<void>(resolve => {
+      ttsAudio!.onended = () => { URL.revokeObjectURL(objectUrl); resolve(); };
+      ttsAudio!.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(); };
+      ttsAudio!.play().catch(() => resolve());
+    });
   } catch (err) {
     console.error("TTS fetch failed:", err);
   }
@@ -226,22 +233,25 @@ async function startRecording(stream: MediaStream): Promise<void> {
       statusEl.textContent = "";
       showCindy(outcome.cindyMood);
 
-      if (outcome.spoken) speakWord(outcome.spoken, outcome.correct ? { cache: true } : { raw: true });
-
       if (outcome.correct) {
         retryCount = 0;
+        btn.disabled = false;
         btn.classList.add("hidden");
         nextBtn.classList.remove("hidden");
+        speakWord(outcome.spoken!, { cache: true }); // fire-and-forget for "You got it!"
       } else {
         retryCount++;
+        // Await TTS so the button stays disabled until the full message has played,
+        // preventing the user from clicking mic mid-sentence and cutting it off.
+        await speakWord(outcome.spoken!, { raw: true });
         statusEl.textContent = "Press the mic to record";
+        btn.disabled = false;
       }
     } catch (err) {
       feedbackEl.textContent = "(transcription error)";
       console.error(err);
+      btn.disabled = false;
     }
-
-    btn.disabled = false;
   };
 
   mediaRecorder.start();
@@ -265,7 +275,6 @@ async function startRecording(stream: MediaStream): Promise<void> {
       countdown.classList.add("hidden");
       mediaRecorder!.stop();
       btn.classList.remove("recording");
-      btn.disabled = false;
       statusEl.textContent = "Processing…";
     }
   }, 1000);
