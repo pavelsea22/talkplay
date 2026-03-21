@@ -8,6 +8,9 @@ const app = express();
 const PORT = 3000;
 const upload = multer({ storage: multer.memoryStorage() });
 
+app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "public/lessons.html")));
+app.get("/activity", (_req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
+
 app.use(express.static(path.join(__dirname, "public")));
 
 /**

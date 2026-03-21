@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalkPlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f13;
+      color: #f0f0f0;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+
+    h1 {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #9ca3af;
+      margin-bottom: 2.5rem;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 160px;
+      height: 180px;
+      background: #1e1e2e;
+      border: 2px solid #2d2d44;
+      border-radius: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+      gap: 0.5rem;
+    }
+
+    .card:hover {
+      background: #25253a;
+      border-color: #2563eb;
+    }
+
+    .card:active { transform: scale(0.97); }
+
+    .card-sound {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #60a5fa;
+      line-height: 1;
+    }
+
+    .card-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <h1>TalkPlay</h1>
+  <p class="subtitle">Choose a sound to practise</p>
+  <div class="cards">
+    <a class="card" href="/activity">
+      <span class="card-sound">/T/</span>
+      <span class="card-label">10 words</span>
+    </a>
+  </div>
+</body>
+</html>
