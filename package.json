@@ -1,10 +1,11 @@
 {
   "name": "talkplay",
   "version": "1.0.0",
-  "scripts": {
-    "build": "tsc && esbuild src/client.ts --bundle --outfile=src/public/client.js",
+"scripts": {
+    "lint": "eslint src tests",
+    "build": "npm run lint && tsc && cp -r src/public dist/ && esbuild src/client.ts --bundle --outfile=dist/public/client.js",
     "start": "node dist/server.js",
-    "dev": "tsc --skipLibCheck && esbuild src/client.ts --bundle --outfile=src/public/client.js && node dist/server.js",
+    "dev": "npm run lint && tsc --skipLibCheck && cp -r src/public dist/ && esbuild src/client.ts --bundle --outfile=dist/public/client.js && node dist/server.js",
     "test": "jest"
   },
   "dependencies": {
@@ -14,11 +15,16 @@
     "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
     "esbuild": "^0.27.4",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.4",
     "typescript": "^5.3.3"

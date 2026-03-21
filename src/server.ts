@@ -8,7 +8,7 @@ const app = express();
 const PORT = 3000;
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(express.static(path.join(__dirname, "../src/public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words
         const reasonName = sdk.ResultReason[result.reason];
         console.log("SDK result:", reasonName, "| text:", result.text || "(empty)");
         if (result.reason !== sdk.ResultReason.RecognizedSpeech) {
-          const details = sdk.CancellationDetails.fromResult(result as any);
+          const details = sdk.CancellationDetails.fromResult(result as sdk.SpeechRecognitionResult);
           console.log("  → no speech reason:", details?.reason, details?.errorDetails);
         }
         resolve(result.reason === sdk.ResultReason.RecognizedSpeech ? result.text : "");

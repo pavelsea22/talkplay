@@ -74,7 +74,6 @@ const btn        = document.getElementById("mic-btn") as HTMLButtonElement;
 const statusEl   = document.getElementById("status") as HTMLDivElement;
 const countdown  = document.getElementById("countdown") as HTMLDivElement;
 const playback   = document.getElementById("playback") as HTMLDivElement;
-const player     = document.getElementById("audio-player") as HTMLAudioElement;
 const wordEl     = document.getElementById("word") as HTMLSpanElement;
 const feedbackEl = document.getElementById("feedback") as HTMLDivElement;
 const cindyEl    = document.getElementById("cindy") as HTMLImageElement;

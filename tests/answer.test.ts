@@ -29,8 +29,8 @@ describe("Incorrect answer", () => {
     expect(outcome.screenClass).toBe("incorrect");
   });
 
-  it("does not speak anything", () => {
-    expect(outcome.spoken).toBeNull();
+  it("speaks the feedback message", () => {
+    expect(outcome.spoken).toBe('I heard "twenty". Try again!');
   });
 
   it("shows sad Cindy on first/second attempt", () => {
@@ -49,8 +49,8 @@ describe("No speech detected", () => {
     expect(outcome.screenMessage).toBe("No speech detected — try again!");
   });
 
-  it("does not speak anything", () => {
-    expect(outcome.spoken).toBeNull();
+  it("speaks the feedback message", () => {
+    expect(outcome.spoken).toBe("No speech detected — try again!");
   });
 });
 
