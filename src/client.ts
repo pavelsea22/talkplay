@@ -44,8 +44,8 @@ function removeBubbleBackground(img: HTMLImageElement): void {
 }
 
 const WORDS = [
-  "two", "ten", "three", "twelve", "thirteen",
-  "twenty", "thirty", "eight", "thousand", "trillion"
+  "ten", "top", "tip", "tiger", "tent",
+  "time", "tea", "tree", "talk", "truck"
 ];
 
 /** Returns a random word from the word list. */
@@ -92,15 +92,16 @@ async function speakWord(word: string, options: { cache?: boolean; raw?: boolean
   }
 }
 
-const btn        = document.getElementById("mic-btn") as HTMLButtonElement;
-const statusEl   = document.getElementById("status") as HTMLDivElement;
-const countdown  = document.getElementById("countdown") as HTMLDivElement;
-const playback   = document.getElementById("playback") as HTMLDivElement;
-const wordEl     = document.getElementById("word") as HTMLSpanElement;
-const feedbackEl = document.getElementById("feedback") as HTMLDivElement;
-const cindyEl    = document.getElementById("cindy") as HTMLImageElement;
-const nextBtn    = document.getElementById("next-btn") as HTMLButtonElement;
-const bubbleBg   = document.getElementById("bubble-bg") as HTMLImageElement;
+const btn                = document.getElementById("mic-btn") as HTMLButtonElement;
+const statusEl           = document.getElementById("status") as HTMLDivElement;
+const countdown          = document.getElementById("countdown") as HTMLDivElement;
+const playback           = document.getElementById("playback") as HTMLDivElement;
+const wordEl             = document.getElementById("word") as HTMLSpanElement;
+const feedbackEl         = document.getElementById("feedback") as HTMLDivElement;
+const cindyEl            = document.getElementById("cindy") as HTMLImageElement;
+const nextBtn            = document.getElementById("next-btn") as HTMLButtonElement;
+const bubbleBg           = document.getElementById("bubble-bg") as HTMLImageElement;
+const wordIllustrationEl = document.getElementById("word-illustration") as HTMLImageElement;
 
 // Remove white background from bubble PNG on load
 if (bubbleBg.complete) {
@@ -114,8 +115,10 @@ function showCindy(mood: string): void {
   cindyEl.src = `images/Cindy_${mood}.png`;
 }
 
-/** Renders the word prompt in the speech bubble and resets Cindy to neutral. */
+/** Renders the word prompt in the speech bubble, shows its illustration, and resets Cindy to neutral. */
 function showPrompt(word: string): void {
+  wordIllustrationEl.src = `images/words/${word}.svg`;
+  wordIllustrationEl.style.display = "block";
   feedbackEl.innerHTML = `Say <strong>${word}</strong>`;
   feedbackEl.className = "";
   showCindy("neutral");
@@ -228,6 +231,7 @@ async function startRecording(stream: MediaStream): Promise<void> {
       const { transcript } = await res.json();
 
       const outcome = processAnswer(transcript, wordEl.textContent!, retryCount);
+      wordIllustrationEl.style.display = "none";
       feedbackEl.textContent = outcome.screenMessage;
       feedbackEl.className = outcome.screenClass;
       statusEl.textContent = "";

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="#222" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Steam -->
+    <path d="M34,24 Q29,17 34,10"/>
+    <path d="M50,24 Q45,17 50,10"/>
+    <path d="M66,24 Q61,17 66,10"/>
+    <!-- Cup body -->
+    <path d="M20,30 L28,80 Q28,86 36,86 L64,86 Q72,86 72,80 L80,30 Z"/>
+    <!-- Rim line -->
+    <line x1="20" y1="30" x2="80" y2="30"/>
+    <!-- Handle -->
+    <path d="M72,42 Q90,42 90,58 Q90,74 72,74"/>
+    <!-- Saucer -->
+    <ellipse cx="50" cy="90" rx="38" ry="7"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="#222" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Clock face -->
+    <circle cx="50" cy="50" r="42"/>
+    <!-- Major tick marks (12, 3, 6, 9) -->
+    <line x1="50" y1="11" x2="50" y2="22"/>
+    <line x1="89" y1="50" x2="78" y2="50"/>
+    <line x1="50" y1="89" x2="50" y2="78"/>
+    <line x1="11" y1="50" x2="22" y2="50"/>
+    <!-- Minor tick marks -->
+    <line x1="72" y1="14" x2="68" y2="22"/>
+    <line x1="86" y1="28" x2="78" y2="32"/>
+    <line x1="86" y1="72" x2="78" y2="68"/>
+    <line x1="72" y1="86" x2="68" y2="78"/>
+    <line x1="28" y1="86" x2="32" y2="78"/>
+    <line x1="14" y1="72" x2="22" y2="68"/>
+    <line x1="14" y1="28" x2="22" y2="32"/>
+    <line x1="28" y1="14" x2="32" y2="22"/>
+    <!-- Hour hand (pointing ~10 o'clock) -->
+    <line x1="50" y1="50" x2="30" y2="28" stroke-width="5"/>
+    <!-- Minute hand (pointing to 12) -->
+    <line x1="50" y1="50" x2="50" y2="16"/>
+    <!-- Center dot -->
+    <circle cx="50" cy="50" r="4" fill="#222"/>
+  </g>
+</svg>

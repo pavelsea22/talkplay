@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="#222" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Tent sides -->
+    <line x1="50" y1="10" x2="6" y2="82"/>
+    <line x1="50" y1="10" x2="94" y2="82"/>
+    <!-- Ground -->
+    <line x1="6" y1="82" x2="94" y2="82"/>
+    <!-- Door triangle -->
+    <line x1="50" y1="82" x2="38" y2="55"/>
+    <line x1="50" y1="82" x2="62" y2="55"/>
+    <line x1="38" y1="55" x2="62" y2="55"/>
+    <!-- Stakes -->
+    <line x1="6" y1="82" x2="2" y2="94"/>
+    <line x1="94" y1="82" x2="98" y2="94"/>
+    <!-- Flag pole + flag -->
+    <line x1="50" y1="10" x2="50" y2="2"/>
+    <polygon points="50,2 62,6 50,10"/>
+  </g>
+</svg>
