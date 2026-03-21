@@ -70,12 +70,16 @@ export function processAnswer(
     ? "No speech detected — try again!"
     : `I heard "${displayHeard}". Try again!`;
 
+  const spokenMessage = !displayHeard
+    ? "No speech detected. Try again!"
+    : `I heard ${displayHeard}. Try again!`;
+
   return {
     correct: false,
     screenMessage,
     screenClass: "incorrect",
     cindyMood: retryCount >= 2 ? "crying" : "sad",
-    spoken: screenMessage,
+    spoken: spokenMessage,
     showNext: false,
   };
 }

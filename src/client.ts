@@ -106,42 +106,63 @@ function pickWord(): WordEntry {
   return wordQueue.pop()!;
 }
 
-let ttsAudio: HTMLAudioElement | null = null;
-const youGotItAudio = new Audio("/speak?word=You%20got%20it!&raw=1");
-youGotItAudio.preload = "auto";
+// Shared AudioContext for all TTS playback — avoids per-element session handoffs.
+let ttsCtx: AudioContext | null = null;
+let currentSource: AudioBufferSourceNode | null = null;
+
+/** Returns the shared TTS AudioContext, creating it if needed. */
+function getTtsContext(): AudioContext {
+  if (!ttsCtx || ttsCtx.state === "closed") {
+    ttsCtx = new AudioContext();
+  }
+  return ttsCtx;
+}
+
+/**
+ * Stops any currently playing TTS audio immediately.
+ */
+function stopCurrentTts(): void {
+  if (currentSource) {
+    currentSource.onended = null;
+    try { currentSource.stop(); } catch { /* already stopped */ }
+    currentSource = null;
+  }
+}
 
 /**
  * Plays a word or phrase via Azure TTS and resolves when playback ends.
- * - `cache: true` replays the pre-fetched "You got it!" audio instantly.
+ * Audio is fully decoded into an AudioBuffer before playback begins,
+ * eliminating mid-stream buffering interruptions.
+ *
  * - `raw: true` sends the text as-is to the server (no "Say " prefix).
  * - Default: the server prepends "Say " before synthesizing.
  *
- * Any currently playing TTS audio is stopped before the new one starts.
+ * Any currently playing TTS is stopped before the new one starts.
  * Callers that need to wait for playback to finish should `await` this function.
  */
-async function speakWord(word: string, options: { cache?: boolean; raw?: boolean } = {}): Promise<void> {
-  if (options.cache) {
-    youGotItAudio.currentTime = 0;
-    return new Promise<void>(resolve => {
-      youGotItAudio.onended = () => resolve();
-      youGotItAudio.onerror = () => resolve();
-      youGotItAudio.play().catch(() => resolve());
-    });
-  }
+async function speakWord(word: string, options: { raw?: boolean } = {}): Promise<void> {
   try {
     const rawParam = options.raw ? "&raw=1" : "";
     const res = await fetch(`/speak?word=${encodeURIComponent(word)}${rawParam}`);
-    const blob = await res.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    if (ttsAudio) { ttsAudio.pause(); URL.revokeObjectURL(ttsAudio.src); }
-    ttsAudio = new Audio(objectUrl);
+    const arrayBuffer = await res.arrayBuffer();
+
+    const ctx = getTtsContext();
+    if (ctx.state === "suspended") await ctx.resume();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+    stopCurrentTts();
+
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+    currentSource = source;
+
     return new Promise<void>(resolve => {
-      ttsAudio!.onended = () => { URL.revokeObjectURL(objectUrl); resolve(); };
-      ttsAudio!.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(); };
-      ttsAudio!.play().catch(() => resolve());
+      source.onended = () => { currentSource = null; resolve(); };
+      source.start();
     });
   } catch (err) {
-    console.error("TTS fetch failed:", err);
+    console.error("TTS failed:", err);
   }
 }
 
@@ -295,7 +316,7 @@ async function startRecording(stream: MediaStream): Promise<void> {
         btn.disabled = false;
         btn.classList.add("hidden");
         nextBtn.classList.remove("hidden");
-        speakWord(outcome.spoken!, { cache: true }); // fire-and-forget for "You got it!"
+        speakWord(outcome.spoken!, { raw: true }); // fire-and-forget for "You got it!"
       } else {
         retryCount++;
         // Await TTS so the button stays disabled until the full message has played,

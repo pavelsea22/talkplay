@@ -8,8 +8,9 @@ describe("Correct answer", () => {
     expect(outcome.screenClass).toBe("correct");
   });
 
-  it('speaks "You got it!"', () => {
+  it('speaks "You got it!" without a "Say " prefix', () => {
     expect(outcome.spoken).toBe("You got it!");
+    expect(outcome.spoken).not.toMatch(/^Say /i);
   });
 
   it("shows happy Cindy", () => {
@@ -30,7 +31,7 @@ describe("Incorrect answer", () => {
   });
 
   it("speaks the feedback message", () => {
-    expect(outcome.spoken).toBe('I heard "twenty". Try again!');
+    expect(outcome.spoken).toBe("I heard twenty. Try again!");
   });
 
   it("shows sad Cindy on first/second attempt", () => {
@@ -50,7 +51,7 @@ describe("No speech detected", () => {
   });
 
   it("speaks the feedback message", () => {
-    expect(outcome.spoken).toBe("No speech detected — try again!");
+    expect(outcome.spoken).toBe("No speech detected. Try again!");
   });
 });
 

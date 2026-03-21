@@ -76,7 +76,8 @@ app.get("/speak", async (req, res) => {
   const key = process.env.AZURE_SPEECH_KEY!;
   const region = process.env.AZURE_SPEECH_REGION!;
   const text = (req.query.raw === "1") ? word : `Say ${word}`;
-  const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${text}</voice></speak>`;
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escaped}</voice></speak>`;
 
   const response = await fetch(
     `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
