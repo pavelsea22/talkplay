@@ -7,8 +7,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        lessons: resolve(__dirname, 'index.html'),
+        lessons:  resolve(__dirname, 'index.html'),
         activity: resolve(__dirname, 'activity/index.html'),
+        demo:     resolve(__dirname, 'demo/index.html'),
       },
     },
     outDir: 'dist/public',

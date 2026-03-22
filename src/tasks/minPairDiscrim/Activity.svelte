@@ -26,7 +26,8 @@
   let statusMsg = $state('');
 
   async function playTarget(): Promise<void> {
-    await speakWord(targetWordStr).catch(err => console.error('TTS failed:', err));
+    await speakWord(`Click the word you hear: ${targetWordStr}`, { raw: true })
+      .catch(err => console.error('TTS failed:', err));
   }
 
   /** Handles a card click. Evaluates, shows feedback, then retries or completes. */
@@ -84,7 +85,12 @@
         disabled={locked}
         aria-label="Choose {word.word}"
       >
-        <img src="/{word.illustration}" alt={word.word} class="card-illustration" />
+        <img
+          src="/{word.illustration}"
+          alt={word.word}
+          class="card-illustration"
+          onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+        />
         <span class="card-label">{word.word}</span>
       </button>
     {/each}
@@ -133,8 +139,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.7rem;
     width: 140px;
+    min-height: 160px;
     padding: 1.2rem 1rem;
     background: #1e293b;
     border: 3px solid #374151;
@@ -186,6 +194,7 @@
     width: 72px;
     height: 72px;
     object-fit: contain;
+    filter: brightness(0) invert(1);
   }
 
   .card-label {

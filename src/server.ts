@@ -18,6 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
 app.get("/activity", (_req, res) => res.sendFile(path.join(__dirname, "public/activity/index.html")));
+app.get("/demo",     (_req, res) => res.sendFile(path.join(__dirname, "public/demo/index.html")));
 
 app.use(express.static(path.join(__dirname, "public")));
 

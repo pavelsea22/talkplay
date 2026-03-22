@@ -77,7 +77,12 @@
     <img bind:this={bubbleBgEl} class="bubble-bg" src="/images/speech_bubble.png" alt="" />
     <div class="bubble-content">
       {#if showIllustration}
-        <img class="word-illustration" src="/{illustration}" alt="" />
+        <img
+          class="word-illustration"
+          src="/{illustration}"
+          alt=""
+          onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+        />
       {/if}
       <div class="feedback {feedbackClass}">
         {#if feedbackWord !== null}
