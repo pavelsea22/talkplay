@@ -24,10 +24,19 @@
   let selectedCard = $state<'A' | 'B' | null>(null);
   let cardFeedback = $state<'correct' | 'incorrect' | null>(null);
   let statusMsg = $state('');
+  /** True when the initial autoplay was blocked by the browser. */
+  let needsTap = $state(false);
 
   async function playTarget(): Promise<void> {
+    needsTap = false;
     await speakWord(`Click the word you hear: ${targetWordStr}`, { raw: true })
-      .catch(err => console.error('TTS failed:', err));
+      .catch(err => {
+        if ((err as DOMException)?.name === 'NotAllowedError') {
+          needsTap = true;   // autoplay blocked — prompt the user to tap
+        } else {
+          console.error('TTS failed:', err);
+        }
+      });
   }
 
   /** Handles a card click. Evaluates, shows feedback, then retries or completes. */
@@ -99,7 +108,7 @@
   <p class="status-msg">{statusMsg}</p>
 
   <button
-    class="listen-btn"
+    class="listen-btn {needsTap ? 'needs-tap' : ''}"
     onclick={playTarget}
     disabled={locked}
     aria-label="Listen again"
@@ -110,7 +119,7 @@
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
       <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
     </svg>
-    Listen again
+    {needsTap ? 'Click to hear the word' : 'Listen again'}
   </button>
 </div>
 
@@ -236,5 +245,16 @@
   .listen-btn:disabled {
     opacity: 0.5;
     cursor: default;
+  }
+
+  .listen-btn.needs-tap {
+    border-color: #60a5fa;
+    color: #60a5fa;
+    animation: pulse-btn 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.5); }
+    50%       { box-shadow: 0 0 0 8px rgba(96, 165, 250, 0); }
   }
 </style>

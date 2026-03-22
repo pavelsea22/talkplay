@@ -54,12 +54,13 @@ export function evaluateMinPairDiscrim(
   const correct = chosen === task.targetWord;
 
   if (correct) {
+    const praise = randomPraise();
     return {
       outcome: 'passed',
-      screenMessage: 'Correct!',
+      screenMessage: praise,
       screenClass: 'correct',
       cindyMood: 'happy',
-      spoken: randomPraise(),
+      spoken: praise,
       showNext: false,
     };
   }
