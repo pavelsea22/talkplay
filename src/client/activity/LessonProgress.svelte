@@ -1,11 +1,11 @@
 <script lang="ts">
-  /** One pill per word: pending (not yet attempted), correct (answered right), failed (3 wrong tries). */
-  export type WordStatus = 'pending' | 'correct' | 'failed';
+  /** One pill per task: pending (not yet attempted), passed (answered right), failed (3 wrong tries). */
+  export type TaskStatus = 'pending' | 'passed' | 'failed';
 
   interface Props {
-    /** Status of each word in the lesson, in order. */
-    statuses: WordStatus[];
-    /** Index of the word currently being practiced (highlighted slightly). */
+    /** Status of each task in the lesson, in order. */
+    statuses: TaskStatus[];
+    /** Index of the task currently being practiced (highlighted slightly). */
     currentIndex: number;
   }
 
@@ -42,7 +42,7 @@
     background: #6b7280;
   }
 
-  .segment.correct {
+  .segment.passed {
     background: #4ade80;
   }
 

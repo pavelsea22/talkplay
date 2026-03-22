@@ -1,4 +1,5 @@
 import { shuffle } from "./arrayUtils";
+import type { DrillWordTask } from "./tasks/types";
 
 export interface WordEntry {
   word: string;
@@ -63,12 +64,15 @@ export function pickWord(): WordEntry {
 }
 
 /**
- * Picks n words for a lesson, with no repeats within the lesson.
+ * Picks n DrillWord tasks for a lesson, with no repeats within the lesson.
+ * WordEntry is kept as the internal data shape; this function lifts each
+ * entry into a DrillWordTask so callers work with the Task abstraction.
  */
-export function pickLesson(n: number): WordEntry[] {
-  const words: WordEntry[] = [];
+export function pickLesson(n: number): DrillWordTask[] {
+  const tasks: DrillWordTask[] = [];
   for (let i = 0; i < n; i++) {
-    words.push(pickWord());
+    const entry = pickWord();
+    tasks.push({ type: 'DrillWord', word: entry.word, illustration: entry.illustration });
   }
-  return words;
+  return tasks;
 }

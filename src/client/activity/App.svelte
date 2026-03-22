@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { processAnswer } from '../../evaluate';
+  import { evaluateTask } from '../../tasks';
+  import type { Task, TaskStatus } from '../../tasks';
   import { pickLesson } from '../../words';
   import { speakWord, blobToWav } from './audio';
   import SpeechBubble from './SpeechBubble.svelte';
   import LessonProgress from './LessonProgress.svelte';
-  import type { WordStatus } from './LessonProgress.svelte';
   import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
 
   const RECORD_SECONDS = 3;   // how long the mic stays open
@@ -16,8 +16,8 @@
   // Keep _initialEntries as a plain array so Svelte doesn't warn about
   // capturing a reactive value for the feedbackWord initial state below.
   const _initialEntries = pickLesson(LESSON_SIZE);
-  let lessonEntries = $state(_initialEntries);
-  let lessonStatuses = $state<WordStatus[]>(Array.from({ length: LESSON_SIZE }, () => 'pending'));
+  let lessonEntries = $state<Task[]>(_initialEntries);
+  let lessonStatuses = $state<TaskStatus[]>(Array.from({ length: LESSON_SIZE }, () => 'pending'));
   let lessonIndex = $state(0);
   let lessonComplete = $state(false);
   let showMinigame = $state(false); // whether the balloon minigame card is visible
@@ -75,10 +75,10 @@
     advanceWord();
   }
 
-  /** Resets all lesson state and picks a fresh set of words. */
+  /** Resets all lesson state and picks a fresh set of tasks. */
   function handlePlayAgain(): void {
     lessonEntries = pickLesson(LESSON_SIZE);
-    lessonStatuses = Array.from({ length: LESSON_SIZE }, () => 'pending');
+    lessonStatuses = Array.from({ length: LESSON_SIZE }, () => 'pending' as TaskStatus);
     lessonIndex = 0;
     lessonComplete = false;
     status = 'Press the mic to record';
@@ -149,7 +149,7 @@
         if (!res.ok) throw new Error(`Transcription request failed: ${res.status}`);
         const { transcript } = await res.json() as { transcript: string };
 
-        const outcome = processAnswer(transcript, currentEntry.word, retryCount);
+        const outcome = evaluateTask(currentEntry, transcript, retryCount);
         showIllustration = false;
         feedbackWord = null;
         feedbackText = outcome.screenMessage;
@@ -157,9 +157,9 @@
         status = '';
         cindyMood = outcome.cindyMood;
 
-        if (outcome.correct) {
+        if (outcome.outcome === 'passed') {
           retryCount = 0;
-          lessonStatuses = lessonStatuses.map((s, i) => i === lessonIndex ? 'correct' : s);
+          lessonStatuses = lessonStatuses.map((s, i) => i === lessonIndex ? 'passed' : s);
           showNext = true;
           micDisabled = true;
           speakWord(outcome.spoken!, { raw: true }).catch(err => console.error('TTS failed:', err));
