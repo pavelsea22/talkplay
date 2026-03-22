@@ -120,4 +120,13 @@ describe("pickMinPairLesson", () => {
       expect(["A", "B"]).toContain(task.targetWord);
     }
   });
+
+  it("illustration paths are resolved to images/words/{word}.svg by default", () => {
+    // Pick a large batch to exercise many pairs from the pool.
+    const bigLesson = pickMinPairLesson(44);
+    for (const task of bigLesson) {
+      expect(task.wordA.illustration).toBe(`images/words/${task.wordA.word}.svg`);
+      expect(task.wordB.illustration).toBe(`images/words/${task.wordB.word}.svg`);
+    }
+  });
 });
