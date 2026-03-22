@@ -2,6 +2,7 @@ import { shuffle } from '../../arrayUtils';
 import { getActiveWords } from '../../words';
 import { normalizeTranscript } from '../../evaluate';
 import type { TaskResult } from '../shared/types';
+import { randomPraise } from '../shared/praise';
 
 // ---------------------------------------------------------------------------
 // Task type
@@ -38,12 +39,13 @@ export function evaluateDrillWord(
   const displayHeard = heard.join(' ').trim();
 
   if (correct) {
+    const praise = randomPraise();
     return {
       outcome: 'passed',
-      screenMessage: 'You got it!',
+      screenMessage: praise,
       screenClass: 'correct',
       cindyMood: 'happy',
-      spoken: 'You got it!',
+      spoken: praise,
       showNext: true,
     };
   }

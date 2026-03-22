@@ -1,19 +1,24 @@
 import { evaluateDrillWord } from "../src/tasks/drillWord";
 import type { DrillWordTask } from "../src/tasks/drillWord";
 
+const PRAISE_PHRASES = [
+  'Great job!', 'Well done!', 'You got it!', "That's right!",
+  'Fantastic!', 'Nailed it!', 'Super star!', 'Brilliant!',
+];
+
 // Reusable task fixture for all tests below.
 const twelve: DrillWordTask = { type: "DrillWord", word: "twelve", illustration: "" };
 
 describe("Correct answer", () => {
   const outcome = evaluateDrillWord(twelve, "Twelve.", 0);
 
-  it('shows "You got it!" on screen', () => {
-    expect(outcome.screenMessage).toBe("You got it!");
+  it('shows a praise phrase on screen', () => {
+    expect(PRAISE_PHRASES).toContain(outcome.screenMessage);
     expect(outcome.screenClass).toBe("correct");
   });
 
-  it('speaks "You got it!" without a "Say " prefix', () => {
-    expect(outcome.spoken).toBe("You got it!");
+  it('speaks a praise phrase without a "Say " prefix', () => {
+    expect(PRAISE_PHRASES).toContain(outcome.spoken);
     expect(outcome.spoken).not.toMatch(/^Say /i);
   });
 

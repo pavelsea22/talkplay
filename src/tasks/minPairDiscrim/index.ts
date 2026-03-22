@@ -1,5 +1,6 @@
 import { shuffle } from '../../arrayUtils';
 import type { TaskResult } from '../shared/types';
+import { randomPraise } from '../shared/praise';
 
 // ---------------------------------------------------------------------------
 // Task type
@@ -58,7 +59,7 @@ export function evaluateMinPairDiscrim(
       screenMessage: 'Correct!',
       screenClass: 'correct',
       cindyMood: 'happy',
-      spoken: 'Great job!',
+      spoken: randomPraise(),
       showNext: false,
     };
   }

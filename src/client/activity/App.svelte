@@ -1,6 +1,7 @@
 <script lang="ts">
   import { pickLesson } from '../../tasks';
   import type { Task, TaskStatus, TaskOutcome } from '../../tasks';
+  import { randomPraise } from '../../tasks/shared/praise';
   import LessonProgress from './LessonProgress.svelte';
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
@@ -13,6 +14,7 @@
   let taskIndex = $state(0);
   let lessonComplete = $state(false);
   let showMinigame = $state(false);
+  let completePraise = $state('');
 
   let currentTask = $derived(tasks[taskIndex]);
 
@@ -26,6 +28,7 @@
     if (next >= tasks.length) {
       lessonComplete = true;
       showMinigame = true;
+      completePraise = randomPraise();
     } else {
       taskIndex = next;
     }
@@ -55,7 +58,7 @@
 
 {#if lessonComplete}
   <div class="complete">
-    <p class="complete-title">Great job! 🎉</p>
+    <p class="complete-title">{completePraise} 🎉</p>
     <p class="complete-sub">You finished the lesson!</p>
     <button class="play-again-btn" onclick={handlePlayAgain}>Play Again</button>
   </div>
