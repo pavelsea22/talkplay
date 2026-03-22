@@ -1,49 +1,28 @@
-import { evaluateTask } from "../src/tasks";
-import { pickLesson } from "../src/words";
+import { pickDrillWordLesson } from "../src/tasks/drillWord";
+import { evaluateMinPairDiscrim, pickMinPairLesson } from "../src/tasks/minPairDiscrim";
+import type { MinPairDiscrimTask } from "../src/tasks/minPairDiscrim";
+
+// Reusable MinPair fixture: 'tea' (A) vs 'key' (B), target is A.
+const teaKey: MinPairDiscrimTask = {
+  type: "MinPairDiscrimination",
+  wordA: { word: "tea", illustration: "images/words/tea.svg" },
+  wordB: { word: "key", illustration: "images/words/key.svg" },
+  targetWord: "A",
+};
 
 // ---------------------------------------------------------------------------
-// evaluateTask — dispatcher
+// pickDrillWordLesson
 // ---------------------------------------------------------------------------
 
-describe("evaluateTask — DrillWord dispatch", () => {
-  const task = { type: "DrillWord" as const, word: "tea", illustration: "" };
-
-  it("returns passed for a correct transcript", () => {
-    expect(evaluateTask(task, "tea", 0).outcome).toBe("passed");
-  });
-
-  it("returns null outcome for an incorrect transcript (retry still open)", () => {
-    expect(evaluateTask(task, "sea", 0).outcome).toBeNull();
-  });
-
-  it("delegates retryCount to the evaluator (crying Cindy at 2)", () => {
-    expect(evaluateTask(task, "sea", 2).cindyMood).toBe("crying");
-  });
-});
-
-describe("evaluateTask — exhaustive type guard", () => {
-  it("throws on an unknown task type", () => {
-    // Cast to bypass TypeScript so we can test the runtime guard.
-    const bad = { type: "UnknownType" } as never;
-    expect(() => evaluateTask(bad, "tea", 0)).toThrow("Unknown task type");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// pickLesson — task shape
-// ---------------------------------------------------------------------------
-
-describe("pickLesson", () => {
-  const lesson = pickLesson(5);
+describe("pickDrillWordLesson", () => {
+  const lesson = pickDrillWordLesson(5);
 
   it("returns the requested number of tasks", () => {
     expect(lesson).toHaveLength(5);
   });
 
   it("every task has type 'DrillWord'", () => {
-    for (const task of lesson) {
-      expect(task.type).toBe("DrillWord");
-    }
+    for (const task of lesson) expect(task.type).toBe("DrillWord");
   });
 
   it("every task has a non-empty word and illustration", () => {
@@ -53,8 +32,92 @@ describe("pickLesson", () => {
     }
   });
 
-  it("tasks within a lesson are unique words", () => {
+  it("words within a lesson are unique", () => {
     const words = lesson.map(t => t.word);
     expect(new Set(words).size).toBe(words.length);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// evaluateMinPairDiscrim
+// ---------------------------------------------------------------------------
+
+describe("evaluateMinPairDiscrim — correct choice", () => {
+  const result = evaluateMinPairDiscrim(teaKey, "A", 0);
+
+  it("outcome is 'passed'", () => {
+    expect(result.outcome).toBe("passed");
+  });
+
+  it("screenClass is 'correct'", () => {
+    expect(result.screenClass).toBe("correct");
+  });
+
+  it("Cindy is happy", () => {
+    expect(result.cindyMood).toBe("happy");
+  });
+
+  it("has a spoken success message", () => {
+    expect(result.spoken).toBeTruthy();
+  });
+});
+
+describe("evaluateMinPairDiscrim — wrong choice", () => {
+  const result = evaluateMinPairDiscrim(teaKey, "B", 0);
+
+  it("outcome is null (retry still open)", () => {
+    expect(result.outcome).toBeNull();
+  });
+
+  it("screenClass is 'incorrect'", () => {
+    expect(result.screenClass).toBe("incorrect");
+  });
+
+  it("Cindy is sad on first wrong attempt", () => {
+    expect(result.cindyMood).toBe("sad");
+  });
+
+  it("Cindy is crying on second wrong attempt", () => {
+    expect(evaluateMinPairDiscrim(teaKey, "B", 1).cindyMood).toBe("crying");
+  });
+});
+
+describe("evaluateMinPairDiscrim — target can be B", () => {
+  const keyTea: MinPairDiscrimTask = { ...teaKey, targetWord: "B" };
+
+  it("passing B when target is B → passed", () => {
+    expect(evaluateMinPairDiscrim(keyTea, "B", 0).outcome).toBe("passed");
+  });
+
+  it("passing A when target is B → null", () => {
+    expect(evaluateMinPairDiscrim(keyTea, "A", 0).outcome).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// pickMinPairLesson
+// ---------------------------------------------------------------------------
+
+describe("pickMinPairLesson", () => {
+  const lesson = pickMinPairLesson(3);
+
+  it("returns the requested number of tasks", () => {
+    expect(lesson).toHaveLength(3);
+  });
+
+  it("every task has type 'MinPairDiscrimination'", () => {
+    for (const task of lesson) expect(task.type).toBe("MinPairDiscrimination");
+  });
+
+  it("every task has two distinct words", () => {
+    for (const task of lesson) {
+      expect(task.wordA.word).not.toBe(task.wordB.word);
+    }
+  });
+
+  it("targetWord is always 'A' or 'B'", () => {
+    for (const task of lesson) {
+      expect(["A", "B"]).toContain(task.targetWord);
+    }
   });
 });

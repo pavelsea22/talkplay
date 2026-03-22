@@ -1,29 +1,37 @@
-import { evaluateDrillWord } from './drillWord';
-import type { Task, TaskResult } from './types';
+/**
+ * Public API for the tasks system.
+ *
+ * Adding a new task type:
+ *  1. Create src/tasks/myType/ with index.ts (type + evaluator + picker)
+ *     and Activity.svelte (full interaction UI).
+ *  2. Add the new type to the Task union below.
+ *  3. Add a branch in App.svelte's template to render the new Activity.
+ *  4. Optionally include tasks from the new picker in pickLesson().
+ */
+
+import { shuffle } from '../arrayUtils';
+import { pickDrillWordLesson } from './drillWord';
+import { pickMinPairLesson } from './minPairDiscrim';
+import type { DrillWordTask } from './drillWord';
+import type { MinPairDiscrimTask } from './minPairDiscrim';
+
+// Re-export shared types so callers need only one import.
+export type { TaskOutcome, TaskResult, TaskStatus } from './shared/types';
+export type { DrillWordTask } from './drillWord';
+export type { MinPairDiscrimTask } from './minPairDiscrim';
+
+/** Union of all concrete task variants. */
+export type Task = DrillWordTask | MinPairDiscrimTask;
 
 /**
- * Dispatches to the correct evaluator based on the task's type.
- * This is the only function App.svelte needs to call — it never
- * has to import or know about individual task variants.
- *
- * @param task        - The task currently being attempted.
- * @param transcript  - Raw text returned by the speech recognizer.
- * @param retryCount  - Number of failed attempts before this one (0 = first try).
+ * Picks a mixed lesson of n tasks (currently 60 % DrillWord, 40 % MinPair),
+ * shuffled so task types aren't always grouped together.
  */
-export function evaluateTask(
-  task: Task,
-  transcript: string,
-  retryCount: number,
-): TaskResult {
-  switch (task.type) {
-    case 'DrillWord':
-      return evaluateDrillWord(task, transcript, retryCount);
-    // New task types get a case here. Once the union has 2+ members TypeScript
-    // will error at compile time if a variant is unhandled (exhaustiveness check).
-    default:
-      throw new Error(`Unknown task type: ${(task as { type: string }).type}`);
-  }
+export function pickLesson(n: number): Task[] {
+  const drillCount    = Math.ceil(n * 0.6);
+  const minPairCount  = n - drillCount;
+  return shuffle([
+    ...pickDrillWordLesson(drillCount),
+    ...pickMinPairLesson(minPairCount),
+  ]);
 }
-
-// Re-export the shared types so callers only need one import.
-export type { Task, TaskOutcome, TaskResult, TaskStatus, DrillWordTask } from './types';

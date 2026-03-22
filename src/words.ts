@@ -1,6 +1,3 @@
-import { shuffle } from "./arrayUtils";
-import type { DrillWordTask } from "./tasks/types";
-
 export interface WordEntry {
   word: string;
   illustration: string;
@@ -41,7 +38,6 @@ export const WORD_GROUPS: SoundGroup[] = [
 
 /**
  * Returns all non-empty WordEntry items across all groups and positions.
- * Only positions with at least one entry are included.
  */
 export function getActiveWords(): WordEntry[] {
   return WORD_GROUPS.flatMap(group =>
@@ -49,30 +45,3 @@ export function getActiveWords(): WordEntry[] {
   );
 }
 
-// Shuffled queue of words for the current session. Refills automatically when exhausted.
-let wordQueue: WordEntry[] = [];
-
-/**
- * Returns the next WordEntry from the session queue, ensuring no word repeats
- * until all words have been used. Reshuffles when the queue is exhausted.
- */
-export function pickWord(): WordEntry {
-  if (wordQueue.length === 0) {
-    wordQueue = shuffle(getActiveWords());
-  }
-  return wordQueue.pop()!;
-}
-
-/**
- * Picks n DrillWord tasks for a lesson, with no repeats within the lesson.
- * WordEntry is kept as the internal data shape; this function lifts each
- * entry into a DrillWordTask so callers work with the Task abstraction.
- */
-export function pickLesson(n: number): DrillWordTask[] {
-  const tasks: DrillWordTask[] = [];
-  for (let i = 0; i < n; i++) {
-    const entry = pickWord();
-    tasks.push({ type: 'DrillWord', word: entry.word, illustration: entry.illustration });
-  }
-  return tasks;
-}

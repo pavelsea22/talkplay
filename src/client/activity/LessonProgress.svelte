@@ -1,6 +1,5 @@
 <script lang="ts">
-  /** One pill per task: pending (not yet attempted), passed (answered right), failed (3 wrong tries). */
-  export type TaskStatus = 'pending' | 'passed' | 'failed';
+  import type { TaskStatus } from '../../tasks';
 
   interface Props {
     /** Status of each task in the lesson, in order. */

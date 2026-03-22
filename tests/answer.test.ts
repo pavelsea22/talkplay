@@ -1,7 +1,7 @@
 import { evaluateDrillWord } from "../src/tasks/drillWord";
-import type { DrillWordTask } from "../src/tasks/types";
+import type { DrillWordTask } from "../src/tasks/drillWord";
 
-// Reusable task fixture — the target word for all tests below.
+// Reusable task fixture for all tests below.
 const twelve: DrillWordTask = { type: "DrillWord", word: "twelve", illustration: "" };
 
 describe("Correct answer", () => {
@@ -76,9 +76,9 @@ describe("Third failed attempt", () => {
 });
 
 describe("Azure numeral quirks", () => {
-  const two:   DrillWordTask = { type: "DrillWord", word: "two",    illustration: "" };
-  const ten:   DrillWordTask = { type: "DrillWord", word: "ten",    illustration: "" };
-  const twlv:  DrillWordTask = { type: "DrillWord", word: "twelve", illustration: "" };
+  const two:  DrillWordTask = { type: "DrillWord", word: "two",    illustration: "" };
+  const ten:  DrillWordTask = { type: "DrillWord", word: "ten",    illustration: "" };
+  const twlv: DrillWordTask = { type: "DrillWord", word: "twelve", illustration: "" };
 
   it("accepts '2' transcript for target 'two'", () => {
     expect(evaluateDrillWord(two,  "2.",  0).outcome).toBe("passed");
