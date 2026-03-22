@@ -7,7 +7,17 @@ import type { TaskResult } from '../shared/types';
 
 interface WordRef {
   word: string;
+  /** Resolved illustration path, always populated by the picker. */
   illustration: string;
+}
+
+/**
+ * Compact form used in the raw data table.
+ * `illustration` may be omitted when the image filename matches `{word}.svg`.
+ */
+interface WordEntry {
+  word: string;
+  illustration?: string;
 }
 
 /**
@@ -72,107 +82,74 @@ export function evaluateMinPairDiscrim(
 // ---------------------------------------------------------------------------
 
 interface MinPair {
-  wordA: WordRef;
-  wordB: WordRef;
+  wordA: WordEntry;
+  wordB: WordEntry;
+}
+
+/**
+ * Resolves a WordEntry into a fully-populated WordRef.
+ * Falls back to `images/words/{word}.svg` when no illustration is specified.
+ */
+function resolveWord(entry: WordEntry): WordRef {
+  return {
+    word: entry.word,
+    illustration: entry.illustration ?? `images/words/${entry.word}.svg`,
+  };
 }
 
 /**
  * Minimal pairs contrasting /t/ with neighbouring consonants.
- * Illustration paths resolve to public/images/words/{word}.svg;
+ * `illustration` is omitted when the image filename matches `{word}.svg`;
  * missing SVGs are hidden gracefully by the Activity's onerror handler.
  */
 const MIN_PAIRS: MinPair[] = [
   // ── Leading /t/ — initial-consonant contrast ──────────────────────────────
-  { wordA: { word: 'tea',  illustration: 'images/words/tea.svg'  },
-    wordB: { word: 'sea',  illustration: 'images/words/sea.svg'  } },  // t/s
-  { wordA: { word: 'tea',  illustration: 'images/words/tea.svg'  },
-    wordB: { word: 'pea',  illustration: 'images/words/pea.svg'  } },  // t/p
-  { wordA: { word: 'tea',  illustration: 'images/words/tea.svg'  },
-    wordB: { word: 'bee',  illustration: 'images/words/bee.svg'  } },  // t/b
-  { wordA: { word: 'tea',  illustration: 'images/words/tea.svg'  },
-    wordB: { word: 'key',  illustration: 'images/words/key.svg'  } },  // t/k
-  { wordA: { word: 'top',  illustration: 'images/words/top.svg'  },
-    wordB: { word: 'hop',  illustration: 'images/words/hop.svg'  } },  // t/h
-  { wordA: { word: 'top',  illustration: 'images/words/top.svg'  },
-    wordB: { word: 'mop',  illustration: 'images/words/mop.svg'  } },  // t/m
-  { wordA: { word: 'top',  illustration: 'images/words/top.svg'  },
-    wordB: { word: 'pop',  illustration: 'images/words/pop.svg'  } },  // t/p
-  { wordA: { word: 'tap',  illustration: 'images/words/tap.svg'  },
-    wordB: { word: 'cap',  illustration: 'images/words/cap.svg'  } },  // t/k
-  { wordA: { word: 'tap',  illustration: 'images/words/tap.svg'  },
-    wordB: { word: 'map',  illustration: 'images/words/map.svg'  } },  // t/m
-  { wordA: { word: 'tail', illustration: 'images/words/tail.svg' },
-    wordB: { word: 'nail', illustration: 'images/words/nail.svg' } },  // t/n
-  { wordA: { word: 'tail', illustration: 'images/words/tail.svg' },
-    wordB: { word: 'sail', illustration: 'images/words/sail.svg' } },  // t/s
-  { wordA: { word: 'tail', illustration: 'images/words/tail.svg' },
-    wordB: { word: 'mail', illustration: 'images/words/mail.svg' } },  // t/m
-  { wordA: { word: 'ten',  illustration: 'images/words/ten.svg'  },
-    wordB: { word: 'hen',  illustration: 'images/words/hen.svg'  } },  // t/h
-  { wordA: { word: 'ten',  illustration: 'images/words/ten.svg'  },
-    wordB: { word: 'pen',  illustration: 'images/words/pen.svg'  } },  // t/p
-  { wordA: { word: 'tie',  illustration: 'images/words/tie.svg'  },
-    wordB: { word: 'pie',  illustration: 'images/words/pie.svg'  } },  // t/p
-  { wordA: { word: 'toad', illustration: 'images/words/toad.svg' },
-    wordB: { word: 'road', illustration: 'images/words/road.svg' } },  // t/r
-  { wordA: { word: 'toy',  illustration: 'images/words/toy.svg'  },
-    wordB: { word: 'boy',  illustration: 'images/words/boy.svg'  } },  // t/b
-  { wordA: { word: 'tall', illustration: 'images/words/tall.svg' },
-    wordB: { word: 'ball', illustration: 'images/words/ball.svg' } },  // t/b
-  { wordA: { word: 'tank', illustration: 'images/words/tank.svg' },
-    wordB: { word: 'bank', illustration: 'images/words/bank.svg' } },  // t/b
-  { wordA: { word: 'tire', illustration: 'images/words/tire.svg' },
-    wordB: { word: 'fire', illustration: 'images/words/fire.svg' } },  // t/f
-  { wordA: { word: 'tip',  illustration: 'images/words/tip.svg'  },
-    wordB: { word: 'dip',  illustration: 'images/words/dip.svg'  } },  // t/d
-  { wordA: { word: 'time', illustration: 'images/words/time.svg' },
-    wordB: { word: 'dime', illustration: 'images/words/dime.svg' } },  // t/d
+  { wordA: { word: 'tea'  }, wordB: { word: 'sea'  } },  // t/s
+  { wordA: { word: 'tea'  }, wordB: { word: 'pea'  } },  // t/p
+  { wordA: { word: 'tea'  }, wordB: { word: 'bee'  } },  // t/b
+  { wordA: { word: 'tea'  }, wordB: { word: 'key'  } },  // t/k
+  { wordA: { word: 'top'  }, wordB: { word: 'hop'  } },  // t/h
+  { wordA: { word: 'top'  }, wordB: { word: 'mop'  } },  // t/m
+  { wordA: { word: 'top'  }, wordB: { word: 'pop'  } },  // t/p
+  { wordA: { word: 'tap'  }, wordB: { word: 'cap'  } },  // t/k
+  { wordA: { word: 'tap'  }, wordB: { word: 'map'  } },  // t/m
+  { wordA: { word: 'tail' }, wordB: { word: 'nail' } },  // t/n
+  { wordA: { word: 'tail' }, wordB: { word: 'sail' } },  // t/s
+  { wordA: { word: 'tail' }, wordB: { word: 'mail' } },  // t/m
+  { wordA: { word: 'ten'  }, wordB: { word: 'hen'  } },  // t/h
+  { wordA: { word: 'ten'  }, wordB: { word: 'pen'  } },  // t/p
+  { wordA: { word: 'tie'  }, wordB: { word: 'pie'  } },  // t/p
+  { wordA: { word: 'toad' }, wordB: { word: 'road' } },  // t/r
+  { wordA: { word: 'toy'  }, wordB: { word: 'boy'  } },  // t/b
+  { wordA: { word: 'tall' }, wordB: { word: 'ball' } },  // t/b
+  { wordA: { word: 'tank' }, wordB: { word: 'bank' } },  // t/b
+  { wordA: { word: 'tire' }, wordB: { word: 'fire' } },  // t/f
+  { wordA: { word: 'tip'  }, wordB: { word: 'dip'  } },  // t/d
+  { wordA: { word: 'time' }, wordB: { word: 'dime' } },  // t/d
 
   // ── Trailing /t/ — final-consonant contrast ────────────────────────────────
-  { wordA: { word: 'cat',  illustration: 'images/words/cat.svg'  },
-    wordB: { word: 'cap',  illustration: 'images/words/cap.svg'  } },  // t/p
-  { wordA: { word: 'cat',  illustration: 'images/words/cat.svg'  },
-    wordB: { word: 'cab',  illustration: 'images/words/cab.svg'  } },  // t/b
-  { wordA: { word: 'bat',  illustration: 'images/words/bat.svg'  },
-    wordB: { word: 'bag',  illustration: 'images/words/bag.svg'  } },  // t/g
-  { wordA: { word: 'hat',  illustration: 'images/words/hat.svg'  },
-    wordB: { word: 'ham',  illustration: 'images/words/ham.svg'  } },  // t/m
-  { wordA: { word: 'mat',  illustration: 'images/words/mat.svg'  },
-    wordB: { word: 'map',  illustration: 'images/words/map.svg'  } },  // t/p
-  { wordA: { word: 'hot',  illustration: 'images/words/hot.svg'  },
-    wordB: { word: 'hop',  illustration: 'images/words/hop.svg'  } },  // t/p
-  { wordA: { word: 'hot',  illustration: 'images/words/hot.svg'  },
-    wordB: { word: 'hog',  illustration: 'images/words/hog.svg'  } },  // t/g
-  { wordA: { word: 'pot',  illustration: 'images/words/pot.svg'  },
-    wordB: { word: 'pop',  illustration: 'images/words/pop.svg'  } },  // t/p
-  { wordA: { word: 'dot',  illustration: 'images/words/dot.svg'  },
-    wordB: { word: 'dog',  illustration: 'images/words/dog.svg'  } },  // t/g
-  { wordA: { word: 'bit',  illustration: 'images/words/bit.svg'  },
-    wordB: { word: 'big',  illustration: 'images/words/big.svg'  } },  // t/g
-  { wordA: { word: 'bit',  illustration: 'images/words/bit.svg'  },
-    wordB: { word: 'bin',  illustration: 'images/words/bin.svg'  } },  // t/n
-  { wordA: { word: 'sit',  illustration: 'images/words/sit.svg'  },
-    wordB: { word: 'sip',  illustration: 'images/words/sip.svg'  } },  // t/p
-  { wordA: { word: 'hit',  illustration: 'images/words/hit.svg'  },
-    wordB: { word: 'hip',  illustration: 'images/words/hip.svg'  } },  // t/p
-  { wordA: { word: 'cut',  illustration: 'images/words/cut.svg'  },
-    wordB: { word: 'cup',  illustration: 'images/words/cup.svg'  } },  // t/p
-  { wordA: { word: 'cut',  illustration: 'images/words/cut.svg'  },
-    wordB: { word: 'cub',  illustration: 'images/words/cub.svg'  } },  // t/b
-  { wordA: { word: 'nut',  illustration: 'images/words/nut.svg'  },
-    wordB: { word: 'nun',  illustration: 'images/words/nun.svg'  } },  // t/n
-  { wordA: { word: 'hut',  illustration: 'images/words/hut.svg'  },
-    wordB: { word: 'hug',  illustration: 'images/words/hug.svg'  } },  // t/g
-  { wordA: { word: 'boot', illustration: 'images/words/boot.svg' },
-    wordB: { word: 'book', illustration: 'images/words/book.svg' } },  // t/k
-  { wordA: { word: 'beat', illustration: 'images/words/beat.svg' },
-    wordB: { word: 'bead', illustration: 'images/words/bead.svg' } },  // t/d
-  { wordA: { word: 'boat', illustration: 'images/words/boat.svg' },
-    wordB: { word: 'bone', illustration: 'images/words/bone.svg' } },  // t/n
-  { wordA: { word: 'night',illustration: 'images/words/night.svg'},
-    wordB: { word: 'nine', illustration: 'images/words/nine.svg' } },  // t/n
-  { wordA: { word: 'bite', illustration: 'images/words/bite.svg' },
-    wordB: { word: 'bike', illustration: 'images/words/bike.svg' } },  // t/k
+  { wordA: { word: 'cat'  }, wordB: { word: 'cap'  } },  // t/p
+  { wordA: { word: 'cat'  }, wordB: { word: 'cab'  } },  // t/b
+  { wordA: { word: 'bat'  }, wordB: { word: 'bag'  } },  // t/g
+  { wordA: { word: 'hat'  }, wordB: { word: 'ham'  } },  // t/m
+  { wordA: { word: 'mat'  }, wordB: { word: 'map'  } },  // t/p
+  { wordA: { word: 'hot'  }, wordB: { word: 'hop'  } },  // t/p
+  { wordA: { word: 'hot'  }, wordB: { word: 'hog'  } },  // t/g
+  { wordA: { word: 'pot'  }, wordB: { word: 'pop'  } },  // t/p
+  { wordA: { word: 'dot'  }, wordB: { word: 'dog'  } },  // t/g
+  { wordA: { word: 'bit'  }, wordB: { word: 'big'  } },  // t/g
+  { wordA: { word: 'bit'  }, wordB: { word: 'bin'  } },  // t/n
+  { wordA: { word: 'sit'  }, wordB: { word: 'sip'  } },  // t/p
+  { wordA: { word: 'hit'  }, wordB: { word: 'hip'  } },  // t/p
+  { wordA: { word: 'cut'  }, wordB: { word: 'cup'  } },  // t/p
+  { wordA: { word: 'cut'  }, wordB: { word: 'cub'  } },  // t/b
+  { wordA: { word: 'nut'  }, wordB: { word: 'nun'  } },  // t/n
+  { wordA: { word: 'hut'  }, wordB: { word: 'hug'  } },  // t/g
+  { wordA: { word: 'boot' }, wordB: { word: 'book' } },  // t/k
+  { wordA: { word: 'beat' }, wordB: { word: 'bead' } },  // t/d
+  { wordA: { word: 'boat' }, wordB: { word: 'bone' } },  // t/n
+  { wordA: { word: 'night'}, wordB: { word: 'nine' } },  // t/n
+  { wordA: { word: 'bite' }, wordB: { word: 'bike' } },  // t/k
 ];
 
 // ---------------------------------------------------------------------------
@@ -195,8 +172,8 @@ export function pickMinPairLesson(n: number): MinPairDiscrimTask[] {
     const pair = pickPair();
     return {
       type: 'MinPairDiscrimination',
-      wordA: pair.wordA,
-      wordB: pair.wordB,
+      wordA: resolveWord(pair.wordA),
+      wordB: resolveWord(pair.wordB),
       targetWord: Math.random() < 0.5 ? 'A' : 'B',
     };
   });
