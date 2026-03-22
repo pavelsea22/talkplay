@@ -5,6 +5,7 @@
   import SpeechBubble from './SpeechBubble.svelte';
   import LessonProgress from './LessonProgress.svelte';
   import type { WordStatus } from './LessonProgress.svelte';
+  import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
 
   const RECORD_SECONDS = 3;   // how long the mic stays open
   const PRE_ROLL_MS = 1000;   // "Get ready…" pause before recording starts
@@ -19,6 +20,7 @@
   let lessonStatuses = $state<WordStatus[]>(Array.from({ length: LESSON_SIZE }, () => 'pending'));
   let lessonIndex = $state(0);
   let lessonComplete = $state(false);
+  let showMinigame = $state(false); // whether the balloon minigame card is visible
 
   let currentEntry = $derived(lessonEntries[lessonIndex]);
 
@@ -55,6 +57,7 @@
     const nextIndex = lessonIndex + 1;
     if (nextIndex >= LESSON_SIZE) {
       lessonComplete = true;
+      showMinigame = true;
       return;
     }
     lessonIndex = nextIndex;
@@ -270,6 +273,16 @@
   <div class="status">{status}</div>
 {/if}
 
+{#if showMinigame}
+  <!-- Minigame overlay: shown after lesson completion -->
+  <div class="minigame-overlay">
+    <div class="minigame-card">
+      <h2 class="minigame-title">Pop the Balloons!</h2>
+      <PopTheBalloon onClose={() => showMinigame = false} />
+    </div>
+  </div>
+{/if}
+
 <style>
   :global(*, *::before, *::after) { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -432,4 +445,34 @@
 
   .play-again-btn:hover { background: #1d4ed8; }
   .play-again-btn:active { transform: scale(0.96); }
+
+  .minigame-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  .minigame-card {
+    background: #1e293b;
+    border-radius: 20px;
+    padding: 1.2rem;
+    width: 320px;
+    height: 520px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  .minigame-title {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #f0f0f0;
+    margin-bottom: 0.4rem;
+  }
 </style>
