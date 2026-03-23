@@ -6,6 +6,25 @@
 /** Binary outcome of a completed task. */
 export type TaskOutcome = 'passed' | 'failed';
 
+/** Accuracy score for a single phoneme from Azure Pronunciation Assessment. */
+export interface PhonemeScore {
+  /** IPA symbol for this phoneme (e.g. "ɹ", "w", "ð"). */
+  phoneme: string;
+  /** Azure accuracy score 0–100. */
+  accuracyScore: number;
+}
+
+/**
+ * Phoneme-level pronunciation assessment data returned by Azure.
+ * Corresponds to NBest[0].Words[0] in the raw JSON result.
+ */
+export interface PhonemeAssessment {
+  /** Overall accuracy score for the word, 0–100. */
+  accuracyScore: number;
+  /** Per-phoneme breakdown, in order. */
+  phonemes: PhonemeScore[];
+}
+
 /** Per-slot state for the lesson progress bar. */
 export type TaskStatus = 'pending' | 'passed' | 'failed';
 

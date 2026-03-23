@@ -1,8 +1,9 @@
 import { shuffle } from '../../arrayUtils';
 import { getActiveWords } from '../../words';
-import { normalizeTranscript } from '../../evaluate';
 import type { TaskResult } from '../shared/types';
-import { randomPraise } from '../shared/praise';
+import type { PhonemeAssessment } from '../shared/types';
+
+export type { TaskResult };
 
 // ---------------------------------------------------------------------------
 // Task type
@@ -16,57 +17,11 @@ export interface DrillWordTask {
 }
 
 // ---------------------------------------------------------------------------
-// Evaluator
+// Evaluator (re-exported from evaluator.ts)
 // ---------------------------------------------------------------------------
 
-/**
- * Evaluates one attempt at a DrillWord task.
- * Returns outcome: 'passed' on success, null on failure (caller promotes to
- * 'failed' once MAX_RETRIES is reached).
- *
- * @param task        - The DrillWord task being attempted.
- * @param transcript  - Raw text from the speech recognizer.
- * @param retryCount  - Failed attempts before this one (0 = first try).
- */
-export function evaluateDrillWord(
-  task: DrillWordTask,
-  transcript: string,
-  retryCount: number,
-): TaskResult {
-  const target = task.word.toLowerCase().replace(/[^a-z]/g, '').trim();
-  const heard = normalizeTranscript(transcript);
-  const correct = heard.some(w => w === target);
-  const displayHeard = heard.join(' ').trim();
-
-  if (correct) {
-    const praise = randomPraise();
-    return {
-      outcome: 'passed',
-      screenMessage: praise,
-      screenClass: 'correct',
-      cindyMood: 'happy',
-      spoken: praise,
-      showNext: true,
-    };
-  }
-
-  const screenMessage = !displayHeard
-    ? 'No speech detected — try again!'
-    : `I heard "${displayHeard}". Try again!`;
-
-  const spokenMessage = !displayHeard
-    ? 'No speech detected, try again!'
-    : `I heard "${displayHeard}", try again!`;
-
-  return {
-    outcome: null,
-    screenMessage,
-    screenClass: 'incorrect',
-    cindyMood: retryCount >= 2 ? 'crying' : 'sad',
-    spoken: spokenMessage,
-    showNext: false,
-  };
-}
+export { evaluateDrillWord } from './evaluator';
+export type { PhonemeAssessment };
 
 // ---------------------------------------------------------------------------
 // Picker

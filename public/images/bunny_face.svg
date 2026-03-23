@@ -1,0 +1,46 @@
+<svg width="100%" viewBox="0 0 680 700" xmlns="http://www.w3.org/2000/svg">
+<style>
+  .line { fill: none; stroke: white; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .dot { fill: white; stroke: none; }
+</style>
+
+<!-- Left ear (outer) -->
+<ellipse cx="255" cy="210" rx="52" ry="145" class="line" transform="rotate(-8, 255, 210)"/>
+<!-- Left ear (inner) -->
+<ellipse cx="255" cy="215" rx="28" ry="115" class="line" transform="rotate(-8, 255, 215)"/>
+
+<!-- Right ear (outer) -->
+<ellipse cx="425" cy="210" rx="52" ry="145" class="line" transform="rotate(8, 425, 210)"/>
+<!-- Right ear (inner) -->
+<ellipse cx="425" cy="215" rx="28" ry="115" class="line" transform="rotate(8, 425, 215)"/>
+
+<!-- Head -->
+<ellipse cx="340" cy="430" rx="165" ry="155" class="line"/>
+
+<!-- Left eye outline -->
+<ellipse cx="288" cy="400" rx="22" ry="24" class="line"/>
+<!-- Left eye pupil dot -->
+<circle cx="288" cy="400" r="7" class="dot"/>
+
+<!-- Right eye outline -->
+<ellipse cx="392" cy="400" rx="22" ry="24" class="line"/>
+<!-- Right eye pupil dot -->
+<circle cx="392" cy="400" r="7" class="dot"/>
+
+<!-- Nose -->
+<ellipse cx="340" cy="440" rx="13" ry="9" class="line"/>
+
+<!-- Smile -->
+<path d="M318 455 Q325 472 340 476 Q355 472 362 455" class="line"/>
+
+<!-- Whiskers left -->
+<line x1="310" y1="448" x2="218" y2="440" class="line"/>
+<line x1="308" y1="458" x2="216" y2="458" class="line"/>
+<line x1="310" y1="468" x2="220" y2="474" class="line"/>
+
+<!-- Whiskers right -->
+<line x1="370" y1="448" x2="462" y2="440" class="line"/>
+<line x1="372" y1="458" x2="464" y2="458" class="line"/>
+<line x1="370" y1="468" x2="460" y2="474" class="line"/>
+
+</svg>

@@ -2,9 +2,10 @@
   import { onMount } from 'svelte';
   import { speakWord, blobToWav } from '../../client/activity/audio';
   import SpeechBubble from '../../client/activity/SpeechBubble.svelte';
-  import { evaluateDrillWord } from './index';
+  import { evaluateDrillWord } from './evaluator';
+  import { getWeakestPhonemeHint } from './phonemeFeedback';
   import type { DrillWordTask } from './index';
-  import type { TaskOutcome } from '../shared/types';
+  import type { TaskOutcome, PhonemeAssessment } from '../shared/types';
 
   const RECORD_SECONDS = 3;
   const PRE_ROLL_MS = 1000;       // "Get ready…" pause before mic opens
@@ -32,6 +33,7 @@
   let showIllustration = $state(true);
   let wordSpoken = $state(false);  // true once TTS has played for this word
   let retryCount = $state(0);
+  let phonemeHint = $state<string | null>(null);
 
   // Set the word prompt before first render. showPrompt() is a function
   // declaration (hoisted), so calling it here is safe even though the
@@ -43,13 +45,14 @@
   let chunks: Blob[] = $state([]);
   let timerInterval: ReturnType<typeof setInterval> | null = $state(null);
 
-  /** Resets the UI back to the word prompt. */
+  /** Resets the UI back to the word prompt and clears any phoneme hint. */
   function showPrompt(): void {
     feedbackWord = task.word;
     feedbackText = '';
     feedbackClass = '';
     showIllustration = true;
     cindyMood = 'neutral';
+    phonemeHint = null;
   }
 
   async function handleMicClick(): Promise<void> {
@@ -102,11 +105,15 @@
         const form = new FormData();
         form.append('audio', new Blob([wavBuffer], { type: 'audio/wav' }), 'audio.wav');
         form.append('words', JSON.stringify([task.word]));
+        form.append('word', task.word);
         const res = await fetch('/transcribe', { method: 'POST', body: form });
         if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
-        const { transcript } = await res.json() as { transcript: string };
+        const { transcript, assessment } = await res.json() as {
+          transcript: string;
+          assessment: PhonemeAssessment | null;
+        };
 
-        const result = evaluateDrillWord(task, transcript, retryCount);
+        const result = evaluateDrillWord(task, transcript, assessment, retryCount);
         showIllustration = false;
         feedbackWord = null;
         feedbackText = result.screenMessage;
@@ -115,14 +122,24 @@
         cindyMood = result.cindyMood;
 
         if (result.outcome === 'passed') {
+          phonemeHint = null;
           retryCount = 0;
           showNext = true;
           micDisabled = true;
           speakWord(result.spoken!, { raw: true }).catch(err => console.error('TTS failed:', err));
         } else {
           retryCount++;
+          const hint = assessment ? getWeakestPhonemeHint(assessment) : null;
+          phonemeHint = hint;
+          const speakRetry = speakWord(result.spoken!, { raw: true })
+            .catch(err => console.error('TTS failed:', err));
+          if (hint) {
+            speakRetry.then(() =>
+              speakWord(hint, { raw: true }).catch(err => console.error('TTS hint failed:', err))
+            );
+          }
           await Promise.all([
-            speakWord(result.spoken!, { raw: true }).catch(err => console.error('TTS failed:', err)),
+            speakRetry,
             new Promise(r => setTimeout(r, ERROR_DISPLAY_MS)),
           ]);
 
@@ -186,6 +203,10 @@
   {feedbackText}
   {feedbackClass}
 />
+
+{#if phonemeHint}
+  <p class="phoneme-hint">{phonemeHint}</p>
+{/if}
 
 <div class="btn-container">
   <button
@@ -288,4 +309,14 @@
   }
 
   .countdown.hidden { opacity: 0; }
+
+  .phoneme-hint {
+    margin: 0.5rem auto 0;
+    max-width: 320px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #7c3aed;
+    line-height: 1.4;
+  }
 </style>

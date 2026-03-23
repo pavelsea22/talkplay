@@ -23,17 +23,48 @@ app.get("/demo/", (_req, res) => res.sendFile(path.join(__dirname, "public/demo/
 
 app.use(express.static(path.join(__dirname, "public")));
 
+import type { PhonemeAssessment } from './tasks/shared/types';
+
+/** Shape of the raw Azure pronunciation assessment JSON at NBest[0].Words[0]. */
+interface AzureWordResult {
+  Word: string;
+  PronunciationAssessment: { AccuracyScore: number };
+  Phonemes: Array<{ Phoneme: string; PronunciationAssessment: { AccuracyScore: number } }>;
+}
+
+interface AzureNBestResult {
+  Words: AzureWordResult[];
+}
+
+interface AzurePronunciationJson {
+  NBest: AzureNBestResult[];
+}
+
+/** Result returned by {@link transcribeWithSDK}. */
+interface TranscribeResult {
+  transcript: string;
+  assessment: PhonemeAssessment | null;
+}
+
 /**
  * Transcribes a 16 kHz mono PCM WAV buffer using the Azure Speech SDK.
- * Applies phrase list biasing so that the recognizer favours the expected words.
+ * When a reference word is provided, also runs Pronunciation Assessment and
+ * returns phoneme-level scores.
  *
- * @param wavBuffer - Raw WAV file bytes (Node.js Buffer, includes 44-byte header).
- * @param key - Azure Speech subscription key.
- * @param region - Azure region (e.g. "westus").
- * @param words - Candidate words to bias the recognizer toward.
- * @returns The recognised text, or an empty string if no speech was detected.
+ * @param wavBuffer  - Raw WAV file bytes (Node.js Buffer, includes 44-byte header).
+ * @param key        - Azure Speech subscription key.
+ * @param region     - Azure region (e.g. "westus").
+ * @param words      - Candidate words to bias the recognizer toward.
+ * @param targetWord - Reference word for pronunciation assessment (optional).
+ * @returns Recognised text and optional phoneme-level assessment.
  */
-function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words: string[]): Promise<string> {
+function transcribeWithSDK(
+  wavBuffer: Buffer,
+  key: string,
+  region: string,
+  words: string[],
+  targetWord?: string,
+): Promise<TranscribeResult> {
   return new Promise((resolve, reject) => {
     const speechConfig = sdk.SpeechConfig.fromSubscription(key, region);
     speechConfig.speechRecognitionLanguage = "en-US";
@@ -50,6 +81,17 @@ function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words
     const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
     const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
 
+    if (targetWord) {
+      const pronunciationConfig = new sdk.PronunciationAssessmentConfig(
+        targetWord,
+        sdk.PronunciationAssessmentGradingSystem.HundredMark,
+        sdk.PronunciationAssessmentGranularity.Phoneme,
+        /* enableMiscue */ true,
+      );
+      pronunciationConfig.phonemeAlphabet = "IPA";
+      pronunciationConfig.applyTo(recognizer);
+    }
+
     if (words.length > 0) {
       const phraseList = sdk.PhraseListGrammar.fromRecognizer(recognizer);
       for (const word of words) phraseList.addPhrase(word);
@@ -63,8 +105,35 @@ function transcribeWithSDK(wavBuffer: Buffer, key: string, region: string, words
         if (result.reason !== sdk.ResultReason.RecognizedSpeech) {
           const details = sdk.CancellationDetails.fromResult(result as sdk.SpeechRecognitionResult);
           console.log("  → no speech reason:", details?.reason, details?.errorDetails);
+          resolve({ transcript: "", assessment: null });
+          return;
         }
-        resolve(result.reason === sdk.ResultReason.RecognizedSpeech ? result.text : "");
+
+        const transcript = result.text;
+        let assessment: PhonemeAssessment | null = null;
+
+        if (targetWord) {
+          try {
+            const json = JSON.parse(result.properties.getProperty(
+              sdk.PropertyId.SpeechServiceResponse_JsonResult,
+            )) as AzurePronunciationJson;
+            const wordResult = json?.NBest?.[0]?.Words?.[0];
+            if (wordResult?.PronunciationAssessment && Array.isArray(wordResult.Phonemes)) {
+              assessment = {
+                accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
+                phonemes: wordResult.Phonemes.map(p => ({
+                  phoneme: p.Phoneme,
+                  accuracyScore: p.PronunciationAssessment.AccuracyScore,
+                })),
+              };
+              console.log("  → pronunciation score:", assessment.accuracyScore);
+            }
+          } catch (e) {
+            console.warn("  → failed to parse pronunciation assessment JSON:", e);
+          }
+        }
+
+        resolve({ transcript, assessment });
       },
       (err) => { recognizer.close(); reject(err); }
     );
@@ -106,11 +175,13 @@ app.get("/speak", async (req, res) => {
 
 /**
  * POST /transcribe
- * Accepts a WAV audio file and returns the recognised transcript.
+ * Accepts a WAV audio file and returns the recognised transcript, plus an
+ * optional phoneme-level pronunciation assessment when `word` is supplied.
  *
  * Form fields:
  * - `audio` – WAV file (multipart/form-data).
  * - `words` – JSON array of candidate words for phrase list biasing.
+ * - `word`  – (optional) Reference word for pronunciation assessment.
  */
 app.post("/transcribe", upload.single("audio"), async (req, res) => {
   if (!req.file) { res.status(400).json({ error: "No audio file received" }); return; }
@@ -123,9 +194,13 @@ app.post("/transcribe", upload.single("audio"), async (req, res) => {
     return;
   }
 
+  const targetWord: string | undefined = req.body.word?.trim() || undefined;
+
   try {
-    const transcript = await transcribeWithSDK(req.file.buffer, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION, words);
-    res.json({ transcript });
+    const { transcript, assessment } = await transcribeWithSDK(
+      req.file.buffer, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION, words, targetWord,
+    );
+    res.json({ transcript, assessment });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Transcription failed" });
