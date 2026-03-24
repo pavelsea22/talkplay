@@ -2,6 +2,7 @@
   import { pickLesson } from '../../tasks';
   import type { Task, TaskStatus, TaskOutcome } from '../../tasks';
   import { randomPraise } from '../../tasks/shared/praise';
+  import { recordPlayedToday } from '../streaks';
   import LessonProgress from './LessonProgress.svelte';
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
@@ -29,6 +30,7 @@
       lessonComplete = true;
       showMinigame = true;
       completePraise = randomPraise();
+      recordPlayedToday();
     } else {
       taskIndex = next;
     }

@@ -4,6 +4,7 @@
 
 - [ ] Results page: shown at the end of a lesson, summarising which words were mastered, struggled with, or skipped
 - [ ] Landing page with a lesson selector, allowing the user to choose a lesson before starting
+- [ ] Add exercises for /d/ vs /g/ (M. pronounces "do" like "goo" sometimes)
 
 ## Done
 

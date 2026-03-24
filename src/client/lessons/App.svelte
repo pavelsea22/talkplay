@@ -1,6 +1,7 @@
 <script lang="ts">
   import { WORD_GROUPS, getActiveWords } from '../../words';
   import LessonCard from './LessonCard.svelte';
+  import StreakChart from './StreakChart.svelte';
 
   const wordCount = getActiveWords().length;
 </script>
@@ -20,6 +21,8 @@
     />
   {/each}
 </div>
+
+<StreakChart />
 
 <style>
   :global(*, *::before, *::after) { box-sizing: border-box; margin: 0; padding: 0; }
