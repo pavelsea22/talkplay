@@ -15,6 +15,8 @@
   let dragging = $state<string | null>(null);
   let dragOffset = $state({ x: 0, y: 0 });
   let dragImageRect = $state<DOMRect | null>(null);
+  let hoveredBucket = $state<0 | 1 | null>(null);
+  let hoverIsCorrect = $state(false);
 
   const BUCKET_COUNT = 2;
 
@@ -59,11 +61,23 @@
   /**
    * Drag over bucket (mouse).
    */
-  function onDragOver(e: DragEvent) {
+  function onDragOver(e: DragEvent, bucketIndex: 0 | 1) {
     e.preventDefault();
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'move';
     }
+    if (dragging) {
+      hoveredBucket = bucketIndex;
+      hoverIsCorrect = evaluateWordSort(dragging, bucketIndex, task) === 'correct';
+    }
+  }
+
+  /**
+   * Drag leave bucket.
+   */
+  function onDragLeave() {
+    hoveredBucket = null;
+    hoverIsCorrect = false;
   }
 
   /**
@@ -75,6 +89,8 @@
     if (word) {
       handleDrop(word, bucketIndex);
     }
+    hoveredBucket = null;
+    hoverIsCorrect = false;
   }
 
   /**
@@ -153,8 +169,12 @@
     {#each [0, 1] as bucketIndex}
       <div
         class="bucket"
+        class:hovering={hoveredBucket === bucketIndex}
+        class:correct={hoveredBucket === bucketIndex && hoverIsCorrect}
+        class:incorrect={hoveredBucket === bucketIndex && !hoverIsCorrect}
         data-bucket={bucketIndex}
-        ondragover={onDragOver}
+        ondragover={(e) => onDragOver(e, bucketIndex as 0 | 1)}
+        ondragleave={onDragLeave}
         ondrop={(e) => onDropOnBucket(e, bucketIndex as 0 | 1)}
       >
         <div class="bucket-label">{task.buckets[bucketIndex]}</div>
@@ -241,6 +261,23 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .bucket.hovering {
+    background-color: #f0f0f0;
+  }
+
+  .bucket.correct {
+    background-color: #dcfce7;
+    border-color: #22c55e;
+    box-shadow: inset 0 0 12px rgba(34, 197, 94, 0.2);
+  }
+
+  .bucket.incorrect {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.2);
   }
 
   .bucket-label {
