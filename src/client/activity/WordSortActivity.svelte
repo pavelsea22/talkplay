@@ -9,7 +9,6 @@
 
   let { task, onComplete }: Props = $props();
 
-  let remaining = $state<string[]>([...task.words]);
   let placed = $state<Record<string, 0 | 1>>({});
   let locked = $state(false);
   let dragging = $state<string | null>(null);
@@ -17,6 +16,7 @@
   let dragImageRect = $state<DOMRect | null>(null);
   let hoveredBucket = $state<0 | 1 | null>(null);
   let hoverIsCorrect = $state(false);
+  let justDraggedWord = $state<string | null>(null);
 
   const BUCKET_COUNT = 2;
 
@@ -30,11 +30,10 @@
 
     if (result === 'correct') {
       placed[word] = bucketIndex;
-      remaining = remaining.filter((w) => w !== word);
       dragging = null;
 
       // Check if all words are placed
-      if (remaining.length === 0) {
+      if (Object.keys(placed).length === task.words.length) {
         onComplete({ type: 'wordSort', correct: true });
       }
     } else {
@@ -56,6 +55,24 @@
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', word);
     }
+  }
+
+  /**
+   * Drag end (mouse) — clears dragging state if drop was outside any bucket.
+   */
+  function onDragEnd(word: string) {
+    // If dragging is still set, the drop didn't land in a bucket, so clear it
+    justDraggedWord = word;
+    dragging = null;
+    hoveredBucket = null;
+    hoverIsCorrect = false;
+  }
+
+  /**
+   * Mouse leave card — clear the "just dragged" flag so hover can re-enable.
+   */
+  function onMouseLeaveCard() {
+    justDraggedWord = null;
   }
 
   /**
@@ -150,12 +167,16 @@
 
   <!-- Word Pool -->
   <div class="word-pool">
-    {#each remaining as word (word)}
+    {#each task.words as word (word)}
       <div
         class="word-card"
+        class:placed={placed[word] !== undefined}
         class:dragging={dragging === word}
-        draggable={!locked}
+        class:skip-hover={justDraggedWord === word}
+        draggable={!locked && placed[word] === undefined}
         ondragstart={(e) => onDragStart(e, word)}
+        ondragend={() => onDragEnd(word)}
+        onmouseleave={onMouseLeaveCard}
         ontouchstart={(e) => onTouchStart(e, word)}
         ontouchend={(e) => onTouchEnd(e, word)}
       >
@@ -179,13 +200,8 @@
       >
         <div class="bucket-label">{task.buckets[bucketIndex]}</div>
         <div class="bucket-contents">
-          {#each remaining as word (word)}
+          {#each task.words as word (word)}
             {#if placed[word] === bucketIndex}
-              <div class="placed-word">{word}</div>
-            {/if}
-          {/each}
-          {#each Object.entries(placed) as [word, idx] (word)}
-            {#if idx === bucketIndex}
               <div class="placed-word">{word}</div>
             {/if}
           {/each}
@@ -212,7 +228,8 @@
   .header h2 {
     margin: 0;
     font-size: 1.5rem;
-    color: #333;
+    color: #f5f5f0;
+    font-weight: 700;
   }
 
   .word-pool {
@@ -233,12 +250,16 @@
     font-size: 1.1rem;
     touch-action: none;
     user-select: none;
-    transition: transform 0.2s, box-shadow 0.2s;
   }
 
-  .word-card:hover {
+  .word-card.placed {
+    visibility: hidden;
+  }
+
+  .word-card:hover:not(.dragging):not(.skip-hover):not(.placed) {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .word-card.dragging {
