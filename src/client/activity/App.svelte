@@ -9,8 +9,9 @@
   import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
 
   const LESSON_SIZE = 5;
+  const sound = new URLSearchParams(window.location.search).get('sound') ?? undefined;
 
-  let tasks = $state<Task[]>(pickLesson(LESSON_SIZE));
+  let tasks = $state<Task[]>(pickLesson(LESSON_SIZE, sound));
   let statuses = $state<TaskStatus[]>(Array.from({ length: LESSON_SIZE }, () => 'pending'));
   let taskIndex = $state(0);
   let lessonComplete = $state(false);
@@ -38,7 +39,7 @@
 
   /** Picks a fresh lesson and resets all state. */
   function handlePlayAgain(): void {
-    tasks = pickLesson(LESSON_SIZE);
+    tasks = pickLesson(LESSON_SIZE, sound);
     statuses = Array.from({ length: LESSON_SIZE }, () => 'pending' as TaskStatus);
     taskIndex = 0;
     lessonComplete = false;

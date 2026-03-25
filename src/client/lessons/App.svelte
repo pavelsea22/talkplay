@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { WORD_GROUPS, getActiveWords } from '../../words';
+  import { WORD_GROUPS } from '../../words';
   import LessonCard from './LessonCard.svelte';
   import StreakChart from './StreakChart.svelte';
-
-  const wordCount = getActiveWords().length;
 </script>
 
 <header class="hero">
@@ -14,10 +12,11 @@
 <p class="subtitle">Choose a sound to practise</p>
 <div class="cards">
   {#each WORD_GROUPS as group}
+    {@const wordCount = Object.values(group.positions).flat().length}
     <LessonCard
       sound="/{group.sound.toUpperCase()}/"
       label="{wordCount} words"
-      href="/activity"
+      href="/activity/?sound={group.sound}"
     />
   {/each}
 </div>

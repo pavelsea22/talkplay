@@ -26,12 +26,15 @@ export type Task = DrillWordTask | MinPairDiscrimTask;
 /**
  * Picks a mixed lesson of n tasks (currently 60 % DrillWord, 40 % MinPair),
  * shuffled so task types aren't always grouped together.
+ *
+ * @param n     - Total number of tasks in the lesson.
+ * @param sound - Optional sound group key to restrict tasks to (e.g. 'd', 't').
  */
-export function pickLesson(n: number): Task[] {
+export function pickLesson(n: number, sound?: string): Task[] {
   const drillCount    = Math.ceil(n * 0.6);
   const minPairCount  = n - drillCount;
   return shuffle([
-    ...pickDrillWordLesson(drillCount),
-    ...pickMinPairLesson(minPairCount),
+    ...pickDrillWordLesson(drillCount, sound),
+    ...pickMinPairLesson(minPairCount, sound),
   ]);
 }

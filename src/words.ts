@@ -1,6 +1,7 @@
 export interface WordEntry {
   word: string;
-  illustration: string;
+  /** Defaults to `images/words/{word}.svg` when omitted. */
+  illustration?: string;
 }
 
 export interface SoundGroup {
@@ -15,20 +16,40 @@ export interface SoundGroup {
 
 export const WORD_GROUPS: SoundGroup[] = [
   {
+    sound: "d",
+    label: "/d/",
+    positions: {
+      leading: [
+        { word: "dog"  },
+        { word: "duck" },
+        { word: "dip"  },
+        { word: "dime" },
+        { word: "dot"  },
+        { word: "doll" },
+        { word: "den"  },
+        { word: "dug"  },
+        { word: "dart" },
+        { word: "dome" },
+      ],
+      trailing: [],
+      "mid-word": [],
+    },
+  },
+  {
     sound: "t",
     label: "/t/",
     positions: {
       leading: [
-        { word: "ten",   illustration: "images/words/ten.svg" },
-        { word: "top",   illustration: "images/words/top.svg" },
-        { word: "tip",   illustration: "images/words/tip.svg" },
-        { word: "tiger", illustration: "images/words/tiger.svg" },
-        { word: "tent",  illustration: "images/words/tent.svg" },
-        { word: "time",  illustration: "images/words/time.svg" },
-        { word: "tea",   illustration: "images/words/tea.svg" },
-        { word: "tree",  illustration: "images/words/tree.svg" },
-        { word: "talk",  illustration: "images/words/talk.svg" },
-        { word: "truck", illustration: "images/words/truck.svg" },
+        { word: "ten"   },
+        { word: "top"   },
+        { word: "tip"   },
+        { word: "tiger" },
+        { word: "tent"  },
+        { word: "time"  },
+        { word: "tea"   },
+        { word: "tree"  },
+        { word: "talk"  },
+        { word: "truck" },
       ],
       trailing: [],
       "mid-word": [],
@@ -36,12 +57,35 @@ export const WORD_GROUPS: SoundGroup[] = [
   },
 ];
 
-/**
- * Returns all non-empty WordEntry items across all groups and positions.
- */
-export function getActiveWords(): WordEntry[] {
-  return WORD_GROUPS.flatMap(group =>
-    Object.values(group.positions).flat()
-  );
+/** A fully resolved word entry with illustration path guaranteed. */
+export interface ResolvedWordEntry {
+  word: string;
+  illustration: string;
 }
 
+/**
+ * Resolves a WordEntry, filling in the default illustration path when omitted.
+ */
+function resolveEntry({ word, illustration }: WordEntry): ResolvedWordEntry {
+  return { word, illustration: illustration ?? `images/words/${word}.svg` };
+}
+
+/**
+ * Returns all non-empty WordEntry items across all groups and positions,
+ * with `illustration` resolved to its default path when omitted.
+ */
+export function getActiveWords(): ResolvedWordEntry[] {
+  return WORD_GROUPS.flatMap(group =>
+    Object.values(group.positions).flat()
+  ).map(resolveEntry);
+}
+
+/**
+ * Returns resolved WordEntry items for a specific sound group.
+ * Returns all words when no matching group is found.
+ */
+export function getWordsForSound(sound: string): ResolvedWordEntry[] {
+  const group = WORD_GROUPS.find(g => g.sound === sound);
+  if (!group) return getActiveWords();
+  return Object.values(group.positions).flat().map(resolveEntry);
+}
