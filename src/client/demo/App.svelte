@@ -1,6 +1,7 @@
 <script lang="ts">
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
+  import WordSortActivity from '../activity/WordSortActivity.svelte';
   import type { Task, TaskOutcome } from '../../tasks';
 
   /** One hardcoded fixture per task type. Add an entry here when a new type is implemented. */
@@ -20,6 +21,20 @@
         wordA: { word: 'tea', illustration: 'images/words/tea.svg' },
         wordB: { word: 'key', illustration: 'images/words/key.svg' },
         targetWord: 'A',
+      } satisfies Task,
+    },
+    {
+      label: 'WordSort',
+      task: {
+        type: 'wordSort',
+        words: ['dog', 'duck', 'ten', 'top'],
+        buckets: ['starts with /d/', 'starts with /t/'],
+        correctBucket: {
+          dog: 0,
+          duck: 0,
+          ten: 1,
+          top: 1,
+        },
       } satisfies Task,
     },
   ];
@@ -62,6 +77,8 @@
       <DrillWordActivity task={fixture.task} onComplete={handleComplete} />
     {:else if fixture.task.type === 'MinPairDiscrimination'}
       <MinPairActivity task={fixture.task} onComplete={handleComplete} />
+    {:else if fixture.task.type === 'wordSort'}
+      <WordSortActivity task={fixture.task} onComplete={handleComplete} />
     {/if}
   {/key}
 </main>

@@ -6,6 +6,7 @@
   import LessonProgress from './LessonProgress.svelte';
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
+  import WordSortActivity from './WordSortActivity.svelte';
   import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
 
   const LESSON_SIZE = 5;
@@ -76,6 +77,8 @@
       <DrillWordActivity task={currentTask} onComplete={handleTaskComplete} />
     {:else if currentTask.type === 'MinPairDiscrimination'}
       <MinPairActivity task={currentTask} onComplete={handleTaskComplete} />
+    {:else if currentTask.type === 'wordSort'}
+      <WordSortActivity task={currentTask} onComplete={handleTaskComplete} />
     {/if}
   {/key}
 {/if}
