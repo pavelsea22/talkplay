@@ -254,9 +254,9 @@
 
   .bucket {
     padding: 1.5rem;
-    background: #f5f5f5;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
+    background: #ffffff;
+    border: 5px solid #d1d5db;
+    border-radius: 12px;
     min-height: 150px;
     display: flex;
     flex-direction: column;
@@ -265,19 +265,19 @@
   }
 
   .bucket.hovering {
-    background-color: #f0f0f0;
+    background-color: #fafafa;
   }
 
   .bucket.correct {
-    background-color: #dcfce7;
-    border-color: #22c55e;
-    box-shadow: inset 0 0 12px rgba(34, 197, 94, 0.2);
+    background-color: #86efac;
+    border-color: #16a34a;
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.4);
   }
 
   .bucket.incorrect {
-    background-color: #fee2e2;
-    border-color: #ef4444;
-    box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.2);
+    background-color: #fca5a5;
+    border-color: #b91c1c;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
   }
 
   .bucket-label {
