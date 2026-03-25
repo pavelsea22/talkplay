@@ -1,6 +1,7 @@
 /**
- * Shuffles an array in-place using the Fisher-Yates algorithm and returns it.
+ * Shuffles an array in-place using the Fisher-Yates algorithm.
  *
+ * @template T - The type of elements in the array.
  * @param arr - The array to shuffle.
  * @returns The same array, shuffled in-place.
  */
