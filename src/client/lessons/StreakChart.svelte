@@ -94,22 +94,25 @@
   }
 
   .section-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #6b7280;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
 
   .streak-badge {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #f0f0f0;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-on-surface);
   }
 
   .no-streak {
-    font-size: 0.85rem;
-    color: #4b5563;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
   }
 
   .chart {
@@ -129,7 +132,7 @@
     height: 14px;
     width: 14px;
     font-size: 10px;
-    color: #4b5563;
+    color: var(--color-on-surface-variant);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -150,7 +153,7 @@
   .month-label {
     height: 16px;
     font-size: 10px;
-    color: #4b5563;
+    color: var(--color-on-surface-variant);
     white-space: nowrap;
   }
 
@@ -161,7 +164,7 @@
     flex-shrink: 0;
   }
 
-  .cell.played  { background: #6bcb77; }
-  .cell.empty   { background: #252535; }
-  .cell.future  { background: #1a1a25; }
+  .cell.played  { background: var(--color-secondary-container); }
+  .cell.empty   { background: var(--color-surface-container-high); }
+  .cell.future  { background: var(--color-surface-container-low); }
 </style>

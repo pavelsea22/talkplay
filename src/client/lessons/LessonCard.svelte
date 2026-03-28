@@ -15,30 +15,38 @@
     justify-content: center;
     width: 160px;
     height: 180px;
-    background: #1e1e2e;
-    border: 2px solid #2d2d44;
-    border-radius: 20px;
+    background: var(--color-surface-container);
+    border-radius: var(--radius-xl);
     text-decoration: none;
-    transition: border-color 0.2s, background 0.2s;
-    gap: 0.5rem;
-    font-family: 'Baloo 2', system-ui, sans-serif;
+    gap: var(--space-2);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
+    transition:
+      background  var(--duration-base) var(--ease-in-out),
+      box-shadow  var(--duration-base) var(--ease-in-out),
+      transform   var(--duration-fast) var(--ease-in-out);
   }
 
   .card:hover {
-    border-color: #2563eb;
-    background: #1e1e38;
+    background: var(--color-surface-bright);
+    box-shadow: var(--shadow-ambient);
+  }
+
+  .card:active {
+    transform: scale(0.95);
   }
 
   .sound {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 3.5rem;
     font-weight: 800;
-    color: #60a5fa;
+    color: var(--color-primary);
     line-height: 1;
   }
 
   .label {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #9ca3af;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
   }
 </style>
