@@ -4,6 +4,8 @@
   import StreakChart from './StreakChart.svelte';
 </script>
 
+<a class="demo-btn" href="/demo/">Demo</a>
+
 <header class="hero">
   <p class="welcome">Welcome to</p>
   <h1 class="title">Cindy's Speech Therapy!</h1>
@@ -71,6 +73,26 @@
     color: #9ca3af;
     margin-bottom: 2.5rem;
     text-align: center;
+  }
+
+  .demo-btn {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #9ca3af;
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .demo-btn:hover {
+    background: rgba(255, 255, 255, 0.13);
+    color: #f0f0f0;
   }
 
   .cards {

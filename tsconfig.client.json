@@ -7,7 +7,8 @@
     "strict": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "include": ["src/client/**/*", "src/words.ts", "src/evaluate.ts", "src/arrayUtils.ts", "index.html", "activity/index.html", "vite.config.ts"]
 }

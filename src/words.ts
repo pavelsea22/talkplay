@@ -1,3 +1,5 @@
+import wordData from './words.json';
+
 export interface WordEntry {
   word: string;
   /** Defaults to `images/words/{word}.svg` when omitted. */
@@ -14,48 +16,7 @@ export interface SoundGroup {
   };
 }
 
-export const WORD_GROUPS: SoundGroup[] = [
-  {
-    sound: "d",
-    label: "/d/",
-    positions: {
-      leading: [
-        { word: "dog"  },
-        { word: "duck" },
-        { word: "dip"  },
-        { word: "dime" },
-        { word: "dot"  },
-        { word: "doll" },
-        { word: "den"  },
-        { word: "dug"  },
-        { word: "dart" },
-        { word: "dome" },
-      ],
-      trailing: [],
-      "mid-word": [],
-    },
-  },
-  {
-    sound: "t",
-    label: "/t/",
-    positions: {
-      leading: [
-        { word: "ten"   },
-        { word: "top"   },
-        { word: "tip"   },
-        { word: "tiger" },
-        { word: "tent"  },
-        { word: "time"  },
-        { word: "tea"   },
-        { word: "tree"  },
-        { word: "talk"  },
-        { word: "truck" },
-      ],
-      trailing: [],
-      "mid-word": [],
-    },
-  },
-];
+export const WORD_GROUPS: SoundGroup[] = wordData as SoundGroup[];
 
 /** A fully resolved word entry with illustration path guaranteed. */
 export interface ResolvedWordEntry {

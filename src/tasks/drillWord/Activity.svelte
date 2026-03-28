@@ -55,13 +55,23 @@
   }
 
   /**
-   * Speaks the word prompt, waits POST_PROMPT_DELAY_MS, then requests microphone
-   * access and starts the recording sequence automatically. Invoked on mount and
-   * after each failed attempt so the child never needs to click the mic button.
+   * Returns true if the user has already granted microphone permission.
+   * Falls back to false when the Permissions API is unavailable.
    */
-  async function beginRecordingSession(): Promise<void> {
-    if (mediaRecorder?.state === 'recording') return;
-    micDisabled = true;
+  async function isMicPermitted(): Promise<boolean> {
+    try {
+      const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      return result.state === 'granted';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Speaks the word prompt, waits POST_PROMPT_DELAY_MS, then opens the mic
+   * and hands off to startRecording. Called by both auto-start and manual paths.
+   */
+  async function runSession(): Promise<void> {
     try {
       await speakWord(task.word);
     } catch (err) {
@@ -78,9 +88,30 @@
     }
   }
 
-  /** Handles manual mic button clicks by delegating to beginRecordingSession. */
+  /**
+   * Attempts to auto-start a recording session. If microphone permission has not
+   * been granted yet, reveals the mic button for the user to tap instead.
+   * Invoked on mount and after each failed attempt.
+   */
+  async function beginRecordingSession(): Promise<void> {
+    if (mediaRecorder?.state === 'recording') return;
+    micDisabled = true;
+    if (!await isMicPermitted()) {
+      status = 'Tap the mic to start';
+      micDisabled = false;
+      return;
+    }
+    await runSession();
+  }
+
+  /**
+   * Handles manual mic button taps. Always calls getUserMedia directly —
+   * the browser will prompt for permission if it hasn't been granted yet.
+   */
   async function handleMicClick(): Promise<void> {
-    await beginRecordingSession();
+    if (mediaRecorder?.state === 'recording') return;
+    micDisabled = true;
+    await runSession();
   }
 
   /**
