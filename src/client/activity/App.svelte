@@ -93,13 +93,75 @@
 {/if}
 
 <style>
+  :global(:root) {
+    /* === Surfaces === */
+    --color-surface:                   #f1f7ff;
+    --color-surface-dim:               #afd9ff;
+    --color-surface-bright:            #dff0ff;
+    --color-surface-container-lowest:  #ffffff;
+    --color-surface-container-low:     #e7f2ff;
+    --color-surface-container:         #d7eaff;
+    --color-surface-container-high:    #cce5ff;
+    --color-surface-container-highest: #c0e1ff;
+
+    /* === On-Surface Text === */
+    --color-on-surface:         #04324c;
+    --color-on-surface-variant: #3b5f7c;
+
+    /* === Primary === */
+    --color-primary:           #006286;
+    --color-primary-container: #37bcf7;
+    --color-on-primary:        #ffffff;
+
+    /* === Secondary === */
+    --color-secondary:              #3a6b2a;
+    --color-secondary-container:    #c2efb1;
+    --color-on-secondary-container: #355b2b;
+
+    /* === Tertiary (Reward) === */
+    --color-tertiary:           #8f4900;
+    --color-tertiary-container: #fe9742;
+    --color-on-tertiary:        #ffffff;
+
+    /* === Outline === */
+    --color-outline-variant: #8db1d1;
+
+    /* === Roundedness === */
+    --radius-sm:   0.5rem;
+    --radius-md:   1rem;
+    --radius-lg:   2rem;
+    --radius-xl:   3rem;
+    --radius-full: 9999px;
+
+    /* === Spacing === */
+    --space-1:  0.25rem;
+    --space-2:  0.5rem;
+    --space-3:  0.75rem;
+    --space-4:  1rem;
+    --space-6:  1.5rem;
+    --space-8:  2rem;
+    --space-10: 2.75rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* === Elevation / Shadow === */
+    --shadow-ambient: 0 12px 32px rgba(4, 50, 76, 0.06);
+
+    /* === Motion === */
+    --duration-fast:  150ms;
+    --duration-base:  250ms;
+    --duration-slow:  400ms;
+    --ease-out-soft:  cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   :global(*, *::before, *::after) { box-sizing: border-box; margin: 0; padding: 0; }
 
   :global(body) {
     min-height: 100vh;
-    background: #0f0f13;
-    color: #f0f0f0;
-    font-family: 'Baloo 2', system-ui, sans-serif;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
   }
 
   :global(#app) {
@@ -110,32 +172,40 @@
     justify-content: center;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    :global(*, *::before, *::after) {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   h1 {
     position: fixed;
     top: 1.2rem;
-    right: 1.5rem;
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #fff;
+    right: var(--space-6);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-primary);
     margin: 0;
   }
 
   .back-btn {
     position: fixed;
     top: 1.1rem;
-    left: 1.5rem;
+    left: var(--space-6);
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-family: 'Baloo 2', system-ui, sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #9ca3af;
+    gap: var(--space-2);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color var(--duration-base) var(--ease-in-out);
   }
 
-  .back-btn:hover { color: #f0f0f0; }
+  .back-btn:hover { color: var(--color-on-surface); }
 
   .progress-container {
     position: fixed;
@@ -149,65 +219,78 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
     text-align: center;
   }
 
   .complete-title {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
   }
 
   .complete-sub {
-    font-size: 1.3rem;
-    color: #9ca3af;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: var(--color-on-surface-variant);
   }
 
   .play-again-btn {
-    margin-top: 0.5rem;
-    padding: 0.8rem 2rem;
+    margin-top: var(--space-2);
+    padding: var(--space-3) var(--space-8);
     border: none;
-    border-radius: 16px;
-    background: #2563eb;
-    color: #fff;
-    font-family: 'Baloo 2', system-ui, sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    color: var(--color-on-primary);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.4);
-    transition: background 0.2s, transform 0.1s;
+    box-shadow: var(--shadow-ambient);
+    transition:
+      opacity      var(--duration-fast) var(--ease-in-out),
+      transform    var(--duration-fast) var(--ease-in-out);
   }
 
-  .play-again-btn:hover  { background: #1d4ed8; }
-  .play-again-btn:active { transform: scale(0.96); }
+  .play-again-btn:hover  { opacity: 0.9; }
+  .play-again-btn:active { transform: scale(0.95); }
 
   .minigame-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(20px);
+    /* Fallback for devices that don't support backdrop-filter */
+    @supports not (backdrop-filter: blur(1px)) {
+      background: var(--color-surface-container-lowest);
+    }
   }
 
   .minigame-card {
-    background: #1e293b;
-    border-radius: 20px;
-    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
     width: 320px;
     height: 520px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--shadow-ambient);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
   }
 
   .minigame-title {
     text-align: center;
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #f0f0f0;
-    margin-bottom: 0.4rem;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    margin-bottom: var(--space-2);
   }
 </style>

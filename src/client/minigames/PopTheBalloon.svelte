@@ -90,11 +90,12 @@
   }
 
   .score {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
     text-align: center;
-    padding: 0.4rem 0 0.6rem;
-    color: #f0f0f0;
+    padding: var(--space-2) 0;
+    color: var(--color-on-surface-variant);
   }
 
   .arena {
@@ -137,18 +138,18 @@
 
   .close-btn {
     display: block;
-    margin: 0.7rem auto 0;
-    padding: 0.5rem 2.2rem;
+    margin: var(--space-3) auto 0;
+    padding: var(--space-2) var(--space-8);
     border: none;
-    border-radius: 12px;
-    background: #374151;
-    color: #f0f0f0;
-    font-family: 'Baloo 2', system-ui, sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-container);
+    color: var(--color-on-surface-variant);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background var(--duration-base) var(--ease-in-out);
   }
 
-  .close-btn:hover { background: #4b5563; }
+  .close-btn:hover { background: var(--color-surface-container-high); }
 </style>

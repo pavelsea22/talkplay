@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { speakWord, blobToWav } from '../../client/activity/audio';
-  import SpeechBubble from '../../client/activity/SpeechBubble.svelte';
   import { evaluateDrillWord } from './evaluator';
   import { getWeakestPhonemeHint } from './phonemeFeedback';
   import type { DrillWordTask } from './index';
@@ -26,17 +25,13 @@
   let isRecording = $state(false);
   let showNext = $state(false);
   let micDisabled = $state(false);
-  let cindyMood = $state('neutral');
-  let feedbackWord = $state<string | null>(null);
   let feedbackText = $state('');
   let feedbackClass = $state('');
-  let showIllustration = $state(true);
+  let showPromptCard = $state(true);
   let retryCount = $state(0);
   let phonemeHint = $state<string | null>(null);
 
-  // Set the word prompt before first render. showPrompt() is a function
-  // declaration (hoisted), so calling it here is safe even though the
-  // definition appears later in the file.
+  // Set the word prompt before first render.
   showPrompt();
 
   // --- Recording internals ---
@@ -46,11 +41,9 @@
 
   /** Resets the UI back to the word prompt and clears any phoneme hint. */
   function showPrompt(): void {
-    feedbackWord = task.word;
     feedbackText = '';
     feedbackClass = '';
-    showIllustration = true;
-    cindyMood = 'neutral';
+    showPromptCard = true;
     phonemeHint = null;
   }
 
@@ -162,12 +155,10 @@
         };
 
         const result = evaluateDrillWord(task, transcript, assessment, retryCount);
-        showIllustration = false;
-        feedbackWord = null;
+        showPromptCard = false;
         feedbackText = result.screenMessage;
         feedbackClass = result.screenClass;
         status = '';
-        cindyMood = result.cindyMood;
 
         if (result.outcome === 'passed') {
           phonemeHint = null;
@@ -199,7 +190,6 @@
           }
         }
       } catch (err) {
-        feedbackWord = null;
         feedbackText = '(transcription error)';
         console.error(err);
         micDisabled = false;
@@ -234,14 +224,21 @@
   });
 </script>
 
-<SpeechBubble
-  {cindyMood}
-  illustration={task.illustration}
-  {showIllustration}
-  {feedbackWord}
-  {feedbackText}
-  {feedbackClass}
-/>
+{#if showPromptCard}
+  <div class="word-card">
+    <img
+      class="word-illustration"
+      src="/{task.illustration}"
+      alt={task.word}
+      onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+    />
+    <p class="word-prompt">Say <strong>{task.word}</strong></p>
+  </div>
+{:else}
+  <div class="feedback-area">
+    <p class="feedback-text {feedbackClass}">{feedbackText}</p>
+  </div>
+{/if}
 
 {#if phonemeHint}
   <p class="phoneme-hint">{phonemeHint}</p>
@@ -275,6 +272,74 @@
 <div class="status">{status}</div>
 
 <style>
+  .word-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-8) var(--space-10);
+    background: var(--color-surface-container-lowest);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-ambient);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
+    margin-bottom: var(--space-6);
+  }
+
+  .word-illustration {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+  }
+
+  .word-prompt {
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+    text-align: center;
+  }
+
+  .word-prompt :global(strong) {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    display: block;
+    margin-top: var(--space-1);
+  }
+
+  .feedback-area {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-6);
+  }
+
+  .feedback-text {
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--color-on-surface-variant);
+    max-width: 280px;
+    line-height: 1.4;
+  }
+
+  .feedback-text.correct   { color: var(--color-secondary); }
+  .feedback-text.incorrect { color: #b91c1c; }
+
+  .phoneme-hint {
+    margin: 0 auto var(--space-4);
+    max-width: 320px;
+    text-align: center;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    line-height: 1.4;
+  }
+
   .btn-container {
     position: relative;
     width: 120px;
@@ -288,74 +353,68 @@
     height: 100%;
     border: none;
     cursor: pointer;
-    font-family: 'Baloo 2', system-ui, sans-serif;
-    font-weight: 700;
-    color: #fff;
-    transition: background 0.2s, transform 0.1s;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--color-on-primary);
+    transition: opacity var(--duration-fast) var(--ease-in-out),
+                transform var(--duration-fast) var(--ease-in-out);
   }
 
   .mic-btn {
-    border-radius: 50%;
-    background: #2563eb;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.4);
+    box-shadow: var(--shadow-ambient);
   }
 
-  .mic-btn:hover  { background: #1d4ed8; }
-  .mic-btn:active { transform: scale(0.96); }
+  .mic-btn:hover  { opacity: 0.9; }
+  .mic-btn:active { transform: scale(0.95); }
 
   .mic-btn.recording {
     background: #dc2626;
-    box-shadow: 0 4px 24px rgba(220, 38, 38, 0.5);
+    box-shadow: 0 4px 24px rgba(220, 38, 38, 0.4);
     animation: pulse 1s ease-in-out infinite;
   }
 
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 4px 24px rgba(220, 38, 38, 0.5); }
-    50%       { box-shadow: 0 4px 40px rgba(220, 38, 38, 0.85); }
+    0%, 100% { box-shadow: 0 4px 24px rgba(220, 38, 38, 0.4); }
+    50%       { box-shadow: 0 4px 40px rgba(220, 38, 38, 0.7); }
   }
 
   .mic-btn :global(svg) { width: 48px; height: 48px; pointer-events: none; }
   .mic-btn.hidden  { display: none; }
 
   .next-btn {
-    border-radius: 16px;
-    background: #2563eb;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.4);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    font-size: 1rem;
+    box-shadow: var(--shadow-ambient);
   }
-  .next-btn:hover  { background: #1d4ed8; }
-  .next-btn:active { transform: scale(0.96); }
+  .next-btn:hover  { opacity: 0.9; }
+  .next-btn:active { transform: scale(0.95); }
   .next-btn.hidden { display: none; }
 
   .status {
-    margin-top: 1.8rem;
-    font-size: 1.4rem;
-    color: #9ca3af;
+    margin-top: var(--space-6);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
     min-height: 1.4em;
     text-align: center;
   }
 
   .countdown {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 3rem;
     font-weight: 700;
     color: #dc2626;
     min-height: 4rem;
-    margin-top: 0.5rem;
-    transition: opacity 0.3s;
+    margin-top: var(--space-2);
+    transition: opacity var(--duration-base);
   }
 
   .countdown.hidden { opacity: 0; }
-
-  .phoneme-hint {
-    margin: 0.5rem auto 0;
-    max-width: 320px;
-    text-align: center;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #7c3aed;
-    line-height: 1.4;
-  }
 </style>

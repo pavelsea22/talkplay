@@ -20,32 +20,28 @@
 <style>
   .progress-bar {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
     align-items: center;
     justify-content: center;
   }
 
   .segment {
     width: 48px;
-    height: 14px;
-    border-radius: 4px;
-    border: 3px solid white;
-    transition: background 0.3s;
-  }
-
-  .segment.pending {
-    background: #4b5563;
+    height: 10px;
+    border-radius: var(--radius-full);
+    transition: background var(--duration-base) var(--ease-in-out);
+    background: var(--color-surface-container-high);
   }
 
   .segment.pending.current {
-    background: #6b7280;
+    background: var(--color-surface-dim);
   }
 
   .segment.passed {
-    background: #4ade80;
+    background: var(--color-secondary-container);
   }
 
   .segment.failed {
-    background: #f87171;
+    background: #fca5a5;
   }
 </style>

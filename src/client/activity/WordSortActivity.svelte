@@ -213,11 +213,11 @@
 
 <style>
   .word-sort-activity {
-    padding: 2rem;
+    padding: var(--space-8);
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    max-width: 600px;
+    gap: var(--space-8);
+    max-width: 560px;
     margin: 0 auto;
   }
 
@@ -227,29 +227,35 @@
 
   .header h2 {
     margin: 0;
-    font-size: 1.5rem;
-    color: #f5f5f0;
-    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
   }
 
   .word-pool {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: var(--space-4);
   }
 
   .word-card {
-    padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
+    padding: var(--space-4);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    color: var(--color-on-primary);
+    border-radius: var(--radius-lg);
     cursor: grab;
     text-align: center;
-    font-weight: 600;
-    font-size: 1.1rem;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.125rem;
     touch-action: none;
     user-select: none;
+    box-shadow: var(--shadow-ambient);
+    transition:
+      transform   var(--duration-base) var(--ease-out-soft),
+      box-shadow  var(--duration-base) var(--ease-in-out),
+      opacity     var(--duration-base) var(--ease-in-out);
   }
 
   .word-card.placed {
@@ -257,9 +263,8 @@
   }
 
   .word-card:hover:not(.dragging):not(.skip-hover):not(.placed) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(4, 50, 76, 0.12);
   }
 
   .word-card.dragging {
@@ -270,79 +275,72 @@
   .buckets {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: var(--space-4);
   }
 
   .bucket {
-    padding: 1.5rem;
-    background: #ffffff;
-    border: 5px solid #d1d5db;
-    border-radius: 12px;
+    padding: var(--space-6);
+    background: var(--color-surface-container-low);
+    border-radius: var(--radius-xl);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
     min-height: 150px;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    gap: var(--space-4);
+    transition:
+      background var(--duration-base) var(--ease-in-out),
+      box-shadow  var(--duration-base) var(--ease-in-out);
   }
 
   .bucket.hovering {
-    background-color: #fafafa;
+    background: var(--color-surface-container);
   }
 
   .bucket.correct {
-    background-color: #86efac;
-    border-color: #16a34a;
-    box-shadow: 0 0 16px rgba(34, 197, 94, 0.4);
+    background: var(--color-secondary-container);
+    box-shadow: 0 0 0 2px var(--color-secondary);
   }
 
   .bucket.incorrect {
-    background-color: #fca5a5;
-    border-color: #b91c1c;
-    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
+    background: #fecaca;
+    box-shadow: 0 0 0 2px #b91c1c;
   }
 
   .bucket-label {
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
     font-weight: 600;
-    color: #555;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
     text-align: center;
   }
 
   .bucket-contents {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
     flex: 1;
   }
 
   .placed-word {
-    padding: 0.6rem 1rem;
-    background: white;
-    border-radius: 4px;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-surface-container-lowest);
+    border-radius: var(--radius-full);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 0.9rem;
-    color: #333;
-    animation: slideIn 0.3s ease-in;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    text-align: center;
+    animation: slideIn var(--duration-slow) var(--ease-out-soft);
   }
 
   @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
   }
 
   @keyframes shake {
-    0%, 100% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-5px);
-    }
-    75% {
-      transform: translateX(5px);
-    }
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-5px); }
+    75%       { transform: translateX(5px); }
   }
 </style>

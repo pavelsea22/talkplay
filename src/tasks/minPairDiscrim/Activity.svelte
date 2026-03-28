@@ -128,20 +128,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.4rem;
-    padding: 1rem 0;
+    gap: var(--space-6);
+    padding: var(--space-4) 0;
   }
 
   .prompt {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #9ca3af;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
     margin: 0;
   }
 
   .cards {
     display: flex;
-    gap: 1.4rem;
+    gap: var(--space-6);
   }
 
   .word-card {
@@ -149,24 +150,28 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.7rem;
-    width: 140px;
-    min-height: 160px;
-    padding: 1.2rem 1rem;
-    background: #1e293b;
-    border: 3px solid #374151;
-    border-radius: 16px;
+    gap: var(--space-3);
+    width: 148px;
+    min-height: 168px;
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-surface-container);
+    border-radius: var(--radius-xl);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
+    border: none;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    transition:
+      background  var(--duration-base) var(--ease-in-out),
+      box-shadow  var(--duration-base) var(--ease-in-out),
+      transform   var(--duration-fast) var(--ease-in-out);
   }
 
   .word-card:hover:not(:disabled) {
-    background: #273548;
-    border-color: #4b5563;
+    background: var(--color-surface-bright);
+    box-shadow: var(--shadow-ambient);
   }
 
   .word-card:active:not(:disabled) {
-    transform: scale(0.97);
+    transform: scale(0.95);
   }
 
   .word-card:disabled {
@@ -174,15 +179,17 @@
   }
 
   .word-card.correct {
-    border-color: #4ade80;
-    box-shadow: 0 0 16px rgba(74, 222, 128, 0.4);
-    animation: pop-in 0.2s ease;
+    background: var(--color-secondary-container);
+    outline-color: var(--color-secondary);
+    outline-width: 2px;
+    animation: pop-in var(--duration-base) var(--ease-out-soft);
   }
 
   .word-card.incorrect {
-    border-color: #f87171;
-    box-shadow: 0 0 16px rgba(248, 113, 113, 0.4);
-    animation: shake 0.35s ease;
+    background: #fecaca;
+    outline-color: #b91c1c;
+    outline-width: 2px;
+    animation: shake var(--duration-slow) var(--ease-in-out);
   }
 
   @keyframes pop-in {
@@ -203,19 +210,20 @@
     width: 72px;
     height: 72px;
     object-fit: contain;
-    filter: brightness(0) invert(1);
   }
 
   .card-label {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #f0f0f0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
   }
 
   .status-msg {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #9ca3af;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
     min-height: 1.4em;
     margin: 0;
     text-align: center;
@@ -224,37 +232,40 @@
   .listen-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 1.4rem;
-    background: #1e293b;
-    border: 2px solid #374151;
-    border-radius: 12px;
-    color: #d1d5db;
-    font-family: 'Baloo 2', system-ui, sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-6);
+    background: var(--color-surface-container);
+    border: none;
+    border-radius: var(--radius-full);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
+    color: var(--color-on-surface-variant);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+      background  var(--duration-base) var(--ease-in-out),
+      box-shadow  var(--duration-base) var(--ease-in-out);
   }
 
   .listen-btn:hover:not(:disabled) {
-    background: #273548;
-    border-color: #4b5563;
+    background: var(--color-surface-container-high);
+    box-shadow: var(--shadow-ambient);
   }
 
   .listen-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: default;
   }
 
   .listen-btn.needs-tap {
-    border-color: #60a5fa;
-    color: #60a5fa;
+    background: var(--color-primary-container);
+    color: var(--color-primary);
     animation: pulse-btn 1.2s ease-in-out infinite;
   }
 
   @keyframes pulse-btn {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.5); }
-    50%       { box-shadow: 0 0 0 8px rgba(96, 165, 250, 0); }
+    0%, 100% { box-shadow: 0 0 0 0   rgba(0, 98, 134, 0.2); }
+    50%       { box-shadow: 0 0 0 8px rgba(0, 98, 134, 0);   }
   }
 </style>
