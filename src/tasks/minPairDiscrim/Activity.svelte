@@ -180,15 +180,11 @@
 
   .word-card.correct {
     background: var(--color-secondary-container);
-    outline-color: var(--color-secondary);
-    outline-width: 2px;
     animation: pop-in var(--duration-base) var(--ease-out-soft);
   }
 
   .word-card.incorrect {
     background: #fecaca;
-    outline-color: #b91c1c;
-    outline-width: 2px;
     animation: shake var(--duration-slow) var(--ease-in-out);
   }
 

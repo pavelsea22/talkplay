@@ -260,15 +260,17 @@
   .minigame-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--color-surface-container-lowest);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
     backdrop-filter: blur(20px);
-    /* Fallback for devices that don't support backdrop-filter */
-    @supports not (backdrop-filter: blur(1px)) {
-      background: var(--color-surface-container-lowest);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .minigame-overlay {
+      background: rgba(255, 255, 255, 0.6);
     }
   }
 

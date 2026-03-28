@@ -298,12 +298,10 @@
 
   .bucket.correct {
     background: var(--color-secondary-container);
-    box-shadow: 0 0 0 2px var(--color-secondary);
   }
 
   .bucket.incorrect {
     background: #fecaca;
-    box-shadow: 0 0 0 2px #b91c1c;
   }
 
   .bucket-label {
