@@ -218,7 +218,7 @@
 
 <div class="btn-container">
   <button
-    class="mic-btn {isRecording ? 'recording' : ''} {showNext ? 'hidden' : ''}"
+    class="mic-btn {isRecording ? 'recording' : ''} {showNext || (!isRecording && micDisabled) ? 'hidden' : ''}"
     aria-label="Start recording"
     disabled={micDisabled}
     onclick={handleMicClick}
