@@ -63,12 +63,12 @@ describe("Incorrect answer", () => {
 describe("No speech detected", () => {
   const outcome = evaluateDrillWord(twelve, "", null, 0);
 
-  it('shows "No speech detected" on screen', () => {
-    expect(outcome.screenMessage).toBe("No speech detected — try again!");
+  it('shows "I couldn\'t hear you" on screen', () => {
+    expect(outcome.screenMessage).toBe("I couldn't hear you — try again!");
   });
 
   it("speaks the feedback message", () => {
-    expect(outcome.spoken).toBe("No speech detected, try again!");
+    expect(outcome.spoken).toBe("I couldn't hear you, try again!");
   });
 });
 

@@ -8,8 +8,8 @@
   import type { TaskOutcome, PhonemeAssessment } from '../shared/types';
 
   const RECORD_SECONDS = 3;
-  const PRE_ROLL_MS = 1000;       // "Get ready…" pause before mic opens
-  const ERROR_DISPLAY_MS = 2000;  // how long an incorrect-answer message stays on screen
+  const POST_PROMPT_DELAY_MS = 50;  // delay after voice prompt before mic opens
+  const ERROR_DISPLAY_MS = 2000;    // how long an incorrect-answer message stays on screen
   const MAX_RETRIES = 3;
 
   interface Props {
@@ -21,7 +21,7 @@
   let { task, onComplete }: Props = $props();
 
   // --- UI state ---
-  let status = $state('Press the mic to record');
+  let status = $state('');
   let countdownValue: number | null = $state(null);
   let isRecording = $state(false);
   let showNext = $state(false);
@@ -31,7 +31,6 @@
   let feedbackText = $state('');
   let feedbackClass = $state('');
   let showIllustration = $state(true);
-  let wordSpoken = $state(false);  // true once TTS has played for this word
   let retryCount = $state(0);
   let phonemeHint = $state<string | null>(null);
 
@@ -55,9 +54,20 @@
     phonemeHint = null;
   }
 
-  async function handleMicClick(): Promise<void> {
+  /**
+   * Speaks the word prompt, waits POST_PROMPT_DELAY_MS, then requests microphone
+   * access and starts the recording sequence automatically. Invoked on mount and
+   * after each failed attempt so the child never needs to click the mic button.
+   */
+  async function beginRecordingSession(): Promise<void> {
     if (mediaRecorder?.state === 'recording') return;
     micDisabled = true;
+    try {
+      await speakWord(task.word);
+    } catch (err) {
+      console.error('TTS failed:', err);
+    }
+    await new Promise(r => setTimeout(r, POST_PROMPT_DELAY_MS));
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       startRecording(stream);
@@ -68,11 +78,18 @@
     }
   }
 
+  /** Handles manual mic button clicks by delegating to beginRecordingSession. */
+  async function handleMicClick(): Promise<void> {
+    await beginRecordingSession();
+  }
+
   /**
    * Full recording sequence:
-   * 1. PRE_ROLL_MS "Get ready…" pause (speaks the word on first attempt).
-   * 2. Records for RECORD_SECONDS with a live countdown.
-   * 3. On stop: transcribes audio, evaluates, updates UI, calls onComplete if finished.
+   * 1. Records for RECORD_SECONDS with a live countdown.
+   * 2. On stop: transcribes audio, evaluates, updates UI, calls onComplete if finished.
+   *
+   * Callers are responsible for speaking the word prompt and waiting
+   * POST_PROMPT_DELAY_MS before invoking this function.
    */
   async function startRecording(stream: MediaStream): Promise<void> {
     chunks = [];
@@ -147,8 +164,7 @@
             onComplete('failed');
           } else {
             showPrompt();
-            status = 'Press the mic to record';
-            micDisabled = false;
+            beginRecordingSession();
           }
         }
       } catch (err) {
@@ -160,13 +176,6 @@
     };
 
     recorder.start();
-
-    status = 'Get ready…';
-    if (!wordSpoken) {
-      speakWord(task.word).catch(err => console.error('TTS failed:', err));
-      wordSpoken = true;
-    }
-    await new Promise(r => setTimeout(r, PRE_ROLL_MS));
 
     isRecording = true;
     let remaining = RECORD_SECONDS;
@@ -188,10 +197,9 @@
     }, 1000);
   }
 
-  // Speak the word as soon as this task mounts.
+  // Speak the word prompt and automatically begin recording on mount.
   onMount(() => {
-    speakWord(task.word).catch(err => console.error('TTS failed:', err));
-    wordSpoken = true;
+    beginRecordingSession();
   });
 </script>
 

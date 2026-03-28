@@ -67,11 +67,11 @@ export function evaluateDrillWord(
   const displayHeard = heard.join(' ').trim();
 
   const screenMessage = !displayHeard
-    ? 'No speech detected — try again!'
+    ? "I couldn't hear you — try again!"
     : `I heard "${displayHeard}". Try again!`;
 
   const spokenMessage = !displayHeard
-    ? 'No speech detected, try again!'
+    ? "I couldn't hear you, try again!"
     : `I heard "${displayHeard}", try again!`;
 
   return {

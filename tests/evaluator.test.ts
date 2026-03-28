@@ -94,8 +94,8 @@ describe("evaluateDrillWord — assessment null, string-match fallback", () => {
     expect(result.screenMessage).toContain("habit");
   });
 
-  it("screenMessage says no speech detected on empty transcript", () => {
+  it("screenMessage says couldn't hear you on empty transcript", () => {
     const result = evaluateDrillWord(task, "", null, 0);
-    expect(result.screenMessage).toMatch(/no speech/i);
+    expect(result.screenMessage).toMatch(/couldn't hear/i);
   });
 });
