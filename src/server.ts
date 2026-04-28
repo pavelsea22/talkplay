@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import { escapeSSML } from './ssml';
 import multer from "multer";
 import path from "path";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
@@ -155,9 +156,10 @@ app.get("/speak", async (req, res) => {
   if (!word) { res.status(400).end(); return; }
 
   const text = (req.query.raw === "1") ? word : `Say ${word}`;
-  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-  const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escaped}</voice></speak>`;
+  const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escapeSSML(text)}</voice></speak>`;
 
+  const ttsAbort = new AbortController();
+  const ttsTimer = setTimeout(() => ttsAbort.abort(), 10_000);
   const response = await fetch(
     `https://${AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
     {
@@ -168,8 +170,10 @@ app.get("/speak", async (req, res) => {
         "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
       },
       body: ssml,
+      signal: ttsAbort.signal,
     }
   );
+  clearTimeout(ttsTimer);
 
   res.setHeader("Content-Type", "audio/mpeg");
   res.send(Buffer.from(await response.arrayBuffer()));

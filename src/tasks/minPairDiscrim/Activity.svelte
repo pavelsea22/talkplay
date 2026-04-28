@@ -2,10 +2,9 @@
   import { onMount } from 'svelte';
   import { speakWord } from '../../client/activity/audio';
   import { evaluateMinPairDiscrim } from './index';
+  import { MAX_RETRIES } from '../constants';
   import type { MinPairDiscrimTask } from './index';
   import type { TaskOutcome } from '../shared/types';
-
-  const MAX_RETRIES = 3;
 
   interface Props {
     task: MinPairDiscrimTask;

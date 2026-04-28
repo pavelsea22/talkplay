@@ -1,4 +1,8 @@
 import type { PhonemeAssessment } from './tasks/shared/types';
+import { escapeSSML } from './ssml';
+
+/** Timeout for Azure TTS and STT calls in milliseconds. */
+const AZURE_TIMEOUT_MS = 10_000;
 
 export interface Env {
   AZURE_SPEECH_KEY: string;
@@ -35,15 +39,11 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
   if (!word) return new Response(null, { status: 400 });
 
   const text = url.searchParams.get('raw') === '1' ? word : `Say ${word}`;
-  const escaped = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-  const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escaped}</voice></speak>`;
+  const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escapeSSML(text)}</voice></speak>`;
 
   const ssmlBytes = new TextEncoder().encode(ssml);
+  const ttsAbort = AbortController ? new AbortController() : null;
+  const ttsTimer = ttsAbort ? setTimeout(() => ttsAbort.abort(), AZURE_TIMEOUT_MS) : null;
 
   const response = await fetch(
     `https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
@@ -57,8 +57,10 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
         'User-Agent': 'talkplay-worker/1.0',
       },
       body: ssmlBytes,
+      signal: ttsAbort?.signal,
     },
   );
+  if (ttsTimer) clearTimeout(ttsTimer);
 
   if (!response.ok) {
     console.error('Azure TTS error:', response.status, await response.text());
@@ -137,17 +139,23 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
 
   const azureUrl = `https://${env.AZURE_SPEECH_REGION}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?${params}`;
 
+  const sttAbort = new AbortController();
+  const sttTimer = setTimeout(() => sttAbort.abort(), AZURE_TIMEOUT_MS);
+
   let azureResponse: Response;
   try {
     azureResponse = await fetch(azureUrl, {
       method: 'POST',
       headers,
       body: audioBytes,
+      signal: sttAbort.signal,
     });
   } catch (err) {
+    clearTimeout(sttTimer);
     console.error('Azure fetch error:', err);
     return jsonError('Transcription failed', 500);
   }
+  clearTimeout(sttTimer);
 
   if (!azureResponse.ok) {
     console.error('Azure error:', azureResponse.status, await azureResponse.text());

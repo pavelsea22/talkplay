@@ -1,16 +1,7 @@
 import { recordPlayedToday, getPlayedDates, getCurrentStreak, toLocalISODate } from '../src/client/streaks';
+import { installLocalStorageMock } from './helpers/localStorage';
 
-// Mock localStorage for the Node test environment
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-  return {
-    getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
-  };
-})();
-Object.defineProperty(global, 'localStorage', { value: localStorageMock });
+installLocalStorageMock();
 
 /** Sets the system clock to the given local date string "YYYY-MM-DD". */
 function setToday(dateStr: string): void {
