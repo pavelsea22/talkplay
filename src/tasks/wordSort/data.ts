@@ -1,4 +1,5 @@
 import type { WordSortTask } from './types';
+import { shuffle } from '../../arrayUtils';
 
 /**
  * WordSort lesson sets for /d/ vs /t/ discrimination.
@@ -48,6 +49,6 @@ export function pickWordSortLesson(): WordSortTask {
   const set = WORD_SORT_SETS[Math.floor(Math.random() * WORD_SORT_SETS.length)];
   return {
     ...set,
-    words: [...set.words].sort(() => Math.random() - 0.5), // shuffle words
+    words: shuffle([...set.words]),
   };
 }

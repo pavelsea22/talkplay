@@ -3,13 +3,13 @@
   import { speakWord, blobToWav } from '../../client/activity/audio';
   import { evaluateDrillWord } from './evaluator';
   import { getWeakestPhonemeHint } from './phonemeFeedback';
+  import { MAX_RETRIES } from '../constants';
   import type { DrillWordTask } from './index';
   import type { TaskOutcome, PhonemeAssessment } from '../shared/types';
 
   const RECORD_SECONDS = 3;
   const POST_PROMPT_DELAY_MS = 50;  // delay after voice prompt before mic opens
   const ERROR_DISPLAY_MS = 2000;    // how long an incorrect-answer message stays on screen
-  const MAX_RETRIES = 3;
 
   interface Props {
     task: DrillWordTask;

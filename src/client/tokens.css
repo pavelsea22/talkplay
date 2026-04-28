@@ -1,0 +1,90 @@
+/*
+ * Design tokens — imported once by each page's main.ts.
+ * Defines the full color palette, spacing scale, radius scale,
+ * elevation, and motion variables used across all pages.
+ *
+ * Page-specific layout rules (body flex direction, padding, etc.)
+ * remain in each page's App.svelte <style> block.
+ */
+
+:root {
+  /* === Surfaces === */
+  --color-surface:                   #f1f7ff;
+  --color-surface-dim:               #afd9ff;
+  --color-surface-bright:            #dff0ff;
+  --color-surface-container-lowest:  #ffffff;
+  --color-surface-container-low:     #e7f2ff;
+  --color-surface-container:         #d7eaff;
+  --color-surface-container-high:    #cce5ff;
+  --color-surface-container-highest: #c0e1ff;
+
+  /* === On-Surface Text === */
+  --color-on-surface:         #04324c;
+  --color-on-surface-variant: #3b5f7c;
+
+  /* === Primary === */
+  --color-primary:           #006286;
+  --color-primary-container: #37bcf7;
+  --color-on-primary:        #ffffff;
+
+  /* === Secondary === */
+  --color-secondary:              #3a6b2a;
+  --color-secondary-container:    #c2efb1;
+  --color-on-secondary-container: #355b2b;
+
+  /* === Tertiary (Reward) === */
+  --color-tertiary:           #8f4900;
+  --color-tertiary-container: #fe9742;
+  --color-on-tertiary:        #ffffff;
+
+  /* === Outline === */
+  --color-outline-variant: #8db1d1;
+
+  /* === Roundedness === */
+  --radius-sm:   0.5rem;
+  --radius-md:   1rem;
+  --radius-lg:   2rem;
+  --radius-xl:   3rem;
+  --radius-full: 9999px;
+
+  /* === Spacing === */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.75rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* === Elevation / Shadow === */
+  --shadow-ambient: 0 12px 32px rgba(4, 50, 76, 0.06);
+
+  /* === Motion === */
+  --duration-fast:  150ms;
+  --duration-base:  250ms;
+  --duration-slow:  400ms;
+  --ease-out-soft:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+}
