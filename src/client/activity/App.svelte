@@ -1,25 +1,57 @@
 <script lang="ts">
-  import { pickLesson } from '../../tasks';
+  import { pickLesson, pickLessonForSounds } from '../../tasks';
   import type { Task, TaskStatus, TaskOutcome } from '../../tasks';
   import { randomPraise } from '../../tasks/shared/praise';
   import { recordPlayedToday } from '../streaks';
+  import {
+    getParentConfig,
+    markTodayStarted,
+    markTodayCompleted,
+  } from '../lessonState';
   import LessonProgress from './LessonProgress.svelte';
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
   import WordSortActivity from './WordSortActivity.svelte';
   import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
+  import CompletionCertificate from './CompletionCertificate.svelte';
 
-  const LESSON_SIZE = 5;
-  const sound = new URLSearchParams(window.location.search).get('sound') ?? undefined;
+  /** Number of tasks added by the "more practice" mode after today's lesson. */
+  const EXTRA_PRACTICE_SIZE = 5;
+  /** Default lesson size for free-practice (single-sound) mode. */
+  const FREE_PRACTICE_SIZE = 5;
 
-  let tasks = $state<Task[]>(pickLesson(LESSON_SIZE, sound));
-  let statuses = $state<TaskStatus[]>(Array.from({ length: LESSON_SIZE }, () => 'pending'));
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode'); // 'today' | 'more' | null (free practice)
+  const sound = params.get('sound') ?? undefined;
+
+  /** Picks the initial task list based on the URL mode. */
+  function buildLesson(): Task[] {
+    if (mode === 'today') {
+      const cfg = getParentConfig();
+      return pickLessonForSounds(cfg.exerciseCount, cfg.sounds);
+    }
+    if (mode === 'more') {
+      const cfg = getParentConfig();
+      return pickLessonForSounds(EXTRA_PRACTICE_SIZE, cfg.sounds);
+    }
+    return pickLesson(FREE_PRACTICE_SIZE, sound);
+  }
+
+  let tasks = $state<Task[]>(buildLesson());
+  let statuses = $state<TaskStatus[]>(tasks.map(() => 'pending' as TaskStatus));
   let taskIndex = $state(0);
   let lessonComplete = $state(false);
   let showMinigame = $state(false);
+  let showCertificate = $state(false);
   let completePraise = $state('');
 
   let currentTask = $derived(tasks[taskIndex]);
+
+  // Today's-lesson mode marks progress in localStorage so the home screen can
+  // show the right CTA on next visit.
+  if (mode === 'today') {
+    markTodayStarted();
+  }
 
   /**
    * Called by whichever Activity component is currently mounted.
@@ -33,6 +65,10 @@
       showMinigame = true;
       completePraise = randomPraise();
       recordPlayedToday();
+      if (mode === 'today') {
+        markTodayCompleted();
+        showCertificate = true;
+      }
     } else {
       taskIndex = next;
     }
@@ -40,8 +76,8 @@
 
   /** Picks a fresh lesson and resets all state. */
   function handlePlayAgain(): void {
-    tasks = pickLesson(LESSON_SIZE, sound);
-    statuses = Array.from({ length: LESSON_SIZE }, () => 'pending' as TaskStatus);
+    tasks = buildLesson();
+    statuses = tasks.map(() => 'pending' as TaskStatus);
     taskIndex = 0;
     lessonComplete = false;
   }
@@ -90,6 +126,10 @@
       <PopTheBalloon onClose={() => showMinigame = false} />
     </div>
   </div>
+{/if}
+
+{#if showCertificate}
+  <CompletionCertificate onClose={() => showCertificate = false} />
 {/if}
 
 <style>
