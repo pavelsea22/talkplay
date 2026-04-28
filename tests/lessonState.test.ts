@@ -4,6 +4,7 @@ import {
   getTodayStatus,
   markTodayStarted,
   markTodayCompleted,
+  resetTodayLesson,
   DEFAULT_PARENT_CONFIG,
 } from '../src/client/lessonState';
 
@@ -137,5 +138,28 @@ describe('markTodayCompleted', () => {
     markTodayStarted();
     markTodayCompleted();
     expect(getTodayStatus()).toBe('completed');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resetTodayLesson
+// ---------------------------------------------------------------------------
+
+describe('resetTodayLesson', () => {
+  it('resets in_progress back to not_started', () => {
+    markTodayStarted();
+    resetTodayLesson();
+    expect(getTodayStatus()).toBe('not_started');
+  });
+
+  it('resets completed back to not_started', () => {
+    markTodayCompleted();
+    resetTodayLesson();
+    expect(getTodayStatus()).toBe('not_started');
+  });
+
+  it('is a no-op when already not_started', () => {
+    resetTodayLesson();
+    expect(getTodayStatus()).toBe('not_started');
   });
 });

@@ -3,6 +3,8 @@
   import {
     getParentConfig,
     setParentConfig,
+    getTodayStatus,
+    resetTodayLesson,
     DEFAULT_PARENT_CONFIG,
   } from '../lessonState';
 
@@ -10,6 +12,7 @@
   let selectedSounds = $state<Set<string>>(new Set(initial.sounds));
   let exerciseCount = $state(initial.exerciseCount);
   let saved = $state(false);
+  let todayStatus = $state(getTodayStatus());
 
   const exerciseOptions = [3, 5, 7, 10, 15];
 
@@ -39,6 +42,12 @@
     selectedSounds = new Set(DEFAULT_PARENT_CONFIG.sounds);
     exerciseCount = DEFAULT_PARENT_CONFIG.exerciseCount;
     saved = false;
+  }
+
+  /** Resets today's lesson to not_started so the child can redo it. */
+  function handleResetTodayLesson(): void {
+    resetTodayLesson();
+    todayStatus = getTodayStatus();
   }
 </script>
 
@@ -90,6 +99,21 @@
       </button>
     {/each}
   </div>
+</section>
+
+<section class="panel">
+  <h2 class="section-title">Today's lesson</h2>
+  <p class="section-hint">
+    Current status: <strong>{todayStatus.replace('_', ' ')}</strong>
+  </p>
+  <button
+    type="button"
+    class="reset-lesson-btn"
+    disabled={todayStatus === 'not_started'}
+    onclick={handleResetTodayLesson}
+  >
+    Reset to not started
+  </button>
 </section>
 
 <div class="actions">
@@ -298,5 +322,26 @@
     margin-top: var(--space-4);
     color: var(--color-primary);
     font-weight: 600;
+  }
+
+  .reset-lesson-btn {
+    padding: var(--space-2) var(--space-6);
+    border: 2px solid var(--color-outline-variant);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-container-low);
+    color: var(--color-on-surface-variant);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-in-out);
+  }
+  .reset-lesson-btn:not(:disabled):hover {
+    border-color: var(--color-primary);
+    color: var(--color-on-surface);
+  }
+  .reset-lesson-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 </style>

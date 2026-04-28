@@ -91,3 +91,11 @@ export function markTodayCompleted(): void {
   };
   localStorage.setItem(TODAY_LESSON_KEY, JSON.stringify(record));
 }
+
+/**
+ * Resets today's lesson back to `not_started` by removing the stored record.
+ * Intended for the Parent Portal so a parent can let the child redo the lesson.
+ */
+export function resetTodayLesson(): void {
+  localStorage.removeItem(TODAY_LESSON_KEY);
+}
