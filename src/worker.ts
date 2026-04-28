@@ -66,7 +66,11 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
   }
 
   return new Response(response.body, {
-    headers: { 'Content-Type': 'audio/mpeg' },
+    headers: {
+      'Content-Type': 'audio/mpeg',
+      // TTS output for a given word is deterministic — let the browser/edge cache it.
+      'Cache-Control': 'public, max-age=86400, immutable',
+    },
   });
 }
 
