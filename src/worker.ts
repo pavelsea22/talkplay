@@ -43,6 +43,8 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
     .replace(/'/g, '&apos;');
   const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='en-US-AnaNeural'>${escaped}</voice></speak>`;
 
+  const ssmlBytes = new TextEncoder().encode(ssml);
+
   const response = await fetch(
     `https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
     {
@@ -50,13 +52,20 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
       headers: {
         'Ocp-Apim-Subscription-Key': env.AZURE_SPEECH_KEY,
         'Content-Type': 'application/ssml+xml',
+        'Content-Length': String(ssmlBytes.byteLength),
         'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+        'User-Agent': 'talkplay-worker/1.0',
       },
-      body: ssml,
+      body: ssmlBytes,
     },
   );
 
-  return new Response(await response.arrayBuffer(), {
+  if (!response.ok) {
+    console.error('Azure TTS error:', response.status, await response.text());
+    return new Response(null, { status: 502 });
+  }
+
+  return new Response(response.body, {
     headers: { 'Content-Type': 'audio/mpeg' },
   });
 }
@@ -100,10 +109,14 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
   // Phrase-list biasing: semicolon-separated words passed as a single `phrases` hint.
   if (words.length > 0) params.set('phrases', words.join(';'));
 
+  const audioBytes = await (audioFile as File).arrayBuffer();
+
   const headers: Record<string, string> = {
     'Ocp-Apim-Subscription-Key': env.AZURE_SPEECH_KEY,
     'Content-Type': 'audio/wav',
+    'Content-Length': String(audioBytes.byteLength),
     'Accept': 'application/json',
+    'User-Agent': 'talkplay-worker/1.0',
   };
 
   if (targetWord) {
@@ -125,7 +138,7 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
     azureResponse = await fetch(azureUrl, {
       method: 'POST',
       headers,
-      body: await (audioFile as File).arrayBuffer(),
+      body: audioBytes,
     });
   } catch (err) {
     console.error('Azure fetch error:', err);
@@ -171,6 +184,7 @@ function jsonError(message: string, status: number): Response {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
+    console.log('Worker fetch:', request.method, pathname, 'key set:', !!env.AZURE_SPEECH_KEY);
 
     if (pathname === '/speak' && request.method === 'GET') return handleSpeak(request, env);
     if (pathname === '/transcribe' && request.method === 'POST') return handleTranscribe(request, env);
