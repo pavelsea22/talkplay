@@ -4,6 +4,13 @@
     onClose: () => void;
   }
   const { onClose }: Props = $props();
+
+  // "Monday, April 27" — fixed at mount time, locale-aware.
+  const todayLabel = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
 </script>
 
 <div class="cert-backdrop">
@@ -18,6 +25,7 @@
       <div class="trophy" aria-hidden="true">🏆</div>
       <h1 class="cert-title">Awesome work!</h1>
       <p class="cert-subtitle">You finished today's lesson!</p>
+      <p class="cert-date">{todayLabel}</p>
 
       <div class="cert-seal">
         <span class="cert-seal-text">Today's<br/>Champion</span>
@@ -119,6 +127,16 @@
     font-size: 1.125rem;
     font-weight: 600;
     color: #5b8def;
+    margin-bottom: var(--space-2);
+  }
+
+  .cert-date {
+    position: relative;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a5568;
+    letter-spacing: 0.04em;
     margin-bottom: var(--space-6);
   }
 
