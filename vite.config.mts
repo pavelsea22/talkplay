@@ -10,6 +10,7 @@ export default defineConfig({
         lessons:  resolve(__dirname, 'index.html'),
         activity: resolve(__dirname, 'activity/index.html'),
         demo:     resolve(__dirname, 'demo/index.html'),
+        parent:   resolve(__dirname, 'parent/index.html'),
       },
     },
     outDir: 'dist/public',

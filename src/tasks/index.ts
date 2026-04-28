@@ -43,3 +43,23 @@ export function pickLesson(n: number, sound?: string): Task[] {
     ...Array.from({ length: wordSortCount }, () => pickWordSortLesson()),
   ]);
 }
+
+/**
+ * Picks a mixed lesson of n tasks distributed evenly across the given sounds.
+ * The leftover (when n doesn't divide evenly) goes to the first sounds in the
+ * list. Result is shuffled so task types and sounds are interleaved.
+ *
+ * @param n      - Total number of tasks in the lesson.
+ * @param sounds - Sound group keys to draw from. Empty falls back to all sounds.
+ */
+export function pickLessonForSounds(n: number, sounds: string[]): Task[] {
+  if (sounds.length === 0) return pickLesson(n);
+  const base = Math.floor(n / sounds.length);
+  const remainder = n - base * sounds.length;
+  const tasks: Task[] = [];
+  sounds.forEach((sound, i) => {
+    const count = base + (i < remainder ? 1 : 0);
+    if (count > 0) tasks.push(...pickLesson(count, sound));
+  });
+  return shuffle(tasks);
+}
