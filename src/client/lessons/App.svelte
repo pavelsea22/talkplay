@@ -19,7 +19,7 @@
 
 {#if todayStatus === 'completed'}
   <a class="done-link" href="/activity/?mode=more">
-    Today's Lesson complete! But you can do more practice if you want
+    Today's lesson complete! But you can do more practice if you want
   </a>
 {:else}
   <a class="today-cta" href="/activity/?mode=today">

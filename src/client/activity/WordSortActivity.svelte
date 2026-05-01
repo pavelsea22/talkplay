@@ -1,6 +1,7 @@
 <script lang="ts">
   import { evaluateWordSort } from '../../tasks/wordSort/evaluator';
   import type { WordSortTask } from '../../tasks/wordSort';
+  import { speakWord } from './audio';
 
   interface Props {
     task: WordSortTask;
@@ -31,6 +32,7 @@
     if (result === 'correct') {
       placed[word] = bucketIndex;
       dragging = null;
+      speakWord(word, { raw: true });
 
       // Check if all words are placed
       if (Object.keys(placed).length === task.words.length) {
