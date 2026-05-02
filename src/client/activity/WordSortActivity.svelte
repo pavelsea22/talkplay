@@ -11,6 +11,7 @@
   let { task, onComplete }: Props = $props();
 
   let placed = $state<Record<string, 0 | 1>>({});
+  let allPlaced = $derived(Object.keys(placed).length === task.words.length);
   let locked = $state(false);
   let dragging = $state<string | null>(null);
   let dragOffset = $state({ x: 0, y: 0 });
@@ -34,10 +35,6 @@
       dragging = null;
       speakWord(word, { raw: true });
 
-      // Check if all words are placed
-      if (Object.keys(placed).length === task.words.length) {
-        onComplete({ type: 'wordSort', correct: true });
-      }
     } else {
       // Reject animation
       locked = true;
@@ -188,7 +185,7 @@
   </div>
 
   <!-- Buckets -->
-  <div class="buckets">
+  <div class="buckets" class:all-placed={allPlaced}>
     {#each [0, 1] as bucketIndex}
       <div
         class="bucket"
@@ -211,6 +208,12 @@
       </div>
     {/each}
   </div>
+
+  {#if allPlaced}
+    <button class="next-btn" onclick={() => onComplete({ type: 'wordSort', correct: true })}>
+      Next →
+    </button>
+  {/if}
 </div>
 
 <style>
@@ -332,6 +335,26 @@
     text-align: center;
     animation: slideIn var(--duration-slow) var(--ease-out-soft);
   }
+
+  .next-btn {
+    align-self: center;
+    padding: var(--space-3) var(--space-8);
+    border: none;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    color: var(--color-on-primary);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-ambient);
+    transition:
+      opacity   var(--duration-fast) var(--ease-in-out),
+      transform var(--duration-fast) var(--ease-in-out);
+  }
+
+  .next-btn:hover  { opacity: 0.9; }
+  .next-btn:active { transform: scale(0.95); }
 
   @keyframes slideIn {
     from { opacity: 0; transform: scale(0.85); }
