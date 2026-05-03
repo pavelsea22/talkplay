@@ -5,6 +5,7 @@
   import { MAX_RETRIES } from '../constants';
   import type { MinPairDiscrimTask } from './index';
   import type { TaskOutcome } from '../shared/types';
+  import NextButton from '../../client/activity/NextButton.svelte';
 
   interface Props {
     task: MinPairDiscrimTask;
@@ -23,6 +24,7 @@
   let selectedCard = $state<'A' | 'B' | null>(null);
   let cardFeedback = $state<'correct' | 'incorrect' | null>(null);
   let statusMsg = $state('');
+  let showNext = $state(false);
   /** True when the initial autoplay was blocked by the browser. */
   let needsTap = $state(false);
 
@@ -52,8 +54,7 @@
       if (result.spoken) {
         await speakWord(result.spoken, { raw: true }).catch(err => console.error('TTS failed:', err));
       }
-      await new Promise(r => setTimeout(r, 900));
-      onComplete('passed');
+      showNext = true;
     } else {
       cardFeedback = 'incorrect';
       statusMsg = result.screenMessage;
@@ -105,6 +106,10 @@
   </div>
 
   <p class="status-msg">{statusMsg}</p>
+
+  {#if showNext}
+    <NextButton onclick={() => onComplete('passed')} />
+  {/if}
 
   <button
     class="listen-btn {needsTap ? 'needs-tap' : ''}"
