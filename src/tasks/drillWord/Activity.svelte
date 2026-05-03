@@ -6,6 +6,7 @@
   import { MAX_RETRIES } from '../constants';
   import type { DrillWordTask } from './index';
   import type { TaskOutcome, PhonemeAssessment } from '../shared/types';
+  import NextButton from '../../client/activity/NextButton.svelte';
 
   const RECORD_SECONDS = 3;
   const POST_PROMPT_DELAY_MS = 50;  // delay after voice prompt before mic opens
@@ -258,12 +259,11 @@
       <line x1="8"  y1="22" x2="16" y2="22"/>
     </svg>
   </button>
-  <button
-    class="next-btn {!showNext ? 'hidden' : ''}"
-    onclick={() => onComplete('passed')}
-  >
-    Next →
-  </button>
+  {#if showNext}
+    <div class="next-btn-overlay">
+      <NextButton onclick={() => onComplete('passed')} />
+    </div>
+  {/if}
 </div>
 
 <div class="countdown {countdownValue === null ? 'hidden' : ''}">
@@ -346,7 +346,7 @@
     height: 120px;
   }
 
-  .mic-btn, .next-btn {
+  .mic-btn {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -358,6 +358,17 @@
     color: var(--color-on-primary);
     transition: opacity var(--duration-fast) var(--ease-in-out),
                 transform var(--duration-fast) var(--ease-in-out);
+  }
+
+  .next-btn-overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .next-btn-overlay :global(button) {
+    width: 100%;
+    height: 100%;
+    padding: 0;
   }
 
   .mic-btn {
@@ -385,16 +396,6 @@
 
   .mic-btn :global(svg) { width: 48px; height: 48px; pointer-events: none; }
   .mic-btn.hidden  { display: none; }
-
-  .next-btn {
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
-    font-size: 1rem;
-    box-shadow: var(--shadow-ambient);
-  }
-  .next-btn:hover  { opacity: 0.9; }
-  .next-btn:active { transform: scale(0.95); }
-  .next-btn.hidden { display: none; }
 
   .status {
     margin-top: var(--space-6);

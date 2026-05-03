@@ -2,6 +2,7 @@
   import { evaluateWordSort } from '../../tasks/wordSort/evaluator';
   import type { WordSortTask } from '../../tasks/wordSort';
   import { speakWord } from './audio';
+  import NextButton from './NextButton.svelte';
 
   interface Props {
     task: WordSortTask;
@@ -210,9 +211,7 @@
   </div>
 
   {#if allPlaced}
-    <button class="next-btn" onclick={() => onComplete({ type: 'wordSort', correct: true })}>
-      Next →
-    </button>
+    <NextButton onclick={() => onComplete({ type: 'wordSort', correct: true })} />
   {/if}
 </div>
 
@@ -335,26 +334,6 @@
     text-align: center;
     animation: slideIn var(--duration-slow) var(--ease-out-soft);
   }
-
-  .next-btn {
-    align-self: center;
-    padding: var(--space-3) var(--space-8);
-    border: none;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
-    color: var(--color-on-primary);
-    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: var(--shadow-ambient);
-    transition:
-      opacity   var(--duration-fast) var(--ease-in-out),
-      transform var(--duration-fast) var(--ease-in-out);
-  }
-
-  .next-btn:hover  { opacity: 0.9; }
-  .next-btn:active { transform: scale(0.95); }
 
   @keyframes slideIn {
     from { opacity: 0; transform: scale(0.85); }
