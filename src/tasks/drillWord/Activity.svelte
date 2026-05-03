@@ -329,7 +329,7 @@
     line-height: 1.4;
   }
 
-  .feedback-text.correct   { color: var(--color-secondary); }
+  .feedback-text.correct   { color: var(--color-secondary); font-size: 2rem; }
   .feedback-text.incorrect { color: #b91c1c; }
 
   .phoneme-hint {
