@@ -108,9 +108,12 @@
   <p class="status-msg">{statusMsg}</p>
 
   {#if showNext}
-    <NextButton onclick={() => onComplete('passed')} />
+    <div class="next-btn-wrap">
+      <NextButton onclick={() => onComplete('passed')} label="→" />
+    </div>
   {/if}
 
+  {#if !showNext}
   <button
     class="listen-btn {needsTap ? 'needs-tap' : ''}"
     onclick={playTarget}
@@ -125,6 +128,7 @@
     </svg>
     {needsTap ? 'Click to hear the word' : 'Listen again'}
   </button>
+  {/if}
 </div>
 
 <style>
@@ -267,5 +271,13 @@
   @keyframes pulse-btn {
     0%, 100% { box-shadow: 0 0 0 0   rgba(0, 98, 134, 0.2); }
     50%       { box-shadow: 0 0 0 8px rgba(0, 98, 134, 0);   }
+  }
+
+  .next-btn-wrap :global(button) {
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.75rem;
   }
 </style>

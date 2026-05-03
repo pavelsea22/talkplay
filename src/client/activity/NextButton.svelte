@@ -1,12 +1,14 @@
 <script lang="ts">
   interface Props {
     onclick: () => void;
+    /** Button label. Defaults to "Next →". */
+    label?: string;
   }
 
-  let { onclick }: Props = $props();
+  let { onclick, label = 'Next →' }: Props = $props();
 </script>
 
-<button {onclick}>Next →</button>
+<button {onclick}>{label}</button>
 
 <style>
   button {
