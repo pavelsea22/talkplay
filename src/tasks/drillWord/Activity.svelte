@@ -62,24 +62,27 @@
   }
 
   /**
-   * Speaks the word prompt, waits POST_PROMPT_DELAY_MS, then opens the mic
-   * and hands off to startRecording. Called by both auto-start and manual paths.
+   * Opens the mic first so the hardware warms up, then speaks the word prompt
+   * and hands off to startRecording. Requesting the stream before TTS means the
+   * OS microphone is fully active by the time recording starts.
    */
   async function runSession(): Promise<void> {
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err) {
+      status = 'Microphone access denied.';
+      micDisabled = false;
+      console.error(err);
+      return;
+    }
     try {
       await speakWord(task.word);
     } catch (err) {
       console.error('TTS failed:', err);
     }
     await new Promise(r => setTimeout(r, POST_PROMPT_DELAY_MS));
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      startRecording(stream);
-    } catch (err) {
-      status = 'Microphone access denied.';
-      micDisabled = false;
-      console.error(err);
-    }
+    startRecording(stream);
   }
 
   /**
