@@ -8,6 +8,7 @@
     markTodayStarted,
     markTodayCompleted,
   } from '../lessonState';
+  import { recordExercise } from '../dailyStats';
   import LessonProgress from './LessonProgress.svelte';
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
@@ -58,6 +59,7 @@
    * Updates the progress bar and advances to the next task (or ends the lesson).
    */
   function handleTaskComplete(outcome: TaskOutcome): void {
+    recordExercise(outcome);
     statuses = statuses.map((s, i) => i === taskIndex ? outcome : s);
     const next = taskIndex + 1;
     if (next >= tasks.length) {
