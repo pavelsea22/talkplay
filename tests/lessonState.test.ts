@@ -70,6 +70,38 @@ describe('getParentConfig', () => {
     );
     expect(getParentConfig().exerciseCount).toBe(DEFAULT_PARENT_CONFIG.exerciseCount);
   });
+
+  it('returns showConfidence: false by default when field is absent', () => {
+    localStorage.setItem(
+      'talkplay_parent_config',
+      JSON.stringify({ sounds: ['t'], exerciseCount: 5 }),
+    );
+    expect(getParentConfig().showConfidence).toBe(false);
+  });
+
+  it('returns showConfidence: true when stored as true', () => {
+    localStorage.setItem(
+      'talkplay_parent_config',
+      JSON.stringify({ sounds: ['t'], exerciseCount: 5, showConfidence: true }),
+    );
+    expect(getParentConfig().showConfidence).toBe(true);
+  });
+
+  it('returns showConfidence: false when stored as false', () => {
+    localStorage.setItem(
+      'talkplay_parent_config',
+      JSON.stringify({ sounds: ['t'], exerciseCount: 5, showConfidence: false }),
+    );
+    expect(getParentConfig().showConfidence).toBe(false);
+  });
+
+  it('falls back to default showConfidence when stored value is not a boolean', () => {
+    localStorage.setItem(
+      'talkplay_parent_config',
+      JSON.stringify({ sounds: ['t'], exerciseCount: 5, showConfidence: 'yes' }),
+    );
+    expect(getParentConfig().showConfidence).toBe(DEFAULT_PARENT_CONFIG.showConfidence);
+  });
 });
 
 // ---------------------------------------------------------------------------
