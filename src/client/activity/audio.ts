@@ -2,6 +2,24 @@
 let currentAudio: HTMLAudioElement | null = null;
 
 /**
+ * Classifies a TTS playback failure so callers can decide how to respond.
+ *
+ * - `'autoplay'`: browser blocked playback because no user gesture has occurred
+ *   yet (DOMException with name `NotAllowedError`). Recoverable — prompting
+ *   the user to tap will allow the next call to play.
+ * - `'playback'`: any other failure (network error from `/speak`, broken audio
+ *   device, decoder error, etc.). Not automatically recoverable — surface a
+ *   user-visible error.
+ *
+ * @param err - The error caught from a `speakWord` call.
+ */
+export function classifyAudioError(err: unknown): 'autoplay' | 'playback' {
+  return (err as { name?: string } | null | undefined)?.name === 'NotAllowedError'
+    ? 'autoplay'
+    : 'playback';
+}
+
+/**
  * Stops any currently playing TTS audio immediately.
  */
 export function stopCurrentTts(): void {

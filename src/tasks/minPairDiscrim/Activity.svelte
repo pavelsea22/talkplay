@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { speakWord } from '../../client/activity/audio';
+  import { speakWord, classifyAudioError } from '../../client/activity/audio';
   import { evaluateMinPairDiscrim } from './index';
   import { MAX_RETRIES } from '../constants';
   import type { MinPairDiscrimTask } from './index';
@@ -27,17 +27,27 @@
   let showNext = $state(false);
   /** True when the initial autoplay was blocked by the browser. */
   let needsTap = $state(false);
+  /** True when TTS playback failed for a non-autoplay reason (e.g. broken audio output). */
+  let playbackError = $state(false);
 
+  /**
+   * Speaks the target word. Differentiates autoplay-blocked (recoverable by
+   * a user tap) from a genuine playback failure (e.g. broken audio output)
+   * so the UI can prompt the user appropriately instead of silently hanging.
+   */
   async function playTarget(): Promise<void> {
     needsTap = false;
-    await speakWord(`Click the word you hear: ${targetWordStr}`, { raw: true })
-      .catch(err => {
-        if ((err as DOMException)?.name === 'NotAllowedError') {
-          needsTap = true;   // autoplay blocked — prompt the user to tap
-        } else {
-          console.error('TTS failed:', err);
-        }
-      });
+    playbackError = false;
+    try {
+      await speakWord(`Click the word you hear: ${targetWordStr}`, { raw: true });
+    } catch (err) {
+      if (classifyAudioError(err) === 'autoplay') {
+        needsTap = true;   // autoplay blocked — prompt the user to tap
+      } else {
+        console.error('TTS failed:', err);
+        playbackError = true;
+      }
+    }
   }
 
   /** Handles a card click. Evaluates, shows feedback, then retries or completes. */
@@ -115,7 +125,7 @@
 
   {#if !showNext}
   <button
-    class="listen-btn {needsTap ? 'needs-tap' : ''}"
+    class="listen-btn {needsTap ? 'needs-tap' : ''} {playbackError ? 'error' : ''}"
     onclick={playTarget}
     disabled={locked}
     aria-label="Listen again"
@@ -126,7 +136,13 @@
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
       <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
     </svg>
-    {needsTap ? 'Click to hear the word' : 'Listen again'}
+    {#if playbackError}
+      Audio failed — check sound, tap to retry
+    {:else if needsTap}
+      Click to hear the word
+    {:else}
+      Listen again
+    {/if}
   </button>
   {/if}
 </div>
@@ -266,6 +282,11 @@
     background: var(--color-primary-container);
     color: var(--color-primary);
     animation: pulse-btn 1.2s ease-in-out infinite;
+  }
+
+  .listen-btn.error {
+    background: #fecaca;
+    color: #b91c1c;
   }
 
   @keyframes pulse-btn {
