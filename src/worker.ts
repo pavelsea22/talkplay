@@ -82,6 +82,9 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
  * optional phoneme-level pronunciation assessment when `word` is supplied.
  * Uses the Azure Speech-to-Text REST API (no Node.js SDK).
  *
+ * NOTE: src/server.ts contains a parallel implementation of this endpoint for
+ * the local Express server. Keep the response shape in sync with that file.
+ *
  * Form fields:
  * - `audio` – WAV file (multipart/form-data).
  * - `words` – JSON array of candidate words for phrase-list biasing.
