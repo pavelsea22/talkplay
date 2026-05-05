@@ -194,6 +194,9 @@ app.get("/speak", async (req, res) => {
  * Accepts a WAV audio file and returns the recognised transcript, plus an
  * optional phoneme-level pronunciation assessment when `word` is supplied.
  *
+ * NOTE: src/worker.ts contains a parallel implementation of this endpoint for
+ * the Cloudflare Workers deployment. Keep the response shape in sync with that file.
+ *
  * Form fields:
  * - `audio` – WAV file (multipart/form-data).
  * - `words` – JSON array of candidate words for phrase list biasing.

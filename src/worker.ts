@@ -22,7 +22,7 @@ interface AzureWordResult {
 interface AzureSpeechResponse {
   RecognitionStatus: string;
   DisplayText?: string;
-  NBest?: Array<{ Words: AzureWordResult[] }>;
+  NBest?: Array<{ Confidence?: number; Words: AzureWordResult[] }>;
 }
 
 /**
@@ -81,6 +81,9 @@ async function handleSpeak(request: Request, env: Env): Promise<Response> {
  * Accepts a WAV audio file and returns the recognised transcript, plus an
  * optional phoneme-level pronunciation assessment when `word` is supplied.
  * Uses the Azure Speech-to-Text REST API (no Node.js SDK).
+ *
+ * NOTE: src/server.ts contains a parallel implementation of this endpoint for
+ * the local Express server. Keep the response shape in sync with that file.
  *
  * Form fields:
  * - `audio` – WAV file (multipart/form-data).
@@ -166,9 +169,12 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
   const transcript = result.RecognitionStatus === 'Success' ? (result.DisplayText ?? '') : '';
   console.log('Azure result:', result.RecognitionStatus, '| text:', transcript || '(empty)');
 
+  const nBest = result.NBest?.[0];
+  const confidence: number | null = typeof nBest?.Confidence === 'number' ? nBest.Confidence : null;
+
   let assessment: PhonemeAssessment | null = null;
   if (targetWord) {
-    const wordResult = result.NBest?.[0]?.Words?.[0];
+    const wordResult = nBest?.Words?.[0];
     if (wordResult?.PronunciationAssessment && Array.isArray(wordResult.Phonemes)) {
       assessment = {
         accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
@@ -181,7 +187,7 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
     }
   }
 
-  return new Response(JSON.stringify({ transcript, assessment }), {
+  return new Response(JSON.stringify({ transcript, assessment, confidence }), {
     headers: { 'Content-Type': 'application/json' },
   });
 }
