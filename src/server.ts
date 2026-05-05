@@ -213,10 +213,10 @@ app.post("/transcribe", upload.single("audio"), async (req, res) => {
   const targetWord: string | undefined = req.body.word?.trim() || undefined;
 
   try {
-    const { transcript, assessment } = await transcribeWithSDK(
+    const { transcript, assessment, confidence } = await transcribeWithSDK(
       req.file.buffer, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION, words, targetWord,
     );
-    res.json({ transcript, assessment });
+    res.json({ transcript, assessment, confidence });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Transcription failed" });
