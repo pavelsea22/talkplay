@@ -42,7 +42,7 @@ describe('getParentConfig', () => {
   });
 
   it('round-trips correctly with setParentConfig', () => {
-    const config = { sounds: ['t', 'd'], exerciseCount: 7 };
+    const config = { sounds: ['t', 'd'], exerciseCount: 7, showConfidence: true };
     setParentConfig(config);
     expect(getParentConfig()).toEqual(config);
   });

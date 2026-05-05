@@ -36,6 +36,8 @@ interface AzureWordResult {
 }
 
 interface AzureNBestResult {
+  /** Speech recognition confidence, 0–1. */
+  Confidence?: number;
   Words: AzureWordResult[];
 }
 
@@ -47,6 +49,8 @@ interface AzurePronunciationJson {
 interface TranscribeResult {
   transcript: string;
   assessment: PhonemeAssessment | null;
+  /** Speech recognition confidence, 0–1. null when no speech was detected. */
+  confidence: number | null;
 }
 
 /**
@@ -108,19 +112,25 @@ function transcribeWithSDK(
         if (result.reason !== sdk.ResultReason.RecognizedSpeech) {
           const details = sdk.CancellationDetails.fromResult(result as sdk.SpeechRecognitionResult);
           console.log("  → no speech reason:", details?.reason, details?.errorDetails);
-          resolve({ transcript: "", assessment: null });
+          resolve({ transcript: "", assessment: null, confidence: null });
           return;
         }
 
         const transcript = result.text;
         let assessment: PhonemeAssessment | null = null;
+        let confidence: number | null = null;
 
-        if (targetWord) {
-          try {
-            const json = JSON.parse(result.properties.getProperty(
-              sdk.PropertyId.SpeechServiceResponse_JsonResult,
-            )) as AzurePronunciationJson;
-            const wordResult = json?.NBest?.[0]?.Words?.[0];
+        try {
+          const json = JSON.parse(result.properties.getProperty(
+            sdk.PropertyId.SpeechServiceResponse_JsonResult,
+          )) as AzurePronunciationJson;
+          const nBest = json?.NBest?.[0];
+          if (typeof nBest?.Confidence === 'number') {
+            confidence = nBest.Confidence;
+          }
+
+          if (targetWord) {
+            const wordResult = nBest?.Words?.[0];
             if (wordResult?.PronunciationAssessment && Array.isArray(wordResult.Phonemes)) {
               assessment = {
                 accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
@@ -131,12 +141,12 @@ function transcribeWithSDK(
               };
               console.log("  → pronunciation score:", assessment.accuracyScore);
             }
-          } catch (e) {
-            console.warn("  → failed to parse pronunciation assessment JSON:", e);
           }
+        } catch (e) {
+          console.warn("  → failed to parse speech result JSON:", e);
         }
 
-        resolve({ transcript, assessment });
+        resolve({ transcript, assessment, confidence });
       },
       (err) => { recognizer.close(); reject(err); }
     );
