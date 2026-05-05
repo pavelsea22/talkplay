@@ -11,6 +11,7 @@
   const initial = getParentConfig();
   let selectedSounds = $state<Set<string>>(new Set(initial.sounds));
   let exerciseCount = $state(initial.exerciseCount);
+  let showConfidence = $state(initial.showConfidence);
   let saved = $state(false);
   let todayStatus = $state(getTodayStatus());
 
@@ -33,6 +34,7 @@
     setParentConfig({
       sounds: Array.from(selectedSounds),
       exerciseCount,
+      showConfidence,
     });
     saved = true;
   }
@@ -41,6 +43,7 @@
   function reset(): void {
     selectedSounds = new Set(DEFAULT_PARENT_CONFIG.sounds);
     exerciseCount = DEFAULT_PARENT_CONFIG.exerciseCount;
+    showConfidence = DEFAULT_PARENT_CONFIG.showConfidence;
     saved = false;
   }
 
@@ -115,6 +118,18 @@
     Reset to not started
   </button>
 </section>
+
+<details class="debug-panel">
+  <summary class="debug-summary">Developer settings</summary>
+  <label class="debug-toggle">
+    <input
+      type="checkbox"
+      bind:checked={showConfidence}
+      onchange={() => { saved = false; }}
+    />
+    Show speech recognition confidence score
+  </label>
+</details>
 
 <div class="actions">
   <button type="button" class="reset-btn" onclick={reset}>Reset</button>
@@ -265,6 +280,31 @@
     color: var(--color-primary);
     font-weight: 600;
   }
+
+  .debug-panel {
+    width: 100%;
+    max-width: 32rem;
+    margin-bottom: var(--space-4);
+  }
+  .debug-summary {
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant);
+    cursor: pointer;
+    user-select: none;
+    opacity: 0.6;
+    padding: var(--space-1) 0;
+  }
+  .debug-summary:hover { opacity: 0.85; }
+  .debug-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+    cursor: pointer;
+  }
+  .debug-toggle input { cursor: pointer; }
 
   .reset-lesson-btn {
     padding: var(--space-2) var(--space-6);

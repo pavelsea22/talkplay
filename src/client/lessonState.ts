@@ -10,12 +10,15 @@ export interface ParentConfig {
   sounds: string[];
   /** Total number of exercises in the daily lesson. */
   exerciseCount: number;
+  /** Debug: show the speech-recognition confidence score during activities. */
+  showConfidence: boolean;
 }
 
 /** Default config when no parent has configured anything yet. */
 export const DEFAULT_PARENT_CONFIG: ParentConfig = {
   sounds: WORD_GROUPS.map(g => g.sound),
   exerciseCount: 5,
+  showConfidence: false,
 };
 
 /** State of the user's progress through today's lesson. */
@@ -43,6 +46,9 @@ export function getParentConfig(): ParentConfig {
       exerciseCount: typeof parsed.exerciseCount === 'number' && parsed.exerciseCount > 0
         ? parsed.exerciseCount
         : DEFAULT_PARENT_CONFIG.exerciseCount,
+      showConfidence: typeof parsed.showConfidence === 'boolean'
+        ? parsed.showConfidence
+        : DEFAULT_PARENT_CONFIG.showConfidence,
     };
   } catch {
     return DEFAULT_PARENT_CONFIG;

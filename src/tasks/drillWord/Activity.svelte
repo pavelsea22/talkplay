@@ -16,9 +16,11 @@
     task: DrillWordTask;
     /** Called once, when the task is definitively passed or failed. */
     onComplete: (outcome: TaskOutcome) => void;
+    /** When true, shows a small debug overlay with the speech recognition confidence score. */
+    showConfidence?: boolean;
   }
 
-  let { task, onComplete }: Props = $props();
+  let { task, onComplete, showConfidence = false }: Props = $props();
 
   // --- UI state ---
   let status = $state('');
@@ -31,6 +33,7 @@
   let showPromptCard = $state(true);
   let retryCount = $state(0);
   let phonemeHint = $state<string | null>(null);
+  let lastConfidence = $state<number | null>(null);
 
   // Set the word prompt before first render.
   showPrompt();
@@ -163,10 +166,12 @@
         form.append('word', task.word);
         const res = await fetch('/transcribe', { method: 'POST', body: form });
         if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
-        const { transcript, assessment } = await res.json() as {
+        const { transcript, assessment, confidence } = await res.json() as {
           transcript: string;
           assessment: PhonemeAssessment | null;
+          confidence: number | null;
         };
+        lastConfidence = confidence;
 
         const result = evaluateDrillWord(task, transcript, assessment, retryCount);
         showPromptCard = false;
@@ -283,6 +288,12 @@
   {countdownValue ?? ''}
 </div>
 <div class="status">{status}</div>
+
+{#if showConfidence}
+  <p class="confidence-debug">
+    confidence: {lastConfidence !== null ? `${Math.round(lastConfidence * 100)}%` : '—'}
+  </p>
+{/if}
 
 <style>
   .word-card {
@@ -431,4 +442,13 @@
   }
 
   .countdown.hidden { opacity: 0; }
+
+  .confidence-debug {
+    margin-top: var(--space-4);
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+    opacity: 0.5;
+    text-align: center;
+  }
 </style>
