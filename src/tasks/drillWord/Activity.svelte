@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { speakWord, blobToWav } from '../../client/activity/audio';
+  import { speakWord, blobToWav, classifyAudioError } from '../../client/activity/audio';
   import { evaluateDrillWord } from './evaluator';
   import { getWeakestPhonemeHint } from './phonemeFeedback';
   import { MAX_RETRIES } from '../constants';
@@ -65,6 +65,10 @@
    * Opens the mic first so the hardware warms up, then speaks the word prompt
    * and hands off to startRecording. Requesting the stream before TTS means the
    * OS microphone is fully active by the time recording starts.
+   *
+   * If TTS playback fails (e.g. broken audio output), the session is aborted
+   * with a visible error so the user isn't left recording without ever hearing
+   * the prompt.
    */
   async function runSession(): Promise<void> {
     let stream: MediaStream;
@@ -80,6 +84,12 @@
       await speakWord(task.word);
     } catch (err) {
       console.error('TTS failed:', err);
+      stream.getTracks().forEach(t => t.stop());
+      status = classifyAudioError(err) === 'autoplay'
+        ? 'Tap the mic to start'
+        : "Couldn't play audio. Check your sound and tap the mic to try again.";
+      micDisabled = false;
+      return;
     }
     await new Promise(r => setTimeout(r, POST_PROMPT_DELAY_MS));
     startRecording(stream);
