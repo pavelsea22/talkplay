@@ -2,6 +2,7 @@
   import { evaluateWordSort } from '../../tasks/wordSort/evaluator';
   import type { WordSortTask } from '../../tasks/wordSort';
   import { speakWord } from './audio';
+  import { randomPraise } from '../../tasks/shared/praise';
   import NextButton from './NextButton.svelte';
 
   interface Props {
@@ -13,6 +14,13 @@
 
   let placed = $state<Record<string, 0 | 1>>({});
   let allPlaced = $derived(Object.keys(placed).length === task.words.length);
+
+  // Speak a praise phrase when the last word is successfully sorted.
+  $effect(() => {
+    if (allPlaced) {
+      speakWord(randomPraise(), { raw: true }).catch(err => console.error('TTS failed:', err));
+    }
+  });
   let locked = $state(false);
   let dragging = $state<string | null>(null);
   let dragOffset = $state({ x: 0, y: 0 });
