@@ -148,8 +148,9 @@
     align-items: center;
     justify-content: center;
     /* Reserve space for the fixed top-bar so centering starts below it.
-       Formula mirrors the top-bar's own padding-top + content (~1.5rem) + padding-bottom (0.75rem). */
-    padding-top: calc(max(1rem, env(safe-area-inset-top, 0px)) + 2.25rem);
+       3.25rem = 1rem (top-bar base top-padding) + ~1.5rem (content row) + 0.75rem (bottom-padding).
+       env(safe-area-inset-top) shifts the whole bar down on notched iPhones. */
+    padding-top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
   }
 
   .top-bar {
@@ -157,9 +158,11 @@
     top: 0;
     left: 0;
     right: 0;
-    padding: env(safe-area-inset-top, 0px) var(--space-6) 0;
-    padding-top: max(1rem, env(safe-area-inset-top, 0px));
-    padding-bottom: 0.75rem;
+    /* env(safe-area-inset-top) offsets past the iOS status bar; +1rem adds
+       breathing room. calc() is more compatible than max(1rem, env(...))
+       on older iOS. Background prevents page content bleeding through. */
+    background: var(--color-surface);
+    padding: calc(env(safe-area-inset-top, 0px) + 1rem) var(--space-6) 0.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
