@@ -85,12 +85,17 @@
    * If TTS playback fails (e.g. broken audio output), the session is aborted
    * with a visible error so the user isn't left recording without ever hearing
    * the prompt.
+   *
+   * @param audioCtx - Pre-created AudioContext from a user gesture (handleMicClick).
+   *   When provided it is passed straight to startRecording so the level meter
+   *   works on iOS. When absent (auto-start path) startRecording creates its own.
    */
-  async function runSession(): Promise<void> {
+  async function runSession(audioCtx?: AudioContext): Promise<void> {
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (err) {
+      audioCtx?.close();
       status = 'Microphone access denied.';
       micDisabled = false;
       console.error(err);
@@ -101,6 +106,7 @@
     } catch (err) {
       console.error('TTS failed:', err);
       stream.getTracks().forEach(t => t.stop());
+      audioCtx?.close();
       status = classifyAudioError(err) === 'autoplay'
         ? 'Tap the mic to start'
         : "Couldn't play audio. Check your sound and tap the mic to try again.";
@@ -108,7 +114,7 @@
       return;
     }
     await new Promise(r => setTimeout(r, POST_PROMPT_DELAY_MS));
-    startRecording(stream);
+    startRecording(stream, audioCtx);
   }
 
   /**
@@ -130,11 +136,17 @@
   /**
    * Handles manual mic button taps. Always calls getUserMedia directly —
    * the browser will prompt for permission if it hasn't been granted yet.
+   *
+   * The AudioContext is created and resumed synchronously here — before the
+   * first await — so that iOS recognises it as user-gesture-activated. Passing
+   * it through to startRecording lets the level meter work on iOS.
    */
   async function handleMicClick(): Promise<void> {
     if (mediaRecorder?.state === 'recording') return;
     micDisabled = true;
-    await runSession();
+    const audioCtx = new AudioContext();
+    await audioCtx.resume();
+    await runSession(audioCtx);
   }
 
   /**
@@ -144,19 +156,21 @@
    *
    * Callers are responsible for speaking the word prompt and waiting
    * POST_PROMPT_DELAY_MS before invoking this function.
+   *
+   * @param audioCtx - AudioContext to use for the level meter. When supplied by
+   *   handleMicClick it was created synchronously inside the user gesture, so iOS
+   *   keeps it running. When absent (auto-start path) a new context is created;
+   *   the level meter may not animate on iOS in that case.
    */
-  async function startRecording(stream: MediaStream): Promise<void> {
+  async function startRecording(stream: MediaStream, audioCtx?: AudioContext): Promise<void> {
     chunks = [];
     micDisabled = true;
 
     // --- Audio level meter ---
-    const audioCtx = new AudioContext();
-    // iOS suspends AudioContext when created outside a synchronous user gesture.
-    // resume() is a no-op on desktop and unblocks the context on iOS.
-    await audioCtx.resume();
-    const analyser = audioCtx.createAnalyser();
+    const ctx = audioCtx ?? new AudioContext();
+    const analyser = ctx.createAnalyser();
     analyser.fftSize = 512;
-    audioCtx.createMediaStreamSource(stream).connect(analyser);
+    ctx.createMediaStreamSource(stream).connect(analyser);
     const levelBuf = new Float32Array(analyser.fftSize);
     let rafId = 0;
     let peakLevel = 0;
@@ -176,7 +190,7 @@
       recorder = new MediaRecorder(stream);
     } catch (err) {
       cancelAnimationFrame(rafId);
-      audioCtx.close();
+      ctx.close();
       stream.getTracks().forEach(t => t.stop());
       status = 'Recording is not supported on this device.';
       micDisabled = false;
@@ -190,7 +204,7 @@
     recorder.onstop = async () => {
       cancelAnimationFrame(rafId);
       audioLevel = peakLevel;
-      audioCtx.close();
+      ctx.close();
       stream.getTracks().forEach(t => t.stop());
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       countdownValue = null;
