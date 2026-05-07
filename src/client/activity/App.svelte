@@ -87,18 +87,19 @@
   }
 </script>
 
-<div class="progress-container">
-  <LessonProgress {statuses} currentIndex={taskIndex} />
-</div>
-
-<a href="/" class="back-btn">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="15 18 9 12 15 6"/>
-  </svg>
-  Lessons
-</a>
-<h1>TalkPlay</h1>
+<header class="top-bar">
+  <a href="/" class="back-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Lessons
+  </a>
+  <div class="progress-container">
+    <LessonProgress {statuses} currentIndex={taskIndex} />
+  </div>
+  <h1>TalkPlay</h1>
+</header>
 
 {#if lessonComplete}
   <div class="complete">
@@ -148,21 +149,30 @@
     justify-content: center;
   }
 
-  h1 {
+  .top-bar {
     position: fixed;
-    top: 1.2rem;
-    right: var(--space-6);
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: env(safe-area-inset-top, 0px) var(--space-6) 0;
+    padding-top: max(1rem, env(safe-area-inset-top, 0px));
+    padding-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  h1 {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 1.375rem;
     font-weight: 700;
     color: var(--color-primary);
     margin: 0;
+    white-space: nowrap;
   }
 
   .back-btn {
-    position: fixed;
-    top: 1.1rem;
-    left: var(--space-6);
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -171,17 +181,18 @@
     font-weight: 500;
     color: var(--color-on-surface-variant);
     text-decoration: none;
+    white-space: nowrap;
     transition: color var(--duration-base) var(--ease-in-out);
   }
 
   .back-btn:hover { color: var(--color-on-surface); }
 
   .progress-container {
-    position: fixed;
-    top: 1.1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 var(--space-3);
+    overflow: hidden;
   }
 
   .complete {

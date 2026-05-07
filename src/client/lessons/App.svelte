@@ -54,6 +54,8 @@
     align-items: center;
     justify-content: center;
     padding: var(--space-8) var(--space-4);
+    /* Extra clearance so the fixed bottom buttons don't overlap content */
+    padding-bottom: calc(var(--space-6) * 2 + 2.5rem);
   }
 
   .hero {
