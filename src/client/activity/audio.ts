@@ -1,4 +1,9 @@
-// Currently playing TTS element — stopped when a new one starts.
+// Singleton audio element — iOS keeps it "unlocked" after the first
+// user-gesture play, so reusing it lets praise/retry TTS work outside the
+// gesture context (e.g. after async recording + transcription completes).
+const audioEl = new Audio();
+
+// Reference to the element currently playing, for stopCurrentTts().
 let currentAudio: HTMLAudioElement | null = null;
 
 /**
@@ -25,6 +30,7 @@ export function classifyAudioError(err: unknown): 'autoplay' | 'playback' {
 export function stopCurrentTts(): void {
   if (currentAudio) {
     currentAudio.onended = null;
+    currentAudio.onerror = null;
     currentAudio.pause();
     URL.revokeObjectURL(currentAudio.src);
     currentAudio = null;
@@ -50,7 +56,8 @@ export async function speakWord(word: string, options: { raw?: boolean } = {}): 
 
   stopCurrentTts();
 
-  const audio = new Audio(url);
+  const audio = audioEl;
+  audio.src = url;
   currentAudio = audio;
 
   return new Promise<void>((resolve, reject) => {
