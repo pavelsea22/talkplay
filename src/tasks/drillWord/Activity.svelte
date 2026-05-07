@@ -151,6 +151,9 @@
 
     // --- Audio level meter ---
     const audioCtx = new AudioContext();
+    // iOS suspends AudioContext when created outside a synchronous user gesture.
+    // resume() is a no-op on desktop and unblocks the context on iOS.
+    await audioCtx.resume();
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 512;
     audioCtx.createMediaStreamSource(stream).connect(analyser);
@@ -181,7 +184,6 @@
       return;
     }
 
-    const mimeType = recorder.mimeType;
     mediaRecorder = recorder;
 
     recorder.ondataavailable = (e) => chunks.push(e.data);
@@ -253,6 +255,8 @@
     };
 
     recorder.start();
+    // mimeType is only reliable after start() — iOS returns '' before that.
+    const mimeType = recorder.mimeType;
 
     isRecording = true;
     let remaining = RECORD_SECONDS;

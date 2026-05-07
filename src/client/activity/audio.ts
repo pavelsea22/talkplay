@@ -70,6 +70,9 @@ export async function blobToWav(blob: Blob): Promise<ArrayBuffer> {
   const audioCtx = new AudioContext();
   let decoded: AudioBuffer;
   try {
+    // iOS suspends AudioContext when created outside a synchronous user gesture;
+    // resume() unblocks decodeAudioData which hangs on a suspended context.
+    await audioCtx.resume();
     decoded = await audioCtx.decodeAudioData(arrayBuffer);
   } finally {
     // Always close the context to release resources, even if decoding fails.
