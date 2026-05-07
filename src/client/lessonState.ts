@@ -4,6 +4,9 @@ import { toLocalISODate } from './streaks';
 const PARENT_CONFIG_KEY = 'talkplay_parent_config';
 const TODAY_LESSON_KEY = 'talkplay_today_lesson';
 
+/** Visual style for the mic button level meter during recording. */
+export type MicAnimation = 'fill' | 'halo';
+
 /** Parent-configured lesson settings, applied to "Today's Lesson" runs. */
 export interface ParentConfig {
   /** Sounds the lesson should draw from (e.g. ['t', 'd']). Empty means all. */
@@ -12,6 +15,8 @@ export interface ParentConfig {
   exerciseCount: number;
   /** Debug: show the speech-recognition confidence score during activities. */
   showConfidence: boolean;
+  /** Debug: mic button animation style during recording. */
+  micAnimation: MicAnimation;
 }
 
 /** Default config when no parent has configured anything yet. */
@@ -19,6 +24,7 @@ export const DEFAULT_PARENT_CONFIG: ParentConfig = {
   sounds: WORD_GROUPS.map(g => g.sound),
   exerciseCount: 5,
   showConfidence: false,
+  micAnimation: 'fill',
 };
 
 /** State of the user's progress through today's lesson. */
@@ -49,6 +55,9 @@ export function getParentConfig(): ParentConfig {
       showConfidence: typeof parsed.showConfidence === 'boolean'
         ? parsed.showConfidence
         : DEFAULT_PARENT_CONFIG.showConfidence,
+      micAnimation: parsed.micAnimation === 'fill' || parsed.micAnimation === 'halo'
+        ? parsed.micAnimation
+        : DEFAULT_PARENT_CONFIG.micAnimation,
     };
   } catch {
     return DEFAULT_PARENT_CONFIG;

@@ -6,12 +6,14 @@
     getTodayStatus,
     resetTodayLesson,
     DEFAULT_PARENT_CONFIG,
+    type MicAnimation,
   } from '../lessonState';
 
   const initial = getParentConfig();
   let selectedSounds = $state<Set<string>>(new Set(initial.sounds));
   let exerciseCount = $state(initial.exerciseCount);
   let showConfidence = $state(initial.showConfidence);
+  let micAnimation = $state<MicAnimation>(initial.micAnimation);
   let saved = $state(false);
   let todayStatus = $state(getTodayStatus());
 
@@ -35,6 +37,7 @@
       sounds: Array.from(selectedSounds),
       exerciseCount,
       showConfidence,
+      micAnimation,
     });
     saved = true;
   }
@@ -44,6 +47,7 @@
     selectedSounds = new Set(DEFAULT_PARENT_CONFIG.sounds);
     exerciseCount = DEFAULT_PARENT_CONFIG.exerciseCount;
     showConfidence = DEFAULT_PARENT_CONFIG.showConfidence;
+    micAnimation = DEFAULT_PARENT_CONFIG.micAnimation;
     saved = false;
   }
 
@@ -127,8 +131,25 @@
       bind:checked={showConfidence}
       onchange={() => { saved = false; }}
     />
-    Show speech recognition confidence score
+    Show debug information
   </label>
+  <div class="debug-field">
+    <span class="debug-label">Mic button animation</span>
+    <div class="mic-anim-options">
+      {#each ([['fill', 'Level fill'], ['halo', 'Halo glow']] as const) as [value, label]}
+        <label class="mic-anim-option">
+          <input
+            type="radio"
+            name="micAnimation"
+            {value}
+            checked={micAnimation === value}
+            onchange={() => { micAnimation = value; saved = false; }}
+          />
+          {label}
+        </label>
+      {/each}
+    </div>
+  </div>
 </details>
 
 <div class="actions">
@@ -305,6 +326,31 @@
     cursor: pointer;
   }
   .debug-toggle input { cursor: pointer; }
+
+  .debug-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+  }
+
+  .debug-label { font-size: 0.875rem; }
+
+  .mic-anim-options {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .mic-anim-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+  }
+
+  .mic-anim-option input { cursor: pointer; }
 
   .reset-lesson-btn {
     padding: var(--space-2) var(--space-6);

@@ -38,7 +38,7 @@
     return pickLesson(FREE_PRACTICE_SIZE, sound);
   }
 
-  const showConfidence = getParentConfig().showConfidence;
+  const { showConfidence, micAnimation } = getParentConfig();
 
   let tasks = $state<Task[]>(buildLesson());
   let statuses = $state<TaskStatus[]>(tasks.map(() => 'pending' as TaskStatus));
@@ -114,7 +114,7 @@
   -->
   {#key taskIndex}
     {#if currentTask.type === 'DrillWord'}
-      <DrillWordActivity task={currentTask} onComplete={handleTaskComplete} {showConfidence} />
+      <DrillWordActivity task={currentTask} onComplete={handleTaskComplete} {showConfidence} {micAnimation} />
     {:else if currentTask.type === 'MinPairDiscrimination'}
       <MinPairActivity task={currentTask} onComplete={handleTaskComplete} />
     {:else if currentTask.type === 'wordSort'}

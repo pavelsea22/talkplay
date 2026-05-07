@@ -6,6 +6,7 @@
   import { MAX_RETRIES } from '../constants';
   import type { DrillWordTask } from './index';
   import type { TaskOutcome, PhonemeAssessment } from '../shared/types';
+  import type { MicAnimation } from '../../client/lessonState';
   import NextButton from '../../client/activity/NextButton.svelte';
 
   const RECORD_SECONDS = 3;
@@ -18,9 +19,11 @@
     onComplete: (outcome: TaskOutcome) => void;
     /** When true, shows a small debug overlay with the speech recognition confidence score. */
     showConfidence?: boolean;
+    /** Visual style for the mic button level meter during recording. */
+    micAnimation?: MicAnimation;
   }
 
-  let { task, onComplete, showConfidence = false }: Props = $props();
+  let { task, onComplete, showConfidence = false, micAnimation = 'fill' }: Props = $props();
 
   // --- UI state ---
   let status = $state('');
@@ -34,6 +37,16 @@
   let retryCount = $state(0);
   let phonemeHint = $state<string | null>(null);
   let lastConfidence = $state<number | null>(null);
+  /** Normalised RMS audio level [0, 1] — updated each animation frame while recording. */
+  let audioLevel = $state(0);
+
+  /** Inline style applied to the mic button while recording, based on the chosen animation mode. */
+  let micStyle = $derived(
+    !isRecording ? '' :
+    micAnimation === 'halo'
+      ? `background:#dc2626;box-shadow:0 4px ${4 + audioLevel * 52}px rgba(220,38,38,${(0.3 + audioLevel * 0.55).toFixed(2)})`
+      : `background:linear-gradient(to top,#dc2626 ${audioLevel * 100}%,#fca5a5 ${audioLevel * 100}%)`
+  );
 
   // Set the word prompt before first render.
   showPrompt();
@@ -136,10 +149,31 @@
     chunks = [];
     micDisabled = true;
 
+    // --- Audio level meter ---
+    const audioCtx = new AudioContext();
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    audioCtx.createMediaStreamSource(stream).connect(analyser);
+    const levelBuf = new Float32Array(analyser.fftSize);
+    let rafId = 0;
+    let peakLevel = 0;
+    (function measureLevel() {
+      analyser.getFloatTimeDomainData(levelBuf);
+      const rms = Math.sqrt(levelBuf.reduce((s, v) => s + v * v, 0) / levelBuf.length);
+      // Asymmetric smoothing: fast attack, slow decay (decay slowness only affects halo).
+      const raw = Math.min(1, rms * 8);
+      const coeff = raw > audioLevel ? 0.4 : (micAnimation === 'halo' ? 0.06 : 0.4);
+      audioLevel = audioLevel * (1 - coeff) + raw * coeff;
+      if (audioLevel > peakLevel) peakLevel = audioLevel;
+      rafId = requestAnimationFrame(measureLevel);
+    })();
+
     let recorder: MediaRecorder;
     try {
       recorder = new MediaRecorder(stream);
     } catch (err) {
+      cancelAnimationFrame(rafId);
+      audioCtx.close();
       stream.getTracks().forEach(t => t.stop());
       status = 'Recording is not supported on this device.';
       micDisabled = false;
@@ -152,6 +186,9 @@
 
     recorder.ondataavailable = (e) => chunks.push(e.data);
     recorder.onstop = async () => {
+      cancelAnimationFrame(rafId);
+      audioLevel = peakLevel;
+      audioCtx.close();
       stream.getTracks().forEach(t => t.stop());
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       countdownValue = null;
@@ -266,6 +303,7 @@
 <div class="btn-container">
   <button
     class="mic-btn {isRecording ? 'recording' : ''} {showNext || (!isRecording && micDisabled) ? 'hidden' : ''}"
+    style={micStyle}
     aria-label="Start recording"
     disabled={micDisabled}
     onclick={handleMicClick}
@@ -292,6 +330,8 @@
 {#if showConfidence}
   <p class="confidence-debug">
     confidence: {lastConfidence !== null ? `${Math.round(lastConfidence * 100)}%` : '—'}
+    &nbsp;|&nbsp;
+    loudness: {Math.round(audioLevel * 100)}%
   </p>
 {/if}
 
@@ -408,14 +448,7 @@
   .mic-btn:active { transform: scale(0.95); }
 
   .mic-btn.recording {
-    background: #dc2626;
     box-shadow: 0 4px 24px rgba(220, 38, 38, 0.4);
-    animation: pulse 1s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 4px 24px rgba(220, 38, 38, 0.4); }
-    50%       { box-shadow: 0 4px 40px rgba(220, 38, 38, 0.7); }
   }
 
   .mic-btn :global(svg) { width: 48px; height: 48px; pointer-events: none; }
