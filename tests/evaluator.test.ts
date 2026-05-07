@@ -24,6 +24,13 @@ function makeAssessment(accuracyScore: number): PhonemeAssessment {
 // With assessment present
 // ---------------------------------------------------------------------------
 
+describe("evaluateDrillWord — assessment present, transcript matches target (low score)", () => {
+  it("passes even when accuracy score is below PASS_THRESHOLD", () => {
+    const result = evaluateDrillWord(task, "rabbit", makeAssessment(0), 0);
+    expect(result.outcome).toBe("passed");
+  });
+});
+
 describe("evaluateDrillWord — assessment present, pass band (≥ PASS_THRESHOLD)", () => {
   const result = evaluateDrillWord(task, "rabbit", makeAssessment(PASS_THRESHOLD), 0);
 
@@ -40,8 +47,10 @@ describe("evaluateDrillWord — assessment present, pass band (≥ PASS_THRESHOL
   });
 });
 
+// Score-gate tests use a mismatched transcript ("habit") so the transcript-match
+// short-circuit doesn't apply and the accuracy score determines the outcome.
 describe("evaluateDrillWord — assessment present, retry band (≥ RETRY_THRESHOLD, < PASS_THRESHOLD)", () => {
-  const result = evaluateDrillWord(task, "rabbit", makeAssessment(RETRY_THRESHOLD), 0);
+  const result = evaluateDrillWord(task, "habit", makeAssessment(RETRY_THRESHOLD), 0);
 
   it("outcome is null (retry available)", () => {
     expect(result.outcome).toBeNull();
@@ -56,12 +65,12 @@ describe("evaluateDrillWord — assessment present, retry band (≥ RETRY_THRESH
   });
 
   it("Cindy is crying after two failed attempts", () => {
-    expect(evaluateDrillWord(task, "rabbit", makeAssessment(RETRY_THRESHOLD), 2).cindyMood).toBe("crying");
+    expect(evaluateDrillWord(task, "habit", makeAssessment(RETRY_THRESHOLD), 2).cindyMood).toBe("crying");
   });
 });
 
 describe("evaluateDrillWord — assessment present, fail band (< RETRY_THRESHOLD)", () => {
-  const result = evaluateDrillWord(task, "rabbit", makeAssessment(RETRY_THRESHOLD - 1), 0);
+  const result = evaluateDrillWord(task, "habit", makeAssessment(RETRY_THRESHOLD - 1), 0);
 
   it("outcome is null (caller promotes to failed at MAX_RETRIES)", () => {
     expect(result.outcome).toBeNull();

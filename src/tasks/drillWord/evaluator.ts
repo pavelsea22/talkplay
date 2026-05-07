@@ -21,12 +21,14 @@ export const RETRY_THRESHOLD = 45;
 /**
  * Evaluates one attempt at a DrillWord task.
  *
- * When `assessment` is provided, uses Azure accuracyScore to judge the attempt:
+ * A transcript that exactly matches the target word always passes, regardless of
+ * assessment score. When the transcript does not match, `assessment.accuracyScore`
+ * is used as a secondary gate:
  * - ≥ PASS_THRESHOLD  → pass
  * - ≥ RETRY_THRESHOLD → retry (outcome: null)
  * - < RETRY_THRESHOLD → retry (outcome: null); caller promotes to 'failed' at MAX_RETRIES
  *
- * When `assessment` is null, falls back to exact string-match on the transcript.
+ * When `assessment` is null and the transcript does not match, the attempt fails.
  *
  * Returns outcome: 'passed' on success, null on failure (caller promotes to
  * 'failed' once MAX_RETRIES is reached).
@@ -42,13 +44,14 @@ export function evaluateDrillWord(
   assessment: PhonemeAssessment | null,
   retryCount: number,
 ): TaskResult {
-  const correct = assessment !== null
-    ? assessment.accuracyScore >= PASS_THRESHOLD
-    : (() => {
-        const target = task.word.toLowerCase().replace(/[^a-z]/g, '').trim();
-        const heard = normalizeTranscript(transcript);
-        return heard.some(w => w === target);
-      })();
+  const target = task.word.toLowerCase().replace(/[^a-z]/g, '').trim();
+  const heard = normalizeTranscript(transcript);
+  const transcriptMatches = heard.some(w => w === target);
+
+  // Transcript match always wins — if the right word was heard, the attempt passes.
+  // Assessment score gates only when the transcript doesn't match.
+  const correct = transcriptMatches
+    || (assessment !== null && assessment.accuracyScore >= PASS_THRESHOLD);
 
   if (correct) {
     const praise = randomPraise();
@@ -63,7 +66,6 @@ export function evaluateDrillWord(
   }
 
   // Build the "I heard…" message from transcript regardless of assessment path.
-  const heard = normalizeTranscript(transcript);
   const displayHeard = heard.join(' ').trim();
 
   const screenMessage = !displayHeard
