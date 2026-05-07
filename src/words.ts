@@ -6,6 +6,12 @@ export interface WordEntry {
   illustration?: string;
 }
 
+/** A target/foil pair used in minimal-pair discrimination tasks. */
+export interface MinPairEntry {
+  target: WordEntry;
+  foil: WordEntry;
+}
+
 export interface SoundGroup {
   sound: string;
   label: string;
@@ -14,6 +20,7 @@ export interface SoundGroup {
     trailing: WordEntry[];
     "mid-word": WordEntry[];
   };
+  minPairs?: MinPairEntry[];
 }
 
 export const WORD_GROUPS: SoundGroup[] = wordData as SoundGroup[];
@@ -49,4 +56,25 @@ export function getWordsForSound(sound: string): ResolvedWordEntry[] {
   const group = WORD_GROUPS.find(g => g.sound === sound);
   if (!group) return getActiveWords();
   return Object.values(group.positions).flat().map(resolveEntry);
+}
+
+/** A fully resolved minimal pair with illustration paths guaranteed on both words. */
+export interface ResolvedMinPair {
+  target: ResolvedWordEntry;
+  foil: ResolvedWordEntry;
+}
+
+/**
+ * Returns all resolved minimal pairs for the given sound, or all sounds when omitted.
+ *
+ * @param sound - Sound group key (e.g. 't', 'd'), or undefined for all groups.
+ */
+export function getMinPairsForSound(sound?: string): ResolvedMinPair[] {
+  const groups = sound
+    ? WORD_GROUPS.filter(g => g.sound === sound)
+    : WORD_GROUPS;
+  return groups.flatMap(g => g.minPairs ?? []).map(p => ({
+    target: resolveEntry(p.target),
+    foil:   resolveEntry(p.foil),
+  }));
 }
