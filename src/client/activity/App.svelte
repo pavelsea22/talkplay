@@ -88,17 +88,19 @@
 </script>
 
 <header class="top-bar">
-  <a href="/" class="back-btn">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-    Lessons
-  </a>
+  <div class="top-row">
+    <a href="/" class="back-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Lessons
+    </a>
+    <h1>TalkPlay</h1>
+  </div>
   <div class="progress-container">
     <LessonProgress {statuses} currentIndex={taskIndex} />
   </div>
-  <h1>TalkPlay</h1>
 </header>
 
 {#if lessonComplete}
@@ -150,7 +152,8 @@
     /* Reserve space for the fixed top-bar so centering starts below it.
        3.25rem = 1rem (top-bar base top-padding) + ~1.5rem (content row) + 0.75rem (bottom-padding).
        env(safe-area-inset-top) shifts the whole bar down on notched iPhones. */
-    padding-top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
+    /* 4.5rem = 1rem (top padding) + ~1.65rem (title row) + 0.5rem (gap) + 0.625rem (progress) + 0.75rem (bottom padding) */
+    padding-top: calc(env(safe-area-inset-top, 0px) + 4.5rem);
   }
 
   .top-bar {
@@ -164,9 +167,15 @@
     background: var(--color-surface);
     padding: calc(env(safe-area-inset-top, 0px) + 1rem) var(--space-6) 0.75rem;
     display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    z-index: 10;
+  }
+
+  .top-row {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    z-index: 10;
   }
 
   h1 {
@@ -194,11 +203,8 @@
   .back-btn:hover { color: var(--color-on-surface); }
 
   .progress-container {
-    flex: 1;
     display: flex;
     justify-content: center;
-    padding: 0 var(--space-3);
-    overflow: hidden;
   }
 
   .complete {
