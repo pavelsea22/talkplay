@@ -52,8 +52,11 @@
         { "word": "twig"  },
         { "word": "toast" },
         { "word": "trail" },
-        { "word": "thorn" },
-        { "word": "tube"  }
+        { "word": "thorn"   },
+        { "word": "tube"    },
+        { "word": "tornado" },
+        { "word": "tram"    },
+        { "word": "twister" }
       ],
       "trailing": [
         { "word": "fart"  },
@@ -108,7 +111,8 @@
         { "word": "between"  },
         { "word": "obtain"   },
         { "word": "canteen"  },
-        { "word": "eighteen" }
+        { "word": "eighteen" },
+        { "word": "letter"   }
       ]
     }
   }
