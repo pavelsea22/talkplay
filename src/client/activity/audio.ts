@@ -1,7 +1,15 @@
 // Singleton audio element — iOS keeps it "unlocked" after the first
 // user-gesture play, so reusing it lets praise/retry TTS work outside the
 // gesture context (e.g. after async recording + transcription completes).
-const audioEl = new Audio();
+// Lazy-initialised on first speakWord call so module import doesn't crash in
+// non-browser environments (e.g. Jest/Node).
+let audioEl: HTMLAudioElement | null = null;
+
+/** Returns the singleton audio element, creating it on first call. */
+function getAudioEl(): HTMLAudioElement {
+  if (!audioEl) audioEl = new Audio();
+  return audioEl;
+}
 
 // Reference to the element currently playing, for stopCurrentTts().
 let currentAudio: HTMLAudioElement | null = null;
@@ -56,7 +64,7 @@ export async function speakWord(word: string, options: { raw?: boolean } = {}): 
 
   stopCurrentTts();
 
-  const audio = audioEl;
+  const audio = getAudioEl();
   audio.src = url;
   currentAudio = audio;
 
