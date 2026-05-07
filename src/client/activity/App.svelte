@@ -147,6 +147,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    /* Reserve space for the fixed top-bar so centering starts below it.
+       Formula mirrors the top-bar's own padding-top + content (~1.5rem) + padding-bottom (0.75rem). */
+    padding-top: calc(max(1rem, env(safe-area-inset-top, 0px)) + 2.25rem);
   }
 
   .top-bar {
