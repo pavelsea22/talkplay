@@ -64,20 +64,17 @@ export async function speakWord(word: string, options: { raw?: boolean } = {}): 
  * Converts a raw audio Blob (e.g. WebM/Opus from MediaRecorder) into a
  * 16 kHz mono PCM WAV ArrayBuffer suitable for the Azure Speech SDK.
  * Uses the Web Audio API to decode and resample the audio.
+ *
+ * Decoding uses OfflineAudioContext rather than AudioContext because iOS
+ * suspends a regular AudioContext when created outside a user gesture and
+ * decodeAudioData hangs indefinitely on a suspended context. OfflineAudioContext
+ * renders to memory (no audio output) so iOS imposes no user-gesture restriction.
  */
 export async function blobToWav(blob: Blob): Promise<ArrayBuffer> {
   const arrayBuffer = await blob.arrayBuffer();
-  const audioCtx = new AudioContext();
-  let decoded: AudioBuffer;
-  try {
-    // iOS suspends AudioContext when created outside a synchronous user gesture;
-    // resume() unblocks decodeAudioData which hangs on a suspended context.
-    await audioCtx.resume();
-    decoded = await audioCtx.decodeAudioData(arrayBuffer);
-  } finally {
-    // Always close the context to release resources, even if decoding fails.
-    await audioCtx.close();
-  }
+  // A minimal OfflineAudioContext is sufficient for decodeAudioData — the
+  // length/sampleRate parameters only matter for startRendering(), not decoding.
+  const decoded = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(arrayBuffer);
 
   const targetRate = 16000;
   const offlineCtx = new OfflineAudioContext(1, Math.ceil(decoded.duration * targetRate), targetRate);
