@@ -23,7 +23,7 @@
     micAnimation?: MicAnimation;
   }
 
-  let { task, onComplete, showConfidence = false, micAnimation = 'fill' }: Props = $props();
+  let { task, onComplete, showConfidence = false, micAnimation = 'halo' }: Props = $props();
 
   // --- UI state ---
   let status = $state('');
