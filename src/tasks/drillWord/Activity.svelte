@@ -12,6 +12,7 @@
   const RECORD_SECONDS = 3;
   const POST_PROMPT_DELAY_MS = 50;  // delay after voice prompt before mic opens
   const ERROR_DISPLAY_MS = 2000;    // how long an incorrect-answer message stays on screen
+  const PROCESSING_TIMEOUT_MS = 5000;
 
   interface Props {
     task: DrillWordTask;
@@ -210,6 +211,14 @@
       countdownValue = null;
       isRecording = false;
 
+      let timedOut = false;
+      const processingTimer = setTimeout(() => {
+        timedOut = true;
+        showPrompt();
+        status = 'Please try speaking again';
+        micDisabled = false;
+      }, PROCESSING_TIMEOUT_MS);
+
       const blob = new Blob(chunks, { type: mimeType });
       try {
         const wavBuffer = await blobToWav(blob);
@@ -224,6 +233,10 @@
           assessment: PhonemeAssessment | null;
           confidence: number | null;
         };
+
+        clearTimeout(processingTimer);
+        if (timedOut) return;
+
         lastConfidence = confidence;
 
         const result = evaluateDrillWord(task, transcript, assessment, retryCount);
@@ -262,6 +275,8 @@
           }
         }
       } catch (err) {
+        clearTimeout(processingTimer);
+        if (timedOut) return;
         feedbackText = '(transcription error)';
         console.error(err);
         micDisabled = false;
