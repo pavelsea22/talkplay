@@ -24,7 +24,7 @@
   let locked = $state(false);
   let dragging = $state<string | null>(null);
   let dragOffset = $state({ x: 0, y: 0 });
-  let dragImageRect = $state<DOMRect | null>(null);
+  let touchPos = $state<{ x: number; y: number } | null>(null);
   let hoveredBucket = $state<0 | 1 | null>(null);
   let hoverIsCorrect = $state(false);
   let justDraggedWord = $state<string | null>(null);
@@ -134,37 +134,52 @@
   }
 
   /**
-   * Touch move.
+   * Returns the bucket index under the given client coordinates, or null if none.
    */
-  function onTouchMove(e: TouchEvent, word: string) {
-    if (dragging !== word || locked) return;
-    // Touch movement is handled by CSS transform updates in the template
+  function bucketAtPoint(x: number, y: number): 0 | 1 | null {
+    const buckets = document.querySelectorAll('[data-bucket]');
+    for (const bucket of buckets) {
+      const rect = bucket.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        return parseInt(bucket.getAttribute('data-bucket') || '0', 10) as 0 | 1;
+      }
+    }
+    return null;
   }
 
   /**
-   * Touch end.
+   * Touch move — updates ghost position and highlights the bucket under the finger.
+   */
+  function onTouchMove(e: TouchEvent, word: string) {
+    if (dragging !== word || locked) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchPos = { x: touch.clientX, y: touch.clientY };
+    const bucket = bucketAtPoint(touch.clientX, touch.clientY);
+    hoveredBucket = bucket;
+    hoverIsCorrect = bucket !== null
+      ? evaluateWordSort(word, bucket, task) === 'correct'
+      : false;
+  }
+
+  /**
+   * Touch end — drops onto the bucket under the finger (if any) and cleans up.
    */
   function onTouchEnd(e: TouchEvent, word: string) {
     if (dragging !== word || locked) return;
 
     const touch = e.changedTouches[0];
-    const buckets = document.querySelectorAll('[data-bucket]');
+    const bucket = bucketAtPoint(touch.clientX, touch.clientY);
 
-    for (const bucket of buckets) {
-      const rect = bucket.getBoundingClientRect();
-      if (
-        touch.clientX >= rect.left &&
-        touch.clientX <= rect.right &&
-        touch.clientY >= rect.top &&
-        touch.clientY <= rect.bottom
-      ) {
-        const bucketIndex = parseInt(bucket.getAttribute('data-bucket') || '0', 10) as 0 | 1;
-        handleDrop(word, bucketIndex);
-        return;
-      }
+    touchPos = null;
+    hoveredBucket = null;
+    hoverIsCorrect = false;
+
+    if (bucket !== null) {
+      handleDrop(word, bucket);
+    } else {
+      dragging = null;
     }
-
-    dragging = null;
   }
 </script>
 
@@ -186,12 +201,23 @@
         ondragend={() => onDragEnd(word)}
         onmouseleave={onMouseLeaveCard}
         ontouchstart={(e) => onTouchStart(e, word)}
+        ontouchmove={(e) => onTouchMove(e, word)}
         ontouchend={(e) => onTouchEnd(e, word)}
       >
         {word}
       </div>
     {/each}
   </div>
+
+  <!-- Touch drag ghost -->
+  {#if dragging && touchPos}
+    <div
+      class="word-card touch-ghost"
+      style="left: {touchPos.x - dragOffset.x}px; top: {touchPos.y - dragOffset.y}px;"
+    >
+      {dragging}
+    </div>
+  {/if}
 
   <!-- Buckets -->
   <div class="buckets" class:all-placed={allPlaced}>
@@ -272,6 +298,15 @@
 
   .word-card.placed {
     visibility: hidden;
+  }
+
+  .touch-ghost {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0.85;
+    transform: scale(1.08);
+    z-index: 1000;
+    transition: none;
   }
 
   .word-card:hover:not(.dragging):not(.skip-hover):not(.placed) {
