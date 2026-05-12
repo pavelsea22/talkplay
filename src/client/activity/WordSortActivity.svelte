@@ -133,6 +133,7 @@
       y: touch.clientY - rect.top,
     };
     dragCardSize = { width: rect.width, height: rect.height };
+    touchPos = { x: touch.clientX, y: touch.clientY };
   }
 
   /**
@@ -311,6 +312,7 @@
     transform: scale(1.08);
     z-index: 1000;
     transition: none;
+    box-sizing: border-box;
   }
 
   .word-card:hover:not(.dragging):not(.skip-hover):not(.placed) {
