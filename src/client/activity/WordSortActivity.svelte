@@ -25,6 +25,7 @@
   let dragging = $state<string | null>(null);
   let dragOffset = $state({ x: 0, y: 0 });
   let touchPos = $state<{ x: number; y: number } | null>(null);
+  let dragCardSize = $state<{ width: number; height: number } | null>(null);
   let hoveredBucket = $state<0 | 1 | null>(null);
   let hoverIsCorrect = $state(false);
   let justDraggedWord = $state<string | null>(null);
@@ -131,6 +132,7 @@
       x: touch.clientX - rect.left,
       y: touch.clientY - rect.top,
     };
+    dragCardSize = { width: rect.width, height: rect.height };
   }
 
   /**
@@ -172,6 +174,7 @@
     const bucket = bucketAtPoint(touch.clientX, touch.clientY);
 
     touchPos = null;
+    dragCardSize = null;
     hoveredBucket = null;
     hoverIsCorrect = false;
 
@@ -195,6 +198,7 @@
         class="word-card"
         class:placed={placed[word] !== undefined}
         class:dragging={dragging === word}
+        class:touch-dragging={dragging === word && touchPos !== null}
         class:skip-hover={justDraggedWord === word}
         draggable={!locked && placed[word] === undefined}
         ondragstart={(e) => onDragStart(e, word)}
@@ -210,10 +214,10 @@
   </div>
 
   <!-- Touch drag ghost -->
-  {#if dragging && touchPos}
+  {#if dragging && touchPos && dragCardSize}
     <div
       class="word-card touch-ghost"
-      style="left: {touchPos.x - dragOffset.x}px; top: {touchPos.y - dragOffset.y}px;"
+      style="left: {touchPos.x - dragOffset.x}px; top: {touchPos.y - dragOffset.y}px; width: {dragCardSize.width}px; height: {dragCardSize.height}px;"
     >
       {dragging}
     </div>
@@ -317,6 +321,10 @@
   .word-card.dragging {
     opacity: 0.5;
     cursor: grabbing;
+  }
+
+  .word-card.touch-dragging {
+    visibility: hidden;
   }
 
   .buckets {
