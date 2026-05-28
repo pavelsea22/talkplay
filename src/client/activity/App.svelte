@@ -291,9 +291,15 @@
     margin-bottom: var(--space-2);
   }
 
-  /* Maze needs a narrower inline padding so the 301 px canvas fills the card. */
+  /*
+   * Maze card: wide enough that the 362 px canvas renders near 1:1 on desktop
+   * (no sub-pixel scaling → uniform wall thickness). On narrow viewports the
+   * card shrinks to fit and the canvas scales down proportionally via
+   * width:100% / height:auto in Maze.svelte.
+   */
   .maze-card {
-    width: 360px;
-    padding-inline: var(--space-3);
+    width: min(420px, calc(100vw - var(--space-4)));
+    padding-inline: var(--space-4);
+    height: auto;
   }
 </style>

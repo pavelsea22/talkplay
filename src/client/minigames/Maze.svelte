@@ -8,18 +8,28 @@
   let { onClose }: Props = $props();
 
   // ── Grid constants ────────────────────────────────────────────────────────────
-  const COLS = 30;
-  const ROWS = 20;
+  const COLS = 18;
+  const ROWS = 12;
   /** Cell interior size in pixels (canvas resolution, not CSS display size). */
-  const CELL = 9;
+  const CELL = 18;
   /** Wall / grid-line thickness in pixels. */
-  const WALL = 1;
+  const WALL = 2;
   /** Pixels from the start of one cell to the start of the next. */
-  const STEP = CELL + WALL; // 10
+  const STEP = CELL + WALL; // 20
   /** Total canvas width in pixels: COLS cells + (COLS+1) wall lines. */
-  const CW = COLS * STEP + WALL; // 301
+  const CW = COLS * STEP + WALL; // 362
   /** Total canvas height in pixels: ROWS cells + (ROWS+1) wall lines. */
-  const CH = ROWS * STEP + WALL; // 201
+  const CH = ROWS * STEP + WALL; // 242
+
+  // ── Sprite scaling ────────────────────────────────────────────────────────────
+  /** Pixel dimensions of the source sprite grid. */
+  const SPRITE_SIZE = 9;
+  /**
+   * Each sprite pixel is rendered as a SPRITE_SCALE×SPRITE_SCALE block so the
+   * bunny fills the larger cell without redrawing the sprite data.
+   * CELL / SPRITE_SIZE = 18 / 9 = 2.
+   */
+  const SPRITE_SCALE = CELL / SPRITE_SIZE; // 2
 
   // ── Types ─────────────────────────────────────────────────────────────────────
   type Direction = 'up' | 'right' | 'down' | 'left';
@@ -217,12 +227,19 @@
       0: null, 1: C.fur, 2: C.ear, 3: C.eye,
     };
 
-    for (let r = 0; r < CELL; r++) {
-      for (let c = 0; c < CELL; c++) {
+    // Each sprite pixel is rendered as a SPRITE_SCALE×SPRITE_SCALE block so
+    // the bunny fills the full CELL without upscaling artifacts.
+    for (let r = 0; r < SPRITE_SIZE; r++) {
+      for (let c = 0; c < SPRITE_SIZE; c++) {
         const color = colorMap[sprite[r][c]];
         if (color === null) continue;
         ctx.fillStyle = color;
-        ctx.fillRect(px + c, py + r, 1, 1);
+        ctx.fillRect(
+          px + c * SPRITE_SCALE,
+          py + r * SPRITE_SCALE,
+          SPRITE_SCALE,
+          SPRITE_SCALE,
+        );
       }
     }
   }
@@ -262,10 +279,10 @@
       }
     }
 
-    // Exit marker: 3×3 dark dot centred in the exit cell
+    // Exit marker: 6×6 dark dot centred in the exit cell (scaled with CELL).
     const [ex, ey] = cellPixel(COLS - 1, ROWS - 1);
     ctx.fillStyle = C.marker;
-    ctx.fillRect(ex + 3, ey + 3, 3, 3);
+    ctx.fillRect(ex + 6, ey + 6, 6, 6);
 
     drawBunny(ctx, bunnyX, bunnyY, facing);
   }
