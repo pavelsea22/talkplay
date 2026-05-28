@@ -14,6 +14,8 @@
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
   import WordSortActivity from './WordSortActivity.svelte';
   import Maze from '../minigames/Maze.svelte';
+  import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
+  import MinigamePicker, { type MinigameId } from '../minigames/MinigamePicker.svelte';
   import CompletionCertificate from './CompletionCertificate.svelte';
 
   /** Number of tasks added by the "more practice" mode after today's lesson. */
@@ -40,14 +42,21 @@
 
   const { showConfidence, micAnimation } = getParentConfig();
 
-  // ?debug-minigame=maze opens the maze immediately without completing a lesson.
-  const debugMinigame = params.get('debug-minigame');
+  // ?debug-minigame=maze|balloon opens that game immediately without completing a lesson.
+  const debugMinigame = params.get('debug-minigame') as MinigameId | null;
 
   let tasks = $state<Task[]>(buildLesson());
   let statuses = $state<TaskStatus[]>(tasks.map(() => 'pending' as TaskStatus));
   let taskIndex = $state(0);
   let lessonComplete = $state(false);
-  let showMinigame = $state(debugMinigame === 'maze');
+  /** Controls the picker overlay shown at lesson end. */
+  let showPicker = $state(false);
+  /** The mini game the user chose; null until they pick one. */
+  let selectedMinigame = $state<MinigameId | null>(
+    debugMinigame === 'maze' || debugMinigame === 'balloon' ? debugMinigame : null,
+  );
+  /** Whether the selected mini game overlay is visible. */
+  let showMinigame = $state(selectedMinigame !== null);
   let showCertificate = $state(false);
   let completePraise = $state('');
 
@@ -69,7 +78,7 @@
     const next = taskIndex + 1;
     if (next >= tasks.length) {
       lessonComplete = true;
-      showMinigame = true;
+      showPicker = true;
       completePraise = randomPraise();
       recordPlayedToday();
       if (mode === 'today') {
@@ -129,12 +138,27 @@
   {/key}
 {/if}
 
+{#if showPicker}
+  <MinigamePicker onPick={(game) => {
+    selectedMinigame = game;
+    showPicker = false;
+    showMinigame = true;
+  }} />
+{/if}
+
 {#if showMinigame}
   <div class="minigame-overlay">
-    <div class="minigame-card maze-card">
-      <h2 class="minigame-title">Find the Way! 🐰</h2>
-      <Maze onClose={() => showMinigame = false} />
-    </div>
+    {#if selectedMinigame === 'maze'}
+      <div class="minigame-card maze-card">
+        <h2 class="minigame-title">Find the Way! 🐰</h2>
+        <Maze onClose={() => showMinigame = false} />
+      </div>
+    {:else if selectedMinigame === 'balloon'}
+      <div class="minigame-card">
+        <h2 class="minigame-title">Pop the Balloons! 🎈</h2>
+        <PopTheBalloon onClose={() => showMinigame = false} />
+      </div>
+    {/if}
   </div>
 {/if}
 
