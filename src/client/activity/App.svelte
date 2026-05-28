@@ -57,8 +57,21 @@
   );
   /** Whether the selected mini game overlay is visible. */
   let showMinigame = $state(selectedMinigame !== null);
+  /** Whether the "Your time is up!" overlay is visible. */
+  let showTimeUp = $state(false);
   let showCertificate = $state(false);
   let completePraise = $state('');
+
+  const MINIGAME_DURATION_MS = 5 * 60 * 1000;
+
+  $effect(() => {
+    if (!showMinigame) return;
+    const id = setTimeout(() => {
+      showMinigame = false;
+      showTimeUp = true;
+    }, MINIGAME_DURATION_MS);
+    return () => clearTimeout(id);
+  });
 
   let currentTask = $derived(tasks[taskIndex]);
 
@@ -159,6 +172,16 @@
         <PopTheBalloon onClose={() => showMinigame = false} />
       </div>
     {/if}
+  </div>
+{/if}
+
+{#if showTimeUp}
+  <div class="minigame-overlay">
+    <div class="timeup-card">
+      <p class="timeup-emoji">⏰</p>
+      <h2 class="timeup-heading">Your time is up!</h2>
+      <button class="timeup-btn" onclick={() => window.location.href = '/'}>OK</button>
+    </div>
   </div>
 {/if}
 
@@ -337,4 +360,53 @@
       width: min(304px, calc(100vw - var(--space-4)));
     }
   }
+
+  .timeup-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8) var(--space-8);
+    width: min(300px, calc(100vw - var(--space-8)));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    box-shadow: var(--shadow-ambient);
+    outline: 1px solid rgba(141, 177, 209, 0.15);
+    text-align: center;
+  }
+
+  .timeup-emoji {
+    font-size: 3rem;
+    line-height: 1;
+    margin: 0;
+  }
+
+  .timeup-heading {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    margin: 0;
+  }
+
+  .timeup-btn {
+    margin-top: var(--space-2);
+    padding: var(--space-3) var(--space-10);
+    border: none;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    color: var(--color-on-primary);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-ambient);
+    transition:
+      opacity   var(--duration-fast) var(--ease-in-out),
+      transform var(--duration-fast) var(--ease-in-out);
+  }
+
+  .timeup-btn:hover  { opacity: 0.9; }
+  .timeup-btn:active { transform: scale(0.95); }
 </style>
