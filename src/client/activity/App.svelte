@@ -13,7 +13,7 @@
   import DrillWordActivity from '../../tasks/drillWord/Activity.svelte';
   import MinPairActivity from '../../tasks/minPairDiscrim/Activity.svelte';
   import WordSortActivity from './WordSortActivity.svelte';
-  import PopTheBalloon from '../minigames/PopTheBalloon.svelte';
+  import Maze from '../minigames/Maze.svelte';
   import CompletionCertificate from './CompletionCertificate.svelte';
 
   /** Number of tasks added by the "more practice" mode after today's lesson. */
@@ -40,11 +40,14 @@
 
   const { showConfidence, micAnimation } = getParentConfig();
 
+  // ?debug-minigame=maze opens the maze immediately without completing a lesson.
+  const debugMinigame = params.get('debug-minigame');
+
   let tasks = $state<Task[]>(buildLesson());
   let statuses = $state<TaskStatus[]>(tasks.map(() => 'pending' as TaskStatus));
   let taskIndex = $state(0);
   let lessonComplete = $state(false);
-  let showMinigame = $state(false);
+  let showMinigame = $state(debugMinigame === 'maze');
   let showCertificate = $state(false);
   let completePraise = $state('');
 
@@ -128,9 +131,9 @@
 
 {#if showMinigame}
   <div class="minigame-overlay">
-    <div class="minigame-card">
-      <h2 class="minigame-title">Pop the Balloons!</h2>
-      <PopTheBalloon onClose={() => showMinigame = false} />
+    <div class="minigame-card maze-card">
+      <h2 class="minigame-title">Find the Way! 🐰</h2>
+      <Maze onClose={() => showMinigame = false} />
     </div>
   </div>
 {/if}
@@ -286,5 +289,11 @@
     font-weight: 700;
     color: var(--color-on-surface);
     margin-bottom: var(--space-2);
+  }
+
+  /* Maze needs a narrower inline padding so the 301 px canvas fills the card. */
+  .maze-card {
+    width: 360px;
+    padding-inline: var(--space-3);
   }
 </style>

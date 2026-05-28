@@ -134,6 +134,12 @@
     Show debug information
   </label>
   <div class="debug-field">
+    <span class="debug-label">Minigames</span>
+    <a href="/activity/?debug-minigame=maze" target="_blank" class="debug-link">
+      🐰 Preview Maze ↗
+    </a>
+  </div>
+  <div class="debug-field">
     <span class="debug-label">Mic button animation</span>
     <div class="mic-anim-options">
       {#each ([['fill', 'Level fill'], ['halo', 'Halo glow']] as const) as [value, label]}
@@ -351,6 +357,17 @@
   }
 
   .mic-anim-option input { cursor: pointer; }
+
+  .debug-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: 0.875rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: opacity var(--duration-fast) var(--ease-in-out);
+  }
+  .debug-link:hover { opacity: 0.75; }
 
   .reset-lesson-btn {
     padding: var(--space-2) var(--space-6);
