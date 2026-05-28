@@ -8,18 +8,32 @@
   let { onClose }: Props = $props();
 
   // ── Grid constants ────────────────────────────────────────────────────────────
-  const COLS = 18;
-  const ROWS = 12;
-  /** Cell interior size in pixels (canvas resolution, not CSS display size). */
-  const CELL = 18;
+  /**
+   * Viewport breakpoint (px) below which the maze flips to portrait orientation
+   * (9 cols × 12 rows instead of 12 cols × 9 rows). Must match the CSS media
+   * query in activity/App.svelte (.maze-card breakpoint).
+   */
+  const PORTRAIT_BREAKPOINT = 500;
+
+  // COLS and ROWS are set in onMount after checking the viewport width.
+  // Default values match the landscape (desktop) layout.
+  let COLS = 12;
+  let ROWS = 9;
+
+  /** Cell interior size in pixels. */
+  const CELL = 28;
   /** Wall / grid-line thickness in pixels. */
   const WALL = 2;
-  /** Pixels from the start of one cell to the start of the next. */
-  const STEP = CELL + WALL; // 20
-  /** Total canvas width in pixels: COLS cells + (COLS+1) wall lines. */
-  const CW = COLS * STEP + WALL; // 362
-  /** Total canvas height in pixels: ROWS cells + (ROWS+1) wall lines. */
-  const CH = ROWS * STEP + WALL; // 242
+  /** Pixels from the start of one cell to the start of the next: CELL + WALL. */
+  const STEP = CELL + WALL; // 30
+
+  /**
+   * Canvas pixel dimensions — computed in onMount once COLS/ROWS are known.
+   *   Landscape (12×9):  CW = 12×30+2 = 362,  CH = 9×30+2  = 272
+   *   Portrait  (9×12):  CW = 9×30+2  = 272,  CH = 12×30+2 = 362
+   */
+  let CW = 0;
+  let CH = 0;
 
   // ── Types ─────────────────────────────────────────────────────────────────────
   type Direction = 'up' | 'right' | 'down' | 'left';
@@ -150,7 +164,7 @@
 
   /**
    * Draws a hand-rendered checkered finish-flag pattern filling the exit cell.
-   * CELL (18) ÷ 3 = 6 squares per axis → 6×6 grid of 3×3 px checker squares.
+   * CELL (28) ÷ 4 = 7 squares per axis → 7×7 grid of 4×4 px checker squares.
    *
    * @param ctx  2D rendering context.
    * @param col  Exit column in the maze grid.
@@ -158,8 +172,8 @@
    */
   function drawFinishFlag(ctx: CanvasRenderingContext2D, col: number, row: number): void {
     const [px, py] = cellPixel(col, row);
-    const sq = 3;               // each checker square is 3 px
-    const n  = CELL / sq;       // 6 squares per axis
+    const sq = 4;               // each checker square is 4 px
+    const n  = CELL / sq;       // 7 squares per axis
 
     for (let r = 0; r < n; r++) {
       for (let c = 0; c < n; c++) {
@@ -260,6 +274,21 @@
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────────
   onMount(() => {
+    // Portrait viewports (phones) get a taller-than-wide maze so it fills the
+    // screen more naturally. The same 12×9 cell count is used in both layouts,
+    // just with the axes swapped.
+    const portrait = window.innerWidth < PORTRAIT_BREAKPOINT;
+    COLS = portrait ? 9  : 12;
+    ROWS = portrait ? 12 : 9;
+    CW   = COLS * STEP + WALL;
+    CH   = ROWS * STEP + WALL;
+
+    // Set canvas buffer size and CSS max-width imperatively — this avoids
+    // Svelte reactive-attribute timing issues and keeps CW/CH non-reactive.
+    canvas.width  = CW;
+    canvas.height = CH;
+    canvas.style.maxWidth = `${CW}px`;
+
     maze = generateMaze();
     render();
     window.addEventListener('keydown', handleKey);
@@ -277,7 +306,7 @@
   </div>
 
   <div class="canvas-wrap">
-    <canvas bind:this={canvas} width={CW} height={CH} style="max-width: {CW}px;"></canvas>
+    <canvas bind:this={canvas}></canvas>
 
     {#if won}
       <div class="win-overlay">

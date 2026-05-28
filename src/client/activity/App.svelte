@@ -292,19 +292,25 @@
   }
 
   /*
-   * Maze card sizing rationale:
-   *   Canvas native width (CW) = 18 cols × 20 step + 2 wall = 362 px.
-   *   padding-inline = var(--space-4) = 16 px × 2 = 32 px.
-   *   Card width = 362 + 32 = 394 px → inner exactly 362 px on desktop
-   *   → canvas renders at 1:1, no fractional CSS scaling, walls are uniform.
+   * Maze card sizing — must stay in sync with PORTRAIT_BREAKPOINT (500 px)
+   * and the cell geometry in Maze.svelte (CELL=28, WALL=2, STEP=30):
    *
-   * On viewports narrower than 394 px the card shrinks via min(), and the
-   * canvas (width:100%; max-width:362px) scales down proportionally — a slight
-   * downscale on mobile is far less visible than an upscale on desktop.
+   *   Landscape (12×9):  CW = 12×30+2 = 362 px  →  card = 362+32 = 394 px
+   *   Portrait  (9×12):  CW = 9×30+2  = 272 px  →  card = 272+32 = 304 px
+   *
+   * Inner width equals CW exactly → canvas renders at 1:1, no fractional CSS
+   * scaling, walls are perfectly uniform.
    */
   .maze-card {
     width: min(394px, calc(100vw - var(--space-4)));
     padding-inline: var(--space-4);
     height: auto;
+  }
+
+  /* Portrait-mobile layout: narrower card matches the 9-column canvas. */
+  @media (max-width: 499px) {
+    .maze-card {
+      width: min(304px, calc(100vw - var(--space-4)));
+    }
   }
 </style>
