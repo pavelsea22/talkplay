@@ -22,11 +22,12 @@
     display: flex;
     gap: var(--space-2);
     align-items: center;
-    justify-content: center;
+    width: 100%;
   }
 
   .segment {
-    width: 48px;
+    flex: 1;
+    min-width: 0;
     height: 10px;
     border-radius: var(--radius-full);
     transition: background var(--duration-base) var(--ease-in-out);
