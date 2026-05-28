@@ -21,16 +21,6 @@
   /** Total canvas height in pixels: ROWS cells + (ROWS+1) wall lines. */
   const CH = ROWS * STEP + WALL; // 242
 
-  // ── Sprite scaling ────────────────────────────────────────────────────────────
-  /** Pixel dimensions of the source sprite grid. */
-  const SPRITE_SIZE = 9;
-  /**
-   * Each sprite pixel is rendered as a SPRITE_SCALE×SPRITE_SCALE block so the
-   * bunny fills the larger cell without redrawing the sprite data.
-   * CELL / SPRITE_SIZE = 18 / 9 = 2.
-   */
-  const SPRITE_SCALE = CELL / SPRITE_SIZE; // 2
-
   // ── Types ─────────────────────────────────────────────────────────────────────
   type Direction = 'up' | 'right' | 'down' | 'left';
 
@@ -55,77 +45,12 @@
     up: 'down', right: 'left', down: 'up', left: 'right',
   };
 
-  // ── 9×9 pixel-art bunny sprites ───────────────────────────────────────────────
-  // Bunny is viewed from directly above.
-  // Head points in the movement direction; ears flank the head.
-  //   0 = transparent (shows cell background)
-  //   1 = fur (cream)
-  //   2 = ear (pink)
-  //   3 = eye (dark)
-  type PixVal = 0 | 1 | 2 | 3;
-  type Sprite = ReadonlyArray<ReadonlyArray<PixVal>>;
-
-  const SPRITES: Record<Direction, Sprite> = {
-    /** Head at top, ears flank the top of the body. */
-    up: [
-      [0, 2, 0, 0, 0, 0, 2, 0, 0],
-      [0, 2, 0, 0, 0, 0, 2, 0, 0],
-      [0, 2, 1, 1, 1, 1, 2, 0, 0],
-      [0, 1, 1, 3, 1, 3, 1, 1, 0],
-      [0, 1, 1, 1, 1, 1, 1, 1, 0],
-      [0, 1, 1, 1, 1, 1, 1, 1, 0],
-      [0, 0, 1, 1, 1, 1, 1, 0, 0],
-      [0, 0, 0, 1, 1, 1, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ],
-    /** Head at bottom, ears flank the bottom of the body. */
-    down: [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 1, 1, 0, 0, 0],
-      [0, 0, 1, 1, 1, 1, 1, 0, 0],
-      [0, 1, 1, 1, 1, 1, 1, 1, 0],
-      [0, 1, 1, 1, 1, 1, 1, 1, 0],
-      [0, 1, 1, 3, 1, 3, 1, 1, 0],
-      [0, 2, 1, 1, 1, 1, 1, 2, 0],
-      [0, 2, 0, 0, 0, 0, 0, 2, 0],
-      [0, 2, 0, 0, 0, 0, 0, 2, 0],
-    ],
-    /** Head on right, ears flank the right side of the body; single eye facing right. */
-    right: [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 2, 2, 0],
-      [0, 0, 0, 1, 1, 1, 1, 2, 0],
-      [0, 0, 1, 1, 1, 1, 1, 2, 0],
-      [0, 1, 1, 1, 1, 1, 3, 1, 0],
-      [0, 0, 1, 1, 1, 1, 1, 2, 0],
-      [0, 0, 0, 1, 1, 1, 1, 2, 0],
-      [0, 0, 0, 0, 0, 0, 2, 2, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ],
-    /** Head on left, ears flank the left side of the body; single eye facing left. */
-    left: [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 2, 2, 0, 0, 0, 0, 0, 0],
-      [0, 2, 1, 1, 1, 1, 0, 0, 0],
-      [0, 2, 1, 1, 1, 1, 1, 0, 0],
-      [0, 1, 3, 1, 1, 1, 1, 1, 0],
-      [0, 2, 1, 1, 1, 1, 1, 0, 0],
-      [0, 2, 1, 1, 1, 1, 0, 0, 0],
-      [0, 2, 2, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ],
-  };
-
   // ── Colour palette ────────────────────────────────────────────────────────────
   const C = {
-    wall:   '#1e293b', // dark blue-grey for walls
-    path:   '#f0e8d8', // warm cream for open corridors
-    start:  '#d1fae5', // soft green for the start cell
-    exit:   '#fde68a', // golden yellow for the exit cell
-    marker: '#92400e', // dark amber for the exit marker dot
-    fur:    '#f8f0e8', // cream-white bunny body
-    ear:    '#ffaabb', // pink ears
-    eye:    '#1a1a2e', // very dark blue-purple eyes
+    wall:  '#1e293b', // dark blue-grey for walls
+    path:  '#f0e8d8', // warm cream for open corridors
+    start: '#d1fae5', // soft green for the start cell
+    exit:  '#f0e8d8', // same cream — flag pattern fills the cell
   } as const;
 
   // ── DOM reference ─────────────────────────────────────────────────────────────
@@ -139,7 +64,6 @@
   let maze: MazeCell[][] = [];
   let bunnyX = 0;
   let bunnyY = 0;
-  let facing: Direction = 'right';
   let winTimeout: ReturnType<typeof setTimeout> | undefined;
 
   // ── Maze generation ───────────────────────────────────────────────────────────
@@ -207,39 +131,40 @@
   }
 
   /**
-   * Paints the pixel-art bunny sprite onto the canvas at the given cell.
-   * Each pixel value maps to a colour defined in `C`.
+   * Draws the 🐰 emoji centred in the given cell.
    *
-   * @param ctx    2D rendering context.
-   * @param col    Bunny column in the maze grid.
-   * @param row    Bunny row in the maze grid.
-   * @param dir    The direction the bunny is facing.
+   * @param ctx  2D rendering context.
+   * @param col  Bunny column in the maze grid.
+   * @param row  Bunny row in the maze grid.
    */
-  function drawBunny(
-    ctx: CanvasRenderingContext2D,
-    col: number,
-    row: number,
-    dir: Direction
-  ): void {
+  function drawBunny(ctx: CanvasRenderingContext2D, col: number, row: number): void {
     const [px, py] = cellPixel(col, row);
-    const sprite = SPRITES[dir];
-    const colorMap: Record<PixVal, string | null> = {
-      0: null, 1: C.fur, 2: C.ear, 3: C.eye,
-    };
+    ctx.save();
+    ctx.font = `${CELL + 2}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // +1 px vertical nudge compensates for typical emoji descender offset.
+    ctx.fillText('🐰', px + CELL / 2, py + CELL / 2 + 1);
+    ctx.restore();
+  }
 
-    // Each sprite pixel is rendered as a SPRITE_SCALE×SPRITE_SCALE block so
-    // the bunny fills the full CELL without upscaling artifacts.
-    for (let r = 0; r < SPRITE_SIZE; r++) {
-      for (let c = 0; c < SPRITE_SIZE; c++) {
-        const color = colorMap[sprite[r][c]];
-        if (color === null) continue;
-        ctx.fillStyle = color;
-        ctx.fillRect(
-          px + c * SPRITE_SCALE,
-          py + r * SPRITE_SCALE,
-          SPRITE_SCALE,
-          SPRITE_SCALE,
-        );
+  /**
+   * Draws a hand-rendered checkered finish-flag pattern filling the exit cell.
+   * CELL (18) ÷ 3 = 6 squares per axis → 6×6 grid of 3×3 px checker squares.
+   *
+   * @param ctx  2D rendering context.
+   * @param col  Exit column in the maze grid.
+   * @param row  Exit row in the maze grid.
+   */
+  function drawFinishFlag(ctx: CanvasRenderingContext2D, col: number, row: number): void {
+    const [px, py] = cellPixel(col, row);
+    const sq = 3;               // each checker square is 3 px
+    const n  = CELL / sq;       // 6 squares per axis
+
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) {
+        ctx.fillStyle = (r + c) % 2 === 0 ? '#111111' : '#f5f5f5';
+        ctx.fillRect(px + c * sq, py + r * sq, sq, sq);
       }
     }
   }
@@ -250,7 +175,7 @@
     const ctx = canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
 
-    // Walls fill everything; cells are punched out on top
+    // Walls fill everything; cells are punched out on top.
     ctx.fillStyle = C.wall;
     ctx.fillRect(0, 0, CW, CH);
 
@@ -258,10 +183,8 @@
       for (let col = 0; col < COLS; col++) {
         const [px, py] = cellPixel(col, row);
 
-        // Cell background
-        const isStart = col === 0 && row === 0;
-        const isExit  = col === COLS - 1 && row === ROWS - 1;
-        ctx.fillStyle = isStart ? C.start : isExit ? C.exit : C.path;
+        // Cell background (exit cell gets a plain fill first; flag is drawn later)
+        ctx.fillStyle = col === 0 && row === 0 ? C.start : C.path;
         ctx.fillRect(px, py, CELL, CELL);
 
         const cell = maze[row][col];
@@ -279,12 +202,10 @@
       }
     }
 
-    // Exit marker: 6×6 dark dot centred in the exit cell (scaled with CELL).
-    const [ex, ey] = cellPixel(COLS - 1, ROWS - 1);
-    ctx.fillStyle = C.marker;
-    ctx.fillRect(ex + 6, ey + 6, 6, 6);
+    // Checkered finish flag drawn on top of the exit cell's plain background.
+    drawFinishFlag(ctx, COLS - 1, ROWS - 1);
 
-    drawBunny(ctx, bunnyX, bunnyY, facing);
+    drawBunny(ctx, bunnyX, bunnyY);
   }
 
   // ── Movement ──────────────────────────────────────────────────────────────────
@@ -299,7 +220,6 @@
   function move(dir: Direction): void {
     if (won) return;
 
-    facing = dir;
     const cell = maze[bunnyY][bunnyX];
 
     if (!cell.walls[DIR_IDX[dir]]) {
@@ -357,7 +277,7 @@
   </div>
 
   <div class="canvas-wrap">
-    <canvas bind:this={canvas} width={CW} height={CH}></canvas>
+    <canvas bind:this={canvas} width={CW} height={CH} style="max-width: {CW}px;"></canvas>
 
     {#if won}
       <div class="win-overlay">
