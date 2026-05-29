@@ -14,14 +14,22 @@
   let exerciseCount = $state(initial.exerciseCount);
   let showConfidence = $state(initial.showConfidence);
   let micAnimation = $state<MicAnimation>(initial.micAnimation);
-  let saved = $state(false);
   let todayStatus = $state(getTodayStatus());
 
   const exerciseOptions = [3, 5, 7, 10, 15];
 
+  /** Persists the current config immediately. */
+  function saveConfig(): void {
+    setParentConfig({
+      sounds: Array.from(selectedSounds),
+      exerciseCount,
+      showConfidence,
+      micAnimation,
+    });
+  }
+
   /** Toggles a sound in the selection. Always keeps at least one selected. */
   function toggleSound(sound: string): void {
-    saved = false;
     if (selectedSounds.has(sound)) {
       if (selectedSounds.size === 1) return;
       selectedSounds.delete(sound);
@@ -29,26 +37,16 @@
       selectedSounds.add(sound);
     }
     selectedSounds = new Set(selectedSounds);
+    saveConfig();
   }
 
-  /** Persists config and shows a brief confirmation. */
-  function save(): void {
-    setParentConfig({
-      sounds: Array.from(selectedSounds),
-      exerciseCount,
-      showConfidence,
-      micAnimation,
-    });
-    saved = true;
-  }
-
-  /** Resets selection to the all-sounds default. */
+  /** Resets selection to the all-sounds default and saves immediately. */
   function reset(): void {
     selectedSounds = new Set(DEFAULT_PARENT_CONFIG.sounds);
     exerciseCount = DEFAULT_PARENT_CONFIG.exerciseCount;
     showConfidence = DEFAULT_PARENT_CONFIG.showConfidence;
     micAnimation = DEFAULT_PARENT_CONFIG.micAnimation;
-    saved = false;
+    saveConfig();
   }
 
   /** Resets today's lesson to not_started so the child can redo it. */
@@ -99,7 +97,7 @@
         type="button"
         class="count-chip"
         class:active={exerciseCount === count}
-        onclick={() => { exerciseCount = count; saved = false; }}
+        onclick={() => { exerciseCount = count; saveConfig(); }}
         aria-pressed={exerciseCount === count}
       >
         {count}
@@ -129,7 +127,7 @@
     <input
       type="checkbox"
       bind:checked={showConfidence}
-      onchange={() => { saved = false; }}
+      onchange={() => saveConfig()}
     />
     Show debug information
   </label>
@@ -149,7 +147,7 @@
             name="micAnimation"
             {value}
             checked={micAnimation === value}
-            onchange={() => { micAnimation = value; saved = false; }}
+            onchange={() => { micAnimation = value; saveConfig(); }}
           />
           {label}
         </label>
@@ -159,13 +157,8 @@
 </details>
 
 <div class="actions">
-  <button type="button" class="reset-btn" onclick={reset}>Reset</button>
-  <button type="button" class="save-btn" onclick={save}>Save</button>
+  <button type="button" class="reset-btn" onclick={reset}>Reset to defaults</button>
 </div>
-
-{#if saved}
-  <p class="saved-msg" role="status">Saved ✓</p>
-{/if}
 
 <style>
   /* Tokens (colors, spacing, radii, motion) are in src/client/tokens.css,
@@ -276,7 +269,7 @@
     gap: var(--space-3);
     margin-top: var(--space-4);
   }
-  .save-btn, .reset-btn {
+  .reset-btn {
     padding: var(--space-3) var(--space-8);
     border: none;
     border-radius: var(--radius-full);
@@ -285,27 +278,11 @@
     font-weight: 700;
     cursor: pointer;
     transition: all var(--duration-fast) var(--ease-in-out);
-  }
-  .save-btn {
-    background: var(--color-primary);
-    color: white;
-  }
-  .save-btn:hover {
-    box-shadow: var(--shadow-ambient);
-    transform: translateY(-1px);
-  }
-  .reset-btn {
     background: var(--color-surface-container);
     color: var(--color-on-surface-variant);
   }
   .reset-btn:hover {
     background: var(--color-surface-container-high);
-  }
-
-  .saved-msg {
-    margin-top: var(--space-4);
-    color: var(--color-primary);
-    font-weight: 600;
   }
 
   .debug-panel {

@@ -1,6 +1,7 @@
 import { pickDrillWordLesson } from "../src/tasks/drillWord";
 import { evaluateMinPairDiscrim, pickMinPairLesson } from "../src/tasks/minPairDiscrim";
 import type { MinPairDiscrimTask } from "../src/tasks/minPairDiscrim";
+import { pickLesson, pickLessonForSounds } from "../src/tasks";
 
 // Reusable MinPair fixture: 'tea' (A) vs 'key' (B), target is A.
 const teaKey: MinPairDiscrimTask = {
@@ -9,6 +10,49 @@ const teaKey: MinPairDiscrimTask = {
   wordB: { word: "key", illustration: "images/words/key.svg" },
   targetWord: "A",
 };
+
+// ---------------------------------------------------------------------------
+// pickLesson
+// ---------------------------------------------------------------------------
+
+describe("pickLesson", () => {
+  it.each([1, 2, 3, 4, 5, 7, 10, 15])(
+    "returns exactly %i tasks",
+    (n) => {
+      expect(pickLesson(n)).toHaveLength(n);
+    }
+  );
+});
+
+// ---------------------------------------------------------------------------
+// pickLessonForSounds
+// ---------------------------------------------------------------------------
+
+describe("pickLessonForSounds", () => {
+  it.each([1, 2, 3, 4, 5, 7, 10, 15])(
+    "returns exactly %i tasks with a single sound",
+    (n) => {
+      expect(pickLessonForSounds(n, ["d"])).toHaveLength(n);
+    }
+  );
+
+  it.each([1, 2, 3, 4, 5, 7, 10, 15])(
+    "returns exactly %i tasks with two sounds",
+    (n) => {
+      expect(pickLessonForSounds(n, ["d", "t"])).toHaveLength(n);
+    }
+  );
+
+  // Regression: n=3 with two sounds previously returned 4 tasks because
+  // pickLesson(1) over-allocated minPairCount via Math.ceil.
+  it("returns exactly 3 tasks with two sounds (regression)", () => {
+    expect(pickLessonForSounds(3, ["d", "t"])).toHaveLength(3);
+  });
+
+  it("falls back to all sounds when the sounds array is empty", () => {
+    expect(pickLessonForSounds(5, [])).toHaveLength(5);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // pickDrillWordLesson

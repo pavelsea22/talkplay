@@ -35,7 +35,7 @@ export type Task = DrillWordTask | MinPairDiscrimTask | WordSortTask;
  */
 export function pickLesson(n: number, sound?: string): Task[] {
   const drillCount    = Math.ceil(n * 0.5);
-  const minPairCount  = Math.ceil(n * 0.3);
+  const minPairCount  = Math.min(Math.ceil(n * 0.3), n - drillCount);
   const wordSortCount = n - drillCount - minPairCount;
   return shuffle([
     ...pickDrillWordLesson(drillCount, sound),
