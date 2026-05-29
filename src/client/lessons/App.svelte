@@ -4,6 +4,7 @@
   import StreakChart from './StreakChart.svelte';
   import { getTodayStatus } from '../lessonState';
 
+
   // Read once at script-eval time. The home screen is full-page, so any
   // change to this state is observed naturally on the next visit.
   const todayStatus = getTodayStatus();
