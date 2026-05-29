@@ -27,6 +27,15 @@
   </a>
 {/if}
 
+<section class="earn-screen-time">
+  <h2 class="section-heading">Earn Screen Time</h2>
+  <div class="earn-buttons">
+    <a class="earn-btn" href="/activity/?mode=earn&count=5">5 minutes</a>
+    <a class="earn-btn" href="/activity/?mode=earn&count=10">10 minutes</a>
+    <a class="earn-btn earn-btn--large" href="/activity/?mode=earn&count=15">20 minutes</a>
+  </div>
+</section>
+
 <section class="free-practice">
   <h2 class="section-heading">Free Practice</h2>
   <p class="subtitle">Pick any sound</p>
@@ -193,6 +202,60 @@
     background: #b3e8a0;
   }
 
+  .earn-screen-time {
+    width: 100%;
+    max-width: 28rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--space-10);
+  }
+
+  .earn-buttons {
+    display: flex;
+    gap: var(--space-3);
+    width: 100%;
+    justify-content: center;
+  }
+
+  .earn-btn {
+    flex: 1;
+    padding: var(--space-4) var(--space-2);
+    border-radius: var(--radius-lg);
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      background var(--duration-base) var(--ease-in-out),
+      transform  var(--duration-base) var(--ease-out-soft),
+      box-shadow var(--duration-base) var(--ease-out-soft);
+  }
+
+  .earn-btn:hover {
+    background: #b3e8a0;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-ambient);
+  }
+
+  .earn-btn:active {
+    transform: translateY(0);
+  }
+
+  .earn-btn--large {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    color: var(--color-on-primary);
+  }
+
+  .earn-btn--large:hover {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+    opacity: 0.9;
+    box-shadow: 0 8px 20px rgba(0, 98, 134, 0.3);
+  }
+
   .free-practice {
     width: 100%;
     max-width: 60rem;
@@ -201,6 +264,7 @@
     align-items: center;
     margin-bottom: var(--space-10);
   }
+
   .section-heading {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 1.5rem;

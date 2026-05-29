@@ -24,8 +24,9 @@
   const FREE_PRACTICE_SIZE = 5;
 
   const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode'); // 'today' | 'more' | null (free practice)
+  const mode = params.get('mode'); // 'today' | 'more' | 'earn' | null (free practice)
   const sound = params.get('sound') ?? undefined;
+  const countParam = params.get('count');
 
   /** Picks the initial task list based on the URL mode. */
   function buildLesson(): Task[] {
@@ -36,6 +37,10 @@
     if (mode === 'more') {
       const cfg = getParentConfig();
       return pickLessonForSounds(EXTRA_PRACTICE_SIZE, cfg.sounds);
+    }
+    if (mode === 'earn' && countParam !== null) {
+      const cfg = getParentConfig();
+      return pickLessonForSounds(parseInt(countParam, 10), cfg.sounds);
     }
     return pickLesson(FREE_PRACTICE_SIZE, sound);
   }
