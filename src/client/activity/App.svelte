@@ -27,10 +27,10 @@
   const mode = params.get('mode'); // 'today' | 'more' | 'earn' | null (free practice)
   const sound = params.get('sound') ?? undefined;
   const countParam = params.get('count');
-  /** Minutes of screen time earned. Defaults to 10 for today's lesson. */
+  /** Minutes of screen time earned. Defaults to 5 for today's lesson. */
   const earnMinutes = mode === 'earn' && params.get('minutes') !== null
     ? parseInt(params.get('minutes')!, 10)
-    : 10;
+    : 5;
 
   /** Picks the initial task list based on the URL mode. */
   function buildLesson(): Task[] {
