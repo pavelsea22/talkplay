@@ -2,8 +2,10 @@
   interface Props {
     /** Called when the user closes the certificate (e.g. taps Done). */
     onClose: () => void;
+    /** Minutes of screen time earned; shown on the certificate when set. */
+    earnMinutes?: number | null;
   }
-  const { onClose }: Props = $props();
+  const { onClose, earnMinutes = null }: Props = $props();
 
   // "Monday, April 27" — fixed at mount time, locale-aware.
   const todayLabel = new Date().toLocaleDateString('en-US', {
@@ -24,15 +26,31 @@
       <p class="cert-eyebrow">Certificate of Achievement</p>
       <div class="trophy" aria-hidden="true">🏆</div>
       <h1 class="cert-title">Awesome work!</h1>
-      <p class="cert-subtitle">You finished today's lesson!</p>
+      <p class="cert-subtitle">
+        {#if earnMinutes !== null}
+          You earned {earnMinutes} {earnMinutes === 1 ? 'minute' : 'minutes'} of screen time!
+        {:else}
+          You finished today's lesson!
+        {/if}
+      </p>
       <p class="cert-date">{todayLabel}</p>
 
-      <div class="cert-seal">
-        <span class="cert-seal-text">Today's<br/>Champion</span>
-      </div>
+      {#if earnMinutes !== null}
+        <div class="cert-seal cert-seal--earn">
+          <span class="cert-seal-text">{earnMinutes}<br/>min</span>
+        </div>
+      {:else}
+        <div class="cert-seal">
+          <span class="cert-seal-text">Today's<br/>Champion</span>
+        </div>
+      {/if}
 
       <p class="cert-claim">
-        Show this to your parents to claim your reward!
+        {#if earnMinutes !== null}
+          Show this to your parents to get {earnMinutes} {earnMinutes === 1 ? 'minute' : 'minutes'} of screen time!
+        {:else}
+          Show this to your parents to claim your reward!
+        {/if}
       </p>
 
       <button type="button" class="cert-done" onclick={onClose}>
@@ -153,6 +171,15 @@
     box-shadow: 0 8px 16px rgba(255, 107, 107, 0.35);
     transform: rotate(-8deg);
   }
+  .cert-seal--earn {
+    background: radial-gradient(circle at 30% 30%, #6bcf7f, #5b8def 75%);
+    box-shadow: 0 8px 16px rgba(91, 141, 239, 0.35);
+  }
+  .cert-seal--earn .cert-seal-text {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
   .cert-seal::before {
     content: '';
     position: absolute;

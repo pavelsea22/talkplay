@@ -31,9 +31,9 @@
 <section class="earn-screen-time">
   <h2 class="section-heading">Earn Screen Time</h2>
   <div class="earn-buttons">
-    <a class="earn-btn" href="/activity/?mode=earn&count=5">5 minutes</a>
-    <a class="earn-btn" href="/activity/?mode=earn&count=10">10 minutes</a>
-    <a class="earn-btn earn-btn--large" href="/activity/?mode=earn&count=15">20 minutes</a>
+    <a class="earn-btn" href="/activity/?mode=earn&count=5&minutes=5">5 minutes</a>
+    <a class="earn-btn" href="/activity/?mode=earn&count=10&minutes=10">10 minutes</a>
+    <a class="earn-btn earn-btn--large" href="/activity/?mode=earn&count=15&minutes=20">20 minutes</a>
   </div>
 </section>
 
