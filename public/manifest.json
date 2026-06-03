@@ -1,0 +1,15 @@
+{
+  "name": "TalkPlay",
+  "short_name": "TalkPlay",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f1f7ff",
+  "theme_color": "#006286",
+  "icons": [
+    {
+      "src": "/images/Icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
