@@ -79,9 +79,11 @@
   }
 
   /**
-   * Opens the mic first so the hardware warms up, then speaks the word prompt
-   * and hands off to startRecording. Requesting the stream before TTS means the
-   * OS microphone is fully active by the time recording starts.
+   * Speaks the word prompt, then opens the mic and hands off to startRecording.
+   * TTS plays before getUserMedia so iOS hasn't switched to PlayAndRecord audio
+   * session mode yet — that mode ducks media volume and would make the prompt
+   * noticeably quieter. The mic still gets POST_PROMPT_DELAY_MS of warmup time
+   * between getUserMedia and recorder.start(), which is the meaningful gap.
    *
    * If TTS playback fails (e.g. broken audio output), the session is aborted
    * with a visible error so the user isn't left recording without ever hearing
@@ -92,6 +94,17 @@
    *   works on iOS. When absent (auto-start path) startRecording creates its own.
    */
   async function runSession(audioCtx?: AudioContext): Promise<void> {
+    try {
+      await speakWord(task.word);
+    } catch (err) {
+      console.error('TTS failed:', err);
+      audioCtx?.close();
+      status = classifyAudioError(err) === 'autoplay'
+        ? 'Tap the mic to start'
+        : "Couldn't play audio. Check your sound and tap the mic to try again.";
+      micDisabled = false;
+      return;
+    }
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -100,18 +113,6 @@
       status = 'Microphone access denied.';
       micDisabled = false;
       console.error(err);
-      return;
-    }
-    try {
-      await speakWord(task.word);
-    } catch (err) {
-      console.error('TTS failed:', err);
-      stream.getTracks().forEach(t => t.stop());
-      audioCtx?.close();
-      status = classifyAudioError(err) === 'autoplay'
-        ? 'Tap the mic to start'
-        : "Couldn't play audio. Check your sound and tap the mic to try again.";
-      micDisabled = false;
       return;
     }
     await new Promise(r => setTimeout(r, POST_PROMPT_DELAY_MS));
