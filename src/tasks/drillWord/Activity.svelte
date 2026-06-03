@@ -9,8 +9,11 @@
   import type { MicAnimation } from '../../client/lessonState';
   import NextButton from '../../client/activity/NextButton.svelte';
 
-  const RECORD_SECONDS = 3;
-  const POST_PROMPT_DELAY_MS = 50;  // delay after voice prompt before mic opens
+  const RECORD_SECONDS = 5;
+  // 300 ms lets the iOS PlayAndRecord audio session settle after getUserMedia
+  // before MediaRecorder.start() is called. Too short a gap causes the first
+  // chunk of audio to be dropped on some iOS devices.
+  const POST_PROMPT_DELAY_MS = 300;
   const ERROR_DISPLAY_MS = 2000;    // how long an incorrect-answer message stays on screen
   const PROCESSING_TIMEOUT_MS = 5000;
 
