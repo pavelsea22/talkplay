@@ -190,7 +190,7 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
     }
   }
 
-  return new Response(JSON.stringify({ transcript, assessment, confidence }), {
+  return new Response(JSON.stringify({ transcript, assessment, confidence, _debug_words0: nBest?.Words?.[0] ?? null }), {
     headers: { 'Content-Type': 'application/json' },
   });
 }
