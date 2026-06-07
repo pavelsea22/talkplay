@@ -42,6 +42,7 @@
   let retryCount = $state(0);
   let phonemeHint = $state<string | null>(null);
   let lastConfidence = $state<number | null>(null);
+  let lastAccuracyScore = $state<number | null>(null);
   /** Normalised RMS audio level [0, 1] — updated each animation frame while recording. */
   let audioLevel = $state(0);
 
@@ -243,6 +244,7 @@
         if (timedOut) return;
 
         lastConfidence = confidence;
+        lastAccuracyScore = assessment?.accuracyScore ?? null;
 
         if (assessment) recordAttempt(task.word, assessment);
         const result = evaluateDrillWord(task, transcript, assessment, retryCount);
@@ -369,6 +371,8 @@
 {#if showConfidence}
   <p class="confidence-debug">
     confidence: {lastConfidence !== null ? `${Math.round(lastConfidence * 100)}%` : '—'}
+    &nbsp;|&nbsp;
+    accuracy: {lastAccuracyScore !== null ? `${Math.round(lastAccuracyScore)}` : '—'}
     &nbsp;|&nbsp;
     loudness: {Math.round(audioLevel * 100)}%
   </p>
