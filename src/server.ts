@@ -131,6 +131,7 @@ function transcribeWithSDK(
 
           if (targetWord) {
             const wordResult = nBest?.Words?.[0];
+            console.log("  → Words[0]:", JSON.stringify(wordResult));
             if (wordResult?.PronunciationAssessment) {
               assessment = {
                 accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
