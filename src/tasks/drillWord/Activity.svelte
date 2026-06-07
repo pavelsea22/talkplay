@@ -234,13 +234,11 @@
         form.append('word', task.word);
         const res = await fetch('/transcribe', { method: 'POST', body: form });
         if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
-        const { transcript, assessment, confidence, _debug_words0 } = await res.json() as {
+        const { transcript, assessment, confidence } = await res.json() as {
           transcript: string;
           assessment: PhonemeAssessment | null;
           confidence: number | null;
-          _debug_words0: unknown;
         };
-        console.log('[debug] Words[0]:', JSON.stringify(_debug_words0));
 
         clearTimeout(processingTimer);
         if (timedOut) return;
