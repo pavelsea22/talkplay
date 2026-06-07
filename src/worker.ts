@@ -11,11 +11,15 @@ export interface Env {
   ASSETS: Fetcher;
 }
 
-/** Shape of a word entry in the Azure STT detailed JSON response. */
+/**
+ * Shape of a word entry in the Azure STT REST detailed JSON response.
+ * Note: the REST API returns scores flat on the word/phoneme object, unlike
+ * the SDK which nests them under a `PronunciationAssessment` sub-object.
+ */
 interface AzureWordResult {
   Word: string;
-  PronunciationAssessment: { AccuracyScore: number };
-  Phonemes: Array<{ Phoneme: string; PronunciationAssessment: { AccuracyScore: number } }>;
+  AccuracyScore: number;
+  Phonemes: Array<{ Phoneme: string; AccuracyScore: number }>;
 }
 
 /** Top-level shape of the Azure STT REST response (format=detailed). */
@@ -175,13 +179,15 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
   let assessment: PhonemeAssessment | null = null;
   if (targetWord) {
     const wordResult = nBest?.Words?.[0];
-    if (wordResult?.PronunciationAssessment && Array.isArray(wordResult.Phonemes)) {
+    if (typeof wordResult?.AccuracyScore === 'number') {
       assessment = {
-        accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
-        phonemes: wordResult.Phonemes.map(p => ({
-          phoneme: p.Phoneme,
-          accuracyScore: p.PronunciationAssessment.AccuracyScore,
-        })),
+        accuracyScore: wordResult.AccuracyScore,
+        phonemes: Array.isArray(wordResult.Phonemes)
+          ? wordResult.Phonemes.map(p => ({
+              phoneme: p.Phoneme,
+              accuracyScore: p.AccuracyScore,
+            }))
+          : [],
       };
       console.log('pronunciation score:', assessment.accuracyScore);
     }

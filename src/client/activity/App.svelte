@@ -163,11 +163,14 @@
 {/if}
 
 {#if showPicker}
-  <MinigamePicker onPick={(game) => {
-    selectedMinigame = game;
-    showPicker = false;
-    showMinigame = true;
-  }} />
+  <MinigamePicker
+    onPick={(game) => {
+      selectedMinigame = game;
+      showPicker = false;
+      showMinigame = true;
+    }}
+    onDismiss={() => showPicker = false}
+  />
 {/if}
 
 {#if showMinigame}

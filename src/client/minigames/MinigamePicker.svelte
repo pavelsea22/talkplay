@@ -12,9 +12,11 @@
   interface Props {
     /** Called when the user selects a mini game. */
     onPick: (game: MinigameId) => void;
+    /** Called when the user declines to play any mini game. */
+    onDismiss?: () => void;
   }
 
-  let { onPick }: Props = $props();
+  let { onPick, onDismiss }: Props = $props();
 
   const GAMES: GameOption[] = [
     {
@@ -44,6 +46,9 @@
         </button>
       {/each}
     </div>
+    {#if onDismiss}
+      <button class="dismiss-btn" onclick={onDismiss}>No thanks</button>
+    {/if}
   </div>
 </div>
 
@@ -139,5 +144,21 @@
     font-weight: 400;
     color: var(--color-on-surface-variant);
     line-height: 1.3;
+  }
+
+  .dismiss-btn {
+    background: none;
+    border: none;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+    cursor: pointer;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast) var(--ease-in-out);
+  }
+
+  .dismiss-btn:hover {
+    color: var(--color-on-surface);
   }
 </style>
