@@ -175,13 +175,15 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
   let assessment: PhonemeAssessment | null = null;
   if (targetWord) {
     const wordResult = nBest?.Words?.[0];
-    if (wordResult?.PronunciationAssessment && Array.isArray(wordResult.Phonemes)) {
+    if (wordResult?.PronunciationAssessment) {
       assessment = {
         accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
-        phonemes: wordResult.Phonemes.map(p => ({
-          phoneme: p.Phoneme,
-          accuracyScore: p.PronunciationAssessment.AccuracyScore,
-        })),
+        phonemes: Array.isArray(wordResult.Phonemes)
+          ? wordResult.Phonemes.map(p => ({
+              phoneme: p.Phoneme,
+              accuracyScore: p.PronunciationAssessment.AccuracyScore,
+            }))
+          : [],
       };
       console.log('pronunciation score:', assessment.accuracyScore);
     }
