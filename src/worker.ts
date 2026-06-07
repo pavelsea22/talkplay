@@ -175,6 +175,7 @@ async function handleTranscribe(request: Request, env: Env): Promise<Response> {
   let assessment: PhonemeAssessment | null = null;
   if (targetWord) {
     const wordResult = nBest?.Words?.[0];
+    console.log('Words[0]:', JSON.stringify(wordResult));
     if (wordResult?.PronunciationAssessment) {
       assessment = {
         accuracyScore: wordResult.PronunciationAssessment.AccuracyScore,
