@@ -3,6 +3,7 @@
   import { speakWord, blobToWav, classifyAudioError } from '../../client/activity/audio';
   import { evaluateDrillWord } from './evaluator';
   import { getWeakestPhonemeHint } from './phonemeFeedback';
+  import { recordAttempt } from '../../client/wordStats';
   import { MAX_RETRIES } from '../constants';
   import type { DrillWordTask } from './index';
   import type { TaskOutcome, PhonemeAssessment } from '../shared/types';
@@ -243,6 +244,7 @@
 
         lastConfidence = confidence;
 
+        if (assessment) recordAttempt(task.word, assessment);
         const result = evaluateDrillWord(task, transcript, assessment, retryCount);
         showPromptCard = false;
         feedbackText = result.screenMessage;
