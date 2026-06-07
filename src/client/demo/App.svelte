@@ -74,7 +74,7 @@
 <main>
   {#key resetKey}
     {#if fixture.task.type === 'DrillWord'}
-      <DrillWordActivity task={fixture.task} onComplete={handleComplete} />
+      <DrillWordActivity task={fixture.task} onComplete={handleComplete} showConfidence />
     {:else if fixture.task.type === 'MinPairDiscrimination'}
       <MinPairActivity task={fixture.task} onComplete={handleComplete} />
     {:else if fixture.task.type === 'wordSort'}
