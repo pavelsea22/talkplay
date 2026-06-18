@@ -1,190 +1,930 @@
 [
   {
-    "sound": "d",
-    "label": "/d/",
+    "sound": "v",
+    "label": "/v/",
     "positions": {
       "leading": [
-        { "word": "dog"  },
-        { "word": "duck" },
-        { "word": "dip"  },
-        { "word": "dime" },
-        { "word": "dot"  },
-        { "word": "doll" },
-        { "word": "den"  },
-        { "word": "dug"  },
-        { "word": "dart" },
-        { "word": "dome" }
+        {
+          "word": "van"
+        },
+        {
+          "word": "vine"
+        },
+        {
+          "word": "vase"
+        },
+        {
+          "word": "vest"
+        },
+        {
+          "word": "vote"
+        },
+        {
+          "word": "voice"
+        },
+        {
+          "word": "veil"
+        },
+        {
+          "word": "vet"
+        },
+        {
+          "word": "vow"
+        },
+        {
+          "word": "vein"
+        }
       ],
-      "trailing": [],
-      "mid-word": []
-    },
-    "minPairs": [
-      { "target": { "word": "dog"  }, "foil": { "word": "tog"  } },
-      { "target": { "word": "dip"  }, "foil": { "word": "tip"  } },
-      { "target": { "word": "dime" }, "foil": { "word": "time" } },
-      { "target": { "word": "dot"  }, "foil": { "word": "tot"  } },
-      { "target": { "word": "duck" }, "foil": { "word": "tuck" } },
-      { "target": { "word": "down" }, "foil": { "word": "town" } },
-      { "target": { "word": "doll" }, "foil": { "word": "toll" } },
-      { "target": { "word": "dear" }, "foil": { "word": "tear" } },
-      { "target": { "word": "dug"  }, "foil": { "word": "tug"  } },
-      { "target": { "word": "dab"  }, "foil": { "word": "tab"  } },
-      { "target": { "word": "dam"  }, "foil": { "word": "tam"  } },
-      { "target": { "word": "den"  }, "foil": { "word": "ten"  } },
-      { "target": { "word": "deck" }, "foil": { "word": "tech" } },
-      { "target": { "word": "dune" }, "foil": { "word": "tune" } },
-      { "target": { "word": "dye"  }, "foil": { "word": "tie"  } },
-      { "target": { "word": "dart" }, "foil": { "word": "tart" } },
-      { "target": { "word": "dome" }, "foil": { "word": "tome" } },
-      { "target": { "word": "dote" }, "foil": { "word": "tote" } },
-      { "target": { "word": "dire" }, "foil": { "word": "tire" } },
-      { "target": { "word": "dale" }, "foil": { "word": "tale" } }
-    ]
+      "trailing": [
+        {
+          "word": "cave"
+        },
+        {
+          "word": "dive"
+        },
+        {
+          "word": "five"
+        },
+        {
+          "word": "give"
+        },
+        {
+          "word": "have"
+        },
+        {
+          "word": "hive"
+        },
+        {
+          "word": "love"
+        },
+        {
+          "word": "move"
+        },
+        {
+          "word": "wave"
+        },
+        {
+          "word": "stove"
+        }
+      ],
+      "mid-word": [
+        {
+          "word": "river"
+        },
+        {
+          "word": "over"
+        },
+        {
+          "word": "seven"
+        },
+        {
+          "word": "cover"
+        },
+        {
+          "word": "fever"
+        },
+        {
+          "word": "lever"
+        },
+        {
+          "word": "novel"
+        },
+        {
+          "word": "gravel"
+        }
+      ]
+    }
   },
   {
     "sound": "t",
     "label": "/t/",
     "positions": {
       "leading": [
-        { "word": "ten"   },
-        { "word": "top"   },
-        { "word": "tip"   },
-        { "word": "tiger" },
-        { "word": "tent"  },
-        { "word": "time"  },
-        { "word": "tea"   },
-        { "word": "tree"  },
-        { "word": "talk"  },
-        { "word": "truck" },
-        { "word": "toe"   },
-        { "word": "toad"  },
-        { "word": "tail"  },
-        { "word": "toy"   },
-        { "word": "tub"   },
-        { "word": "tap"   },
-        { "word": "tag"   },
-        { "word": "tie"   },
-        { "word": "toss"  },
-        { "word": "turn"  },
-        { "word": "twin"  },
-        { "word": "tall"  },
-        { "word": "tooth" },
-        { "word": "tummy" },
-        { "word": "town"  },
-        { "word": "twig"  },
-        { "word": "toast" },
-        { "word": "trail" },
-        { "word": "thorn"   },
-        { "word": "tube"    },
-        { "word": "tornado" },
-        { "word": "tram"    },
-        { "word": "twister" },
-        { "word": "ticket"  }
+        {
+          "word": "ten"
+        },
+        {
+          "word": "top"
+        },
+        {
+          "word": "tip"
+        },
+        {
+          "word": "tiger"
+        },
+        {
+          "word": "tent"
+        },
+        {
+          "word": "time"
+        },
+        {
+          "word": "tea"
+        },
+        {
+          "word": "tree"
+        },
+        {
+          "word": "talk"
+        },
+        {
+          "word": "truck"
+        },
+        {
+          "word": "toe"
+        },
+        {
+          "word": "toad"
+        },
+        {
+          "word": "tail"
+        },
+        {
+          "word": "toy"
+        },
+        {
+          "word": "tub"
+        },
+        {
+          "word": "tap"
+        },
+        {
+          "word": "tag"
+        },
+        {
+          "word": "tie"
+        },
+        {
+          "word": "toss"
+        },
+        {
+          "word": "turn"
+        },
+        {
+          "word": "twin"
+        },
+        {
+          "word": "tall"
+        },
+        {
+          "word": "tooth"
+        },
+        {
+          "word": "tummy"
+        },
+        {
+          "word": "town"
+        },
+        {
+          "word": "twig"
+        },
+        {
+          "word": "toast"
+        },
+        {
+          "word": "trail"
+        },
+        {
+          "word": "thorn"
+        },
+        {
+          "word": "tube"
+        },
+        {
+          "word": "tornado"
+        },
+        {
+          "word": "tram"
+        },
+        {
+          "word": "twister"
+        },
+        {
+          "word": "ticket"
+        }
       ],
       "trailing": [
-        { "word": "fart"  },
-        { "word": "boat"  },
-        { "word": "coat"  },
-        { "word": "goat"  },
-        { "word": "cat"   },
-        { "word": "hat"   },
-        { "word": "bat"   },
-        { "word": "rat"   },
-        { "word": "mat"   },
-        { "word": "hot"   },
-        { "word": "pot"   },
-        { "word": "seat"  },
-        { "word": "feet"  },
-        { "word": "meat"  },
-        { "word": "beat"  },
-        { "word": "sweet" },
-        { "word": "treat" },
-        { "word": "light" },
-        { "word": "night" },
-        { "word": "kite"  },
-        { "word": "bite"  },
-        { "word": "ant"   },
-        { "word": "plant" },
-        { "word": "tent"  },
-        { "word": "mint"  },
-        { "word": "point" },
-        { "word": "boot"  },
-        { "word": "foot"  },
-        { "word": "root"  },
-        { "word": "fruit" },
-        { "word": "suit"  },
-        { "word": "nut"   },
-        { "word": "cut"   },
-        { "word": "hut"   },
-        { "word": "pet"   },
-        { "word": "net"   },
-        { "word": "set"   },
-        { "word": "wet"   },
-        { "word": "dot"   },
-        { "word": "lot"   },
-        { "word": "cot"   },
-        { "word": "bit"   }
+        {
+          "word": "fart"
+        },
+        {
+          "word": "boat"
+        },
+        {
+          "word": "coat"
+        },
+        {
+          "word": "goat"
+        },
+        {
+          "word": "cat"
+        },
+        {
+          "word": "hat"
+        },
+        {
+          "word": "bat"
+        },
+        {
+          "word": "rat"
+        },
+        {
+          "word": "mat"
+        },
+        {
+          "word": "hot"
+        },
+        {
+          "word": "pot"
+        },
+        {
+          "word": "seat"
+        },
+        {
+          "word": "feet"
+        },
+        {
+          "word": "meat"
+        },
+        {
+          "word": "beat"
+        },
+        {
+          "word": "sweet"
+        },
+        {
+          "word": "treat"
+        },
+        {
+          "word": "light"
+        },
+        {
+          "word": "night"
+        },
+        {
+          "word": "kite"
+        },
+        {
+          "word": "bite"
+        },
+        {
+          "word": "ant"
+        },
+        {
+          "word": "plant"
+        },
+        {
+          "word": "tent"
+        },
+        {
+          "word": "mint"
+        },
+        {
+          "word": "point"
+        },
+        {
+          "word": "boot"
+        },
+        {
+          "word": "foot"
+        },
+        {
+          "word": "root"
+        },
+        {
+          "word": "fruit"
+        },
+        {
+          "word": "suit"
+        },
+        {
+          "word": "nut"
+        },
+        {
+          "word": "cut"
+        },
+        {
+          "word": "hut"
+        },
+        {
+          "word": "pet"
+        },
+        {
+          "word": "net"
+        },
+        {
+          "word": "set"
+        },
+        {
+          "word": "wet"
+        },
+        {
+          "word": "dot"
+        },
+        {
+          "word": "lot"
+        },
+        {
+          "word": "cot"
+        },
+        {
+          "word": "bit"
+        }
       ],
       "mid-word": [
-        { "word": "attain"   },
-        { "word": "attend"   },
-        { "word": "attack"   },
-        { "word": "attempt"  },
-        { "word": "attic"    },
-        { "word": "entire"   },
-        { "word": "between"  },
-        { "word": "obtain"   },
-        { "word": "canteen"  },
-        { "word": "eighteen" },
-        { "word": "letter"   },
-        { "word": "bathtub"  }
+        {
+          "word": "attain"
+        },
+        {
+          "word": "attend"
+        },
+        {
+          "word": "attack"
+        },
+        {
+          "word": "attempt"
+        },
+        {
+          "word": "attic"
+        },
+        {
+          "word": "entire"
+        },
+        {
+          "word": "between"
+        },
+        {
+          "word": "obtain"
+        },
+        {
+          "word": "canteen"
+        },
+        {
+          "word": "eighteen"
+        },
+        {
+          "word": "letter"
+        },
+        {
+          "word": "bathtub"
+        }
       ]
     },
     "minPairs": [
-      { "target": { "word": "tea"   }, "foil": { "word": "sea"   } },
-      { "target": { "word": "tea"   }, "foil": { "word": "pea"   } },
-      { "target": { "word": "tea"   }, "foil": { "word": "bee"   } },
-      { "target": { "word": "tea"   }, "foil": { "word": "key"   } },
-      { "target": { "word": "top"   }, "foil": { "word": "hop"   } },
-      { "target": { "word": "top"   }, "foil": { "word": "mop"   } },
-      { "target": { "word": "top"   }, "foil": { "word": "pop"   } },
-      { "target": { "word": "tap"   }, "foil": { "word": "cap"   } },
-      { "target": { "word": "tap"   }, "foil": { "word": "map"   } },
-      { "target": { "word": "tail"  }, "foil": { "word": "nail"  } },
-      { "target": { "word": "tail"  }, "foil": { "word": "sail"  } },
-      { "target": { "word": "tail"  }, "foil": { "word": "mail"  } },
-      { "target": { "word": "ten"   }, "foil": { "word": "hen"   } },
-      { "target": { "word": "ten"   }, "foil": { "word": "pen"   } },
-      { "target": { "word": "tie"   }, "foil": { "word": "pie"   } },
-      { "target": { "word": "toad"  }, "foil": { "word": "road"  } },
-      { "target": { "word": "toy"   }, "foil": { "word": "boy"   } },
-      { "target": { "word": "tall"  }, "foil": { "word": "ball"  } },
-      { "target": { "word": "tank"  }, "foil": { "word": "bank"  } },
-      { "target": { "word": "tire"  }, "foil": { "word": "fire"  } },
-      { "target": { "word": "tip"   }, "foil": { "word": "dip"   } },
-      { "target": { "word": "time"  }, "foil": { "word": "dime"  } },
-      { "target": { "word": "cat"   }, "foil": { "word": "cap"   } },
-      { "target": { "word": "cat"   }, "foil": { "word": "cab"   } },
-      { "target": { "word": "bat"   }, "foil": { "word": "bag"   } },
-      { "target": { "word": "hat"   }, "foil": { "word": "ham"   } },
-      { "target": { "word": "mat"   }, "foil": { "word": "map"   } },
-      { "target": { "word": "hot"   }, "foil": { "word": "hop"   } },
-      { "target": { "word": "hot"   }, "foil": { "word": "hog"   } },
-      { "target": { "word": "pot"   }, "foil": { "word": "pop"   } },
-      { "target": { "word": "dot"   }, "foil": { "word": "dog"   } },
-      { "target": { "word": "bit"   }, "foil": { "word": "big"   } },
-      { "target": { "word": "bit"   }, "foil": { "word": "bin"   } },
-      { "target": { "word": "sit"   }, "foil": { "word": "sip"   } },
-      { "target": { "word": "hit"   }, "foil": { "word": "hip"   } },
-      { "target": { "word": "cut"   }, "foil": { "word": "cup"   } },
-      { "target": { "word": "cut"   }, "foil": { "word": "cub"   } },
-      { "target": { "word": "nut"   }, "foil": { "word": "nun"   } },
-      { "target": { "word": "hut"   }, "foil": { "word": "hug"   } },
-      { "target": { "word": "boot"  }, "foil": { "word": "book"  } },
-      { "target": { "word": "beat"  }, "foil": { "word": "bead"  } },
-      { "target": { "word": "boat"  }, "foil": { "word": "bone"  } },
-      { "target": { "word": "night" }, "foil": { "word": "nine"  } },
-      { "target": { "word": "bite"  }, "foil": { "word": "bike"  } }
+      {
+        "target": {
+          "word": "tea"
+        },
+        "foil": {
+          "word": "sea"
+        }
+      },
+      {
+        "target": {
+          "word": "tea"
+        },
+        "foil": {
+          "word": "pea"
+        }
+      },
+      {
+        "target": {
+          "word": "tea"
+        },
+        "foil": {
+          "word": "bee"
+        }
+      },
+      {
+        "target": {
+          "word": "tea"
+        },
+        "foil": {
+          "word": "key"
+        }
+      },
+      {
+        "target": {
+          "word": "top"
+        },
+        "foil": {
+          "word": "hop"
+        }
+      },
+      {
+        "target": {
+          "word": "top"
+        },
+        "foil": {
+          "word": "mop"
+        }
+      },
+      {
+        "target": {
+          "word": "top"
+        },
+        "foil": {
+          "word": "pop"
+        }
+      },
+      {
+        "target": {
+          "word": "tap"
+        },
+        "foil": {
+          "word": "cap"
+        }
+      },
+      {
+        "target": {
+          "word": "tap"
+        },
+        "foil": {
+          "word": "map"
+        }
+      },
+      {
+        "target": {
+          "word": "tail"
+        },
+        "foil": {
+          "word": "nail"
+        }
+      },
+      {
+        "target": {
+          "word": "tail"
+        },
+        "foil": {
+          "word": "sail"
+        }
+      },
+      {
+        "target": {
+          "word": "tail"
+        },
+        "foil": {
+          "word": "mail"
+        }
+      },
+      {
+        "target": {
+          "word": "ten"
+        },
+        "foil": {
+          "word": "hen"
+        }
+      },
+      {
+        "target": {
+          "word": "ten"
+        },
+        "foil": {
+          "word": "pen"
+        }
+      },
+      {
+        "target": {
+          "word": "tie"
+        },
+        "foil": {
+          "word": "pie"
+        }
+      },
+      {
+        "target": {
+          "word": "toad"
+        },
+        "foil": {
+          "word": "road"
+        }
+      },
+      {
+        "target": {
+          "word": "toy"
+        },
+        "foil": {
+          "word": "boy"
+        }
+      },
+      {
+        "target": {
+          "word": "tall"
+        },
+        "foil": {
+          "word": "ball"
+        }
+      },
+      {
+        "target": {
+          "word": "tank"
+        },
+        "foil": {
+          "word": "bank"
+        }
+      },
+      {
+        "target": {
+          "word": "tire"
+        },
+        "foil": {
+          "word": "fire"
+        }
+      },
+      {
+        "target": {
+          "word": "tip"
+        },
+        "foil": {
+          "word": "dip"
+        }
+      },
+      {
+        "target": {
+          "word": "time"
+        },
+        "foil": {
+          "word": "dime"
+        }
+      },
+      {
+        "target": {
+          "word": "cat"
+        },
+        "foil": {
+          "word": "cap"
+        }
+      },
+      {
+        "target": {
+          "word": "cat"
+        },
+        "foil": {
+          "word": "cab"
+        }
+      },
+      {
+        "target": {
+          "word": "bat"
+        },
+        "foil": {
+          "word": "bag"
+        }
+      },
+      {
+        "target": {
+          "word": "hat"
+        },
+        "foil": {
+          "word": "ham"
+        }
+      },
+      {
+        "target": {
+          "word": "mat"
+        },
+        "foil": {
+          "word": "map"
+        }
+      },
+      {
+        "target": {
+          "word": "hot"
+        },
+        "foil": {
+          "word": "hop"
+        }
+      },
+      {
+        "target": {
+          "word": "hot"
+        },
+        "foil": {
+          "word": "hog"
+        }
+      },
+      {
+        "target": {
+          "word": "pot"
+        },
+        "foil": {
+          "word": "pop"
+        }
+      },
+      {
+        "target": {
+          "word": "dot"
+        },
+        "foil": {
+          "word": "dog"
+        }
+      },
+      {
+        "target": {
+          "word": "bit"
+        },
+        "foil": {
+          "word": "big"
+        }
+      },
+      {
+        "target": {
+          "word": "bit"
+        },
+        "foil": {
+          "word": "bin"
+        }
+      },
+      {
+        "target": {
+          "word": "sit"
+        },
+        "foil": {
+          "word": "sip"
+        }
+      },
+      {
+        "target": {
+          "word": "hit"
+        },
+        "foil": {
+          "word": "hip"
+        }
+      },
+      {
+        "target": {
+          "word": "cut"
+        },
+        "foil": {
+          "word": "cup"
+        }
+      },
+      {
+        "target": {
+          "word": "cut"
+        },
+        "foil": {
+          "word": "cub"
+        }
+      },
+      {
+        "target": {
+          "word": "nut"
+        },
+        "foil": {
+          "word": "nun"
+        }
+      },
+      {
+        "target": {
+          "word": "hut"
+        },
+        "foil": {
+          "word": "hug"
+        }
+      },
+      {
+        "target": {
+          "word": "boot"
+        },
+        "foil": {
+          "word": "book"
+        }
+      },
+      {
+        "target": {
+          "word": "beat"
+        },
+        "foil": {
+          "word": "bead"
+        }
+      },
+      {
+        "target": {
+          "word": "boat"
+        },
+        "foil": {
+          "word": "bone"
+        }
+      },
+      {
+        "target": {
+          "word": "night"
+        },
+        "foil": {
+          "word": "nine"
+        }
+      },
+      {
+        "target": {
+          "word": "bite"
+        },
+        "foil": {
+          "word": "bike"
+        }
+      }
+    ]
+  },
+  {
+    "sound": "d",
+    "label": "/d/",
+    "positions": {
+      "leading": [
+        {
+          "word": "dog"
+        },
+        {
+          "word": "duck"
+        },
+        {
+          "word": "dip"
+        },
+        {
+          "word": "dime"
+        },
+        {
+          "word": "dot"
+        },
+        {
+          "word": "doll"
+        },
+        {
+          "word": "den"
+        },
+        {
+          "word": "dug"
+        },
+        {
+          "word": "dart"
+        },
+        {
+          "word": "dome"
+        }
+      ],
+      "trailing": [],
+      "mid-word": []
+    },
+    "minPairs": [
+      {
+        "target": {
+          "word": "dog"
+        },
+        "foil": {
+          "word": "tog"
+        }
+      },
+      {
+        "target": {
+          "word": "dip"
+        },
+        "foil": {
+          "word": "tip"
+        }
+      },
+      {
+        "target": {
+          "word": "dime"
+        },
+        "foil": {
+          "word": "time"
+        }
+      },
+      {
+        "target": {
+          "word": "dot"
+        },
+        "foil": {
+          "word": "tot"
+        }
+      },
+      {
+        "target": {
+          "word": "duck"
+        },
+        "foil": {
+          "word": "tuck"
+        }
+      },
+      {
+        "target": {
+          "word": "down"
+        },
+        "foil": {
+          "word": "town"
+        }
+      },
+      {
+        "target": {
+          "word": "doll"
+        },
+        "foil": {
+          "word": "toll"
+        }
+      },
+      {
+        "target": {
+          "word": "dear"
+        },
+        "foil": {
+          "word": "tear"
+        }
+      },
+      {
+        "target": {
+          "word": "dug"
+        },
+        "foil": {
+          "word": "tug"
+        }
+      },
+      {
+        "target": {
+          "word": "dab"
+        },
+        "foil": {
+          "word": "tab"
+        }
+      },
+      {
+        "target": {
+          "word": "dam"
+        },
+        "foil": {
+          "word": "tam"
+        }
+      },
+      {
+        "target": {
+          "word": "den"
+        },
+        "foil": {
+          "word": "ten"
+        }
+      },
+      {
+        "target": {
+          "word": "deck"
+        },
+        "foil": {
+          "word": "tech"
+        }
+      },
+      {
+        "target": {
+          "word": "dune"
+        },
+        "foil": {
+          "word": "tune"
+        }
+      },
+      {
+        "target": {
+          "word": "dye"
+        },
+        "foil": {
+          "word": "tie"
+        }
+      },
+      {
+        "target": {
+          "word": "dart"
+        },
+        "foil": {
+          "word": "tart"
+        }
+      },
+      {
+        "target": {
+          "word": "dome"
+        },
+        "foil": {
+          "word": "tome"
+        }
+      },
+      {
+        "target": {
+          "word": "dote"
+        },
+        "foil": {
+          "word": "tote"
+        }
+      },
+      {
+        "target": {
+          "word": "dire"
+        },
+        "foil": {
+          "word": "tire"
+        }
+      },
+      {
+        "target": {
+          "word": "dale"
+        },
+        "foil": {
+          "word": "tale"
+        }
+      }
     ]
   },
   {
