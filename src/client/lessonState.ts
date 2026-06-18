@@ -1,4 +1,3 @@
-import { WORD_GROUPS } from '../words';
 import { toLocalISODate } from './streaks';
 
 const PARENT_CONFIG_KEY = 'talkplay_parent_config';
@@ -21,7 +20,7 @@ export interface ParentConfig {
 
 /** Default config when no parent has configured anything yet. */
 export const DEFAULT_PARENT_CONFIG: ParentConfig = {
-  sounds: WORD_GROUPS.map(g => g.sound),
+  sounds: ['v'],
   exerciseCount: 5,
   showConfidence: false,
   micAnimation: 'halo',
