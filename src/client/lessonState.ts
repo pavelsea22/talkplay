@@ -1,4 +1,3 @@
-import { WORD_GROUPS } from '../words';
 import { toLocalISODate } from './streaks';
 
 const PARENT_CONFIG_KEY = 'talkplay_parent_config';
