@@ -4,18 +4,26 @@
   import WordSortActivity from '../activity/WordSortActivity.svelte';
   import type { Task, TaskOutcome } from '../../tasks';
 
-  /** One hardcoded fixture per task type. Add an entry here when a new type is implemented. */
-  const FIXTURES = [
+  const FIXTURE_LABELS = ['DrillWord', 'MinPairDiscrimination', 'WordSort'] as const;
+
+  /** Custom word state for the DrillWord demo. */
+  let drillWordInput = $state('tea');
+  let committedWord = $state('tea');
+
+  /**
+   * Returns the current DrillWord task, using the last committed custom word.
+   */
+  function drillWordTask(): Task {
+    return {
+      type: 'DrillWord',
+      word: committedWord,
+      illustration: `images/words/${committedWord}.svg`,
+    };
+  }
+
+  const OTHER_FIXTURES = [
     {
-      label: 'DrillWord',
-      task: {
-        type: 'DrillWord',
-        word: 'tea',
-        illustration: 'images/words/tea.svg',
-      } satisfies Task,
-    },
-    {
-      label: 'MinPairDiscrimination',
+      label: 'MinPairDiscrimination' as const,
       task: {
         type: 'MinPairDiscrimination',
         wordA: { word: 'tea', illustration: 'images/words/tea.svg' },
@@ -24,7 +32,7 @@
       } satisfies Task,
     },
     {
-      label: 'WordSort',
+      label: 'WordSort' as const,
       task: {
         type: 'wordSort',
         words: ['dog', 'duck', 'ten', 'top'],
@@ -42,10 +50,22 @@
   let selectedIndex = $state(0);
   let resetKey = $state(0);   // incrementing this remounts the Activity with a clean slate
 
-  let fixture = $derived(FIXTURES[selectedIndex]);
+  let currentTask = $derived(
+    selectedIndex === 0
+      ? drillWordTask()
+      : OTHER_FIXTURES[selectedIndex - 1].task
+  );
 
   function select(index: number): void {
     selectedIndex = index;
+    resetKey++;
+  }
+
+  /** Commits the typed word and remounts the DrillWord activity. */
+  function applyCustomWord(): void {
+    const trimmed = drillWordInput.trim().toLowerCase();
+    if (!trimmed) return;
+    committedWord = trimmed;
     resetKey++;
   }
 
@@ -60,7 +80,7 @@
   <a href="/" class="home-link">← Lessons</a>
   <span class="title">Task Demo</span>
   <nav class="tabs">
-    {#each FIXTURES as { label }, i}
+    {#each FIXTURE_LABELS as label, i}
       <button
         class="tab {selectedIndex === i ? 'active' : ''}"
         onclick={() => select(i)}
@@ -71,14 +91,27 @@
   </nav>
 </header>
 
+{#if selectedIndex === 0}
+  <div class="word-input-bar">
+    <input
+      class="word-input"
+      type="text"
+      placeholder="Enter a word…"
+      bind:value={drillWordInput}
+      onkeydown={(e) => { if (e.key === 'Enter') applyCustomWord(); }}
+    />
+    <button class="word-input-btn" onclick={applyCustomWord}>Practice</button>
+  </div>
+{/if}
+
 <main>
   {#key resetKey}
-    {#if fixture.task.type === 'DrillWord'}
-      <DrillWordActivity task={fixture.task} onComplete={handleComplete} showConfidence />
-    {:else if fixture.task.type === 'MinPairDiscrimination'}
-      <MinPairActivity task={fixture.task} onComplete={handleComplete} />
-    {:else if fixture.task.type === 'wordSort'}
-      <WordSortActivity task={fixture.task} onComplete={handleComplete} />
+    {#if currentTask.type === 'DrillWord'}
+      <DrillWordActivity task={currentTask} onComplete={handleComplete} showConfidence />
+    {:else if currentTask.type === 'MinPairDiscrimination'}
+      <MinPairActivity task={currentTask} onComplete={handleComplete} />
+    {:else if currentTask.type === 'wordSort'}
+      <WordSortActivity task={currentTask} onComplete={handleComplete} />
     {/if}
   {/key}
 </main>
@@ -236,4 +269,48 @@
     justify-content: center;
     width: 100%;
   }
+
+  .word-input-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-bottom: 1px solid rgba(141, 177, 209, 0.2);
+    width: 100%;
+  }
+
+  .word-input {
+    flex: 1;
+    max-width: 280px;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-container-lowest);
+    color: var(--color-on-surface);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color var(--duration-base) var(--ease-in-out);
+  }
+
+  .word-input:focus {
+    border-color: var(--color-primary);
+  }
+
+  .word-input-btn {
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity var(--duration-fast) var(--ease-in-out);
+  }
+
+  .word-input-btn:hover { opacity: 0.85; }
+  .word-input-btn:active { opacity: 0.7; }
 </style>

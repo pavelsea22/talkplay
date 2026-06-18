@@ -21,7 +21,7 @@ export interface ParentConfig {
 
 /** Default config when no parent has configured anything yet. */
 export const DEFAULT_PARENT_CONFIG: ParentConfig = {
-  sounds: WORD_GROUPS.map(g => g.sound),
+  sounds: ['v'],
   exerciseCount: 5,
   showConfidence: false,
   micAnimation: 'halo',

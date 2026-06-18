@@ -186,5 +186,52 @@
       { "target": { "word": "night" }, "foil": { "word": "nine"  } },
       { "target": { "word": "bite"  }, "foil": { "word": "bike"  } }
     ]
+  },
+  {
+    "sound": "v",
+    "label": "/v/",
+    "positions": {
+      "leading": [
+        { "word": "van"       },
+        { "word": "vest"      },
+        { "word": "vet"       },
+        { "word": "vine"      },
+        { "word": "vase"      },
+        { "word": "vote"      },
+        { "word": "voice"     },
+        { "word": "vacuum"    },
+        { "word": "violin"    },
+        { "word": "volcano"   },
+        { "word": "valentine" },
+        { "word": "vegetable" }
+      ],
+      "trailing": [
+        { "word": "give"  },
+        { "word": "live"  },
+        { "word": "cave"  },
+        { "word": "wave"  },
+        { "word": "five"  },
+        { "word": "hive"  },
+        { "word": "stove" },
+        { "word": "love"  },
+        { "word": "move"  },
+        { "word": "dove"  },
+        { "word": "glove" },
+        { "word": "leave" }
+      ],
+      "mid-word": [
+        { "word": "over"   },
+        { "word": "seven"  },
+        { "word": "river"  },
+        { "word": "never"  },
+        { "word": "oven"   },
+        { "word": "oval"   },
+        { "word": "fever"  },
+        { "word": "clever" },
+        { "word": "driver" },
+        { "word": "shovel" }
+      ]
+    },
+    "minPairs": []
   }
 ]
