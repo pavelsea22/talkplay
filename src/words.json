@@ -112,7 +112,27 @@
         }
       ]
     },
-    "minPairs": []
+    "minPairs": [
+      { "target": { "word": "van"  }, "foil": { "word": "fan"  } },
+      { "target": { "word": "van"  }, "foil": { "word": "ban"  } },
+      { "target": { "word": "van"  }, "foil": { "word": "pan"  } },
+      { "target": { "word": "vest" }, "foil": { "word": "best" } },
+      { "target": { "word": "vest" }, "foil": { "word": "rest" } },
+      { "target": { "word": "vest" }, "foil": { "word": "nest" } },
+      { "target": { "word": "vet"  }, "foil": { "word": "bet"  } },
+      { "target": { "word": "vet"  }, "foil": { "word": "pet"  } },
+      { "target": { "word": "vet"  }, "foil": { "word": "net"  } },
+      { "target": { "word": "vine" }, "foil": { "word": "fine" } },
+      { "target": { "word": "vine" }, "foil": { "word": "wine" } },
+      { "target": { "word": "vine" }, "foil": { "word": "mine" } },
+      { "target": { "word": "vase" }, "foil": { "word": "base" } },
+      { "target": { "word": "vase" }, "foil": { "word": "face" } },
+      { "target": { "word": "vote" }, "foil": { "word": "boat" } },
+      { "target": { "word": "vote" }, "foil": { "word": "note" } },
+      { "target": { "word": "veil" }, "foil": { "word": "bail" } },
+      { "target": { "word": "veil" }, "foil": { "word": "fail" } },
+      { "target": { "word": "veil" }, "foil": { "word": "mail" } }
+    ]
   },
   {
     "sound": "t",
