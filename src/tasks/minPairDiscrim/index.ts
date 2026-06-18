@@ -82,7 +82,9 @@ const pairQueues = new Map<string, ResolvedMinPair[]>();
 function pickPair(sound?: string): ResolvedMinPair {
   const key = sound ?? '';
   if (!pairQueues.has(key) || pairQueues.get(key)!.length === 0) {
-    pairQueues.set(key, shuffle(getMinPairsForSound(sound)));
+    // Fall back to all sounds when the requested sound has no min pairs.
+    const pairs = getMinPairsForSound(sound);
+    pairQueues.set(key, shuffle(pairs.length > 0 ? pairs : getMinPairsForSound()));
   }
   return pairQueues.get(key)!.pop()!;
 }
