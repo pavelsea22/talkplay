@@ -8,13 +8,16 @@
           "word": "van"
         },
         {
+          "word": "vest"
+        },
+        {
+          "word": "vet"
+        },
+        {
           "word": "vine"
         },
         {
           "word": "vase"
-        },
-        {
-          "word": "vest"
         },
         {
           "word": "vote"
@@ -23,36 +26,42 @@
           "word": "voice"
         },
         {
-          "word": "veil"
+          "word": "vacuum"
         },
         {
-          "word": "vet"
+          "word": "violin"
         },
         {
-          "word": "vow"
+          "word": "volcano"
         },
         {
-          "word": "vein"
+          "word": "valentine"
+        },
+        {
+          "word": "vegetable"
         }
       ],
       "trailing": [
         {
+          "word": "give"
+        },
+        {
+          "word": "live"
+        },
+        {
           "word": "cave"
         },
         {
-          "word": "dive"
+          "word": "wave"
         },
         {
           "word": "five"
         },
         {
-          "word": "give"
-        },
-        {
-          "word": "have"
-        },
-        {
           "word": "hive"
+        },
+        {
+          "word": "stove"
         },
         {
           "word": "love"
@@ -61,16 +70,16 @@
           "word": "move"
         },
         {
-          "word": "wave"
+          "word": "dove"
         },
         {
-          "word": "stove"
+          "word": "glove"
+        },
+        {
+          "word": "leave"
         }
       ],
       "mid-word": [
-        {
-          "word": "river"
-        },
         {
           "word": "over"
         },
@@ -78,22 +87,32 @@
           "word": "seven"
         },
         {
-          "word": "cover"
+          "word": "river"
+        },
+        {
+          "word": "never"
+        },
+        {
+          "word": "oven"
+        },
+        {
+          "word": "oval"
         },
         {
           "word": "fever"
         },
         {
-          "word": "lever"
+          "word": "clever"
         },
         {
-          "word": "novel"
+          "word": "driver"
         },
         {
-          "word": "gravel"
+          "word": "shovel"
         }
       ]
-    }
+    },
+    "minPairs": []
   },
   {
     "sound": "t",
@@ -926,52 +945,5 @@
         }
       }
     ]
-  },
-  {
-    "sound": "v",
-    "label": "/v/",
-    "positions": {
-      "leading": [
-        { "word": "van"       },
-        { "word": "vest"      },
-        { "word": "vet"       },
-        { "word": "vine"      },
-        { "word": "vase"      },
-        { "word": "vote"      },
-        { "word": "voice"     },
-        { "word": "vacuum"    },
-        { "word": "violin"    },
-        { "word": "volcano"   },
-        { "word": "valentine" },
-        { "word": "vegetable" }
-      ],
-      "trailing": [
-        { "word": "give"  },
-        { "word": "live"  },
-        { "word": "cave"  },
-        { "word": "wave"  },
-        { "word": "five"  },
-        { "word": "hive"  },
-        { "word": "stove" },
-        { "word": "love"  },
-        { "word": "move"  },
-        { "word": "dove"  },
-        { "word": "glove" },
-        { "word": "leave" }
-      ],
-      "mid-word": [
-        { "word": "over"   },
-        { "word": "seven"  },
-        { "word": "river"  },
-        { "word": "never"  },
-        { "word": "oven"   },
-        { "word": "oval"   },
-        { "word": "fever"  },
-        { "word": "clever" },
-        { "word": "driver" },
-        { "word": "shovel" }
-      ]
-    },
-    "minPairs": []
   }
 ]
