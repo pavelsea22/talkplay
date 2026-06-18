@@ -52,7 +52,7 @@
       <span class="earn-label">20</span>
     </div>
   </div>
-  <a class="earn-start-btn" href={earnHref}>Start lesson</a>
+  <a class="earn-start-btn" href={earnHref}>Start Lesson</a>
 </section>
 
 <section class="free-practice">
@@ -180,7 +180,7 @@
     display: block;
     width: 100%;
     max-width: 28rem;
-    margin: 0 auto var(--space-12);
+    margin: 0 auto var(--space-6);
     padding: var(--space-8) var(--space-6);
     border-radius: var(--radius-xl);
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
@@ -204,8 +204,9 @@
 
   .done-link {
     display: block;
+    width: 100%;
     max-width: 28rem;
-    margin: 0 auto var(--space-12);
+    margin: 0 auto var(--space-6);
     padding: var(--space-4) var(--space-6);
     border-radius: var(--radius-lg);
     background: var(--color-secondary-container);
@@ -224,10 +225,10 @@
   .earn-screen-time {
     width: 100%;
     max-width: 28rem;
+    margin: 0 auto var(--space-10);
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: var(--space-10);
   }
 
   .earn-slider-wrap {
@@ -310,7 +311,7 @@
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
     color: var(--color-on-primary);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 1.25rem;
+    font-size: 1.75rem;
     font-weight: 800;
     text-align: center;
     text-decoration: none;
