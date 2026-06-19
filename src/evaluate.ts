@@ -14,6 +14,22 @@ export const PHONETIC_VARIANTS: Record<string, string> = {
 };
 
 /**
+ * Maps /v/→/w/ substitutions for leading-/v/ words where the substitution
+ * produces a real English word that Azure's ASR will confidently transcribe.
+ *
+ * Key: what Azure hears (/w/ form). Value: the intended /v/ target word.
+ *
+ * Used to force a fail even when the assessment score is high — the child
+ * said the wrong sound, so the attempt must not pass.
+ */
+export const V_W_SUBSTITUTIONS: Record<string, string> = {
+  wan:  "van",
+  west: "vest",
+  wet:  "vet",
+  wine: "vine",
+};
+
+/**
  * Normalizes a speech transcript into an array of lowercase words.
  * Converts numeric digits to their word equivalents (e.g. "10" → "ten"),
  * applies phonetic variant corrections (e.g. "tony" → "twenty"),

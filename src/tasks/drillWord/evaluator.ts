@@ -1,4 +1,4 @@
-import { normalizeTranscript } from '../../evaluate';
+import { normalizeTranscript, V_W_SUBSTITUTIONS } from '../../evaluate';
 import { randomPraise } from '../shared/praise';
 import type { TaskResult } from '../shared/types';
 import type { PhonemeAssessment } from '../shared/types';
@@ -48,10 +48,16 @@ export function evaluateDrillWord(
   const heard = normalizeTranscript(transcript);
   const transcriptMatches = heard.some(w => w === target);
 
+  // A /v/→/w/ substitution must fail even if the assessment score is high.
+  // Azure transcribes e.g. "wine" confidently when the child says "wine" for "vine",
+  // and the acoustic model may still score "vine" highly due to similarity.
+  const isVWSubstitution = heard.some(w => V_W_SUBSTITUTIONS[w] === target);
+
   // Transcript match always wins — if the right word was heard, the attempt passes.
   // Assessment score gates only when the transcript doesn't match.
-  const correct = transcriptMatches
-    || (assessment !== null && assessment.accuracyScore >= PASS_THRESHOLD);
+  // A known /v/→/w/ substitution overrides both paths.
+  const correct = !isVWSubstitution && (transcriptMatches
+    || (assessment !== null && assessment.accuracyScore >= PASS_THRESHOLD));
 
   if (correct) {
     const praise = randomPraise();

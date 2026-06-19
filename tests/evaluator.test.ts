@@ -82,6 +82,31 @@ describe("evaluateDrillWord — assessment present, fail band (< RETRY_THRESHOLD
 });
 
 // ---------------------------------------------------------------------------
+// /v/→/w/ substitution blocking
+// ---------------------------------------------------------------------------
+
+describe("evaluateDrillWord — /v/→/w/ substitution always fails", () => {
+  const vwPairs: [string, string][] = [
+    ["wan",  "van"],
+    ["west", "vest"],
+    ["wet",  "vet"],
+    ["wine", "vine"],
+  ];
+
+  for (const [heard, word] of vwPairs) {
+    const vTask: DrillWordTask = { type: "DrillWord", word, illustration: `images/words/${word}.svg` };
+
+    it(`"${heard}" for target "${word}" fails even with a high assessment score`, () => {
+      expect(evaluateDrillWord(vTask, heard, makeAssessment(100), 0).outcome).toBeNull();
+    });
+
+    it(`"${heard}" for target "${word}" fails with no assessment`, () => {
+      expect(evaluateDrillWord(vTask, heard, null, 0).outcome).toBeNull();
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // With assessment absent — string-match fallback
 // ---------------------------------------------------------------------------
 
