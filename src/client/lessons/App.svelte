@@ -8,7 +8,7 @@
   // change to this state is observed naturally on the next visit.
   const todayStatus = getTodayStatus();
 
-  /** Minutes of screen time the user wants to earn (5–20). */
+  /** Minutes of screen time the user wants to earn (1–20). */
   let earnMinutes = 10;
 
   /** One exercise per minute, proportionate to the chosen duration. */
@@ -40,11 +40,11 @@
   <div class="earn-slider-wrap">
     <div class="earn-value">{earnMinutes} min</div>
     <div class="earn-slider-row">
-      <span class="earn-label">5</span>
+      <span class="earn-label">1</span>
       <input
         class="earn-slider"
         type="range"
-        min="5"
+        min="1"
         max="20"
         step="1"
         bind:value={earnMinutes}
