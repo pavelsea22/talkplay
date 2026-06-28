@@ -23,6 +23,8 @@ app.get("/demo",  (_req, res) => res.sendFile(path.join(__dirname, "public/demo/
 app.get("/demo/", (_req, res) => res.sendFile(path.join(__dirname, "public/demo/index.html")));
 app.get("/parent",  (_req, res) => res.sendFile(path.join(__dirname, "public/parent/index.html")));
 app.get("/parent/", (_req, res) => res.sendFile(path.join(__dirname, "public/parent/index.html")));
+app.get("/transcription",  (_req, res) => res.sendFile(path.join(__dirname, "public/transcription/index.html")));
+app.get("/transcription/", (_req, res) => res.sendFile(path.join(__dirname, "public/transcription/index.html")));
 
 app.use(express.static(path.join(__dirname, "public")));
 
