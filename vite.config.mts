@@ -11,6 +11,7 @@ export default defineConfig({
         activity: resolve(__dirname, 'activity/index.html'),
         demo:     resolve(__dirname, 'demo/index.html'),
         parent:   resolve(__dirname, 'parent/index.html'),
+        transcription: resolve(__dirname, 'transcription/index.html'),
       },
     },
     outDir: 'dist/public',

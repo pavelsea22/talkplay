@@ -138,6 +138,12 @@
     </a>
   </div>
   <div class="debug-field">
+    <span class="debug-label">Speech recognition</span>
+    <a href="/transcription" class="debug-link">
+      🎙️ Test transcription ↗
+    </a>
+  </div>
+  <div class="debug-field">
     <span class="debug-label">Mic button animation</span>
     <div class="mic-anim-options">
       {#each ([['fill', 'Level fill'], ['halo', 'Halo glow']] as const) as [value, label]}
